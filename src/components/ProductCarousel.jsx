@@ -77,10 +77,10 @@ export const ProductCarousel = ({ products, loading }) => {
       <div style={styles.mobileGrid}>
         {products.slice(0, 4).map((product) => (
           <div 
-            key={product.id} 
+            key={product.uuid || product.id} 
             style={styles.mobileCard}
             className="glass-card"
-            onClick={() => handleCardClick(product.id)}
+            onClick={() => handleCardClick(product.uuid || product.id)}
           >
             <div style={styles.mobileImageContainer}>
               <ProductImage src={product.image_url} alt={product.name} />
@@ -127,10 +127,10 @@ export const ProductCarousel = ({ products, loading }) => {
         >
           {products.map((product) => (
             <div 
-              key={product.id} 
+              key={product.uuid || product.id} 
               style={styles.card}
               className="glass-card"
-              onClick={() => handleCardClick(product.id)}
+              onClick={() => handleCardClick(product.uuid || product.id)}
             >
               <div style={styles.imageContainer}>
                 <ProductImage src={product.image_url} alt={product.name} />

@@ -21,7 +21,7 @@ export const ProductGrid = ({ onAddToCart }) => {
         </div>
         <div style={styles.grid}>
           {sampleProducts.map((product) => (
-            <div key={product.id} data-product-card>
+            <div key={product.uuid || product.id} data-product-card>
               <ProductCard 
                 product={product} 
                 onAddToCart={onAddToCart}

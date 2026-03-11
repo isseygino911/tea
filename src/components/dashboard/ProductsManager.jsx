@@ -138,7 +138,7 @@ export const ProductsManager = () => {
                       </div>
                       <div>
                         <p style={styles.productName}>{product.name}</p>
-                        <p style={styles.productId}>#{product.id}</p>
+                        <p style={styles.productId}>{product.uuid ? product.uuid.slice(0, 8).toUpperCase() : `#${product.id}`}</p>
                       </div>
                     </div>
                   </td>

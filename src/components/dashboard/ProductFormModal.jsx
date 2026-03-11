@@ -92,11 +92,22 @@ export const ProductFormModal = ({ product, isOpen, onClose, onSave }) => {
     const files = Array.from(e.target.files);
     if (files.length === 0) return;
 
-    setUploadingImages(true);
-    const uploadedUrls = [];
+    // Create local preview URLs immediately
+    const localImages = files.map(file => ({
+      url: URL.createObjectURL(file),
+      file,
+      isUploading: true,
+    }));
 
-    try {
-      for (const file of files) {
+    // Add local previews to state immediately
+    setImages(prev => [...prev, ...localImages.map(img => img.url)]);
+    setUploadingImages(true);
+
+    // Upload each file and replace local URL with S3 URL
+    for (let i = 0; i < localImages.length; i++) {
+      const { file, url: localUrl } = localImages[i];
+      
+      try {
         // Get presigned URL from backend
         const res = await adminAPI.getUploadUrl(file.name, file.type);
         
@@ -107,20 +118,26 @@ export const ProductFormModal = ({ product, isOpen, onClose, onSave }) => {
           headers: { 'Content-Type': file.type },
         });
 
-        uploadedUrls.push(res.data.publicUrl);
+        // Replace local URL with S3 URL
+        setImages(prev => prev.map(imgUrl => 
+          imgUrl === localUrl ? (res.data.viewUrl || res.data.publicUrl) : imgUrl
+        ));
+        
+        // Clean up local object URL
+        URL.revokeObjectURL(localUrl);
+      } catch (err) {
+        console.error('Failed to upload image:', err);
+        setError(`Failed to upload ${file.name}. Please try again.`);
+        // Remove the failed local preview
+        setImages(prev => prev.filter(imgUrl => imgUrl !== localUrl));
+        URL.revokeObjectURL(localUrl);
       }
+    }
 
-      // Add uploaded images to state
-      setImages(prev => [...prev, ...uploadedUrls]);
-    } catch (err) {
-      console.error('Failed to upload images:', err);
-      setError('Failed to upload some images. Please try again.');
-    } finally {
-      setUploadingImages(false);
-      // Reset file input
-      if (fileInputRef.current) {
-        fileInputRef.current.value = '';
-      }
+    setUploadingImages(false);
+    // Reset file input
+    if (fileInputRef.current) {
+      fileInputRef.current.value = '';
     }
   };
 

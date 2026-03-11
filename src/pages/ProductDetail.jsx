@@ -20,6 +20,11 @@ export const ProductDetail = () => {
     }
   }, [id, fetchProductById]);
 
+  // Reset image index when product changes
+  useEffect(() => {
+    setCurrentImageIndex(0);
+  }, [product?.id]);
+
   if (loading) {
     return (
       <div style={styles.container}>
@@ -38,8 +43,10 @@ export const ProductDetail = () => {
     );
   }
 
+  // All hooks must be called before this point
   const images = product.images?.length > 0 ? product.images : [product.image_url];
   const currentImage = images[currentImageIndex];
+  const isOutOfStock = !product.stock_quantity || product.stock_quantity === 0;
 
   const handlePrevImage = () => {
     setCurrentImageIndex((prev) => (prev === 0 ? images.length - 1 : prev - 1));
@@ -50,7 +57,9 @@ export const ProductDetail = () => {
   };
 
   const handleAddToCart = () => {
-    addToCart(product, quantity);
+    if (!isOutOfStock) {
+      addToCart(product, quantity);
+    }
   };
 
   // Ensure price is a number
@@ -102,6 +111,9 @@ export const ProductDetail = () => {
           <div style={styles.infoSection}>
             <p style={styles.category}>{product.category}</p>
             <h1 style={styles.name}>{product.name}</h1>
+            {product.uuid && (
+              <p style={styles.sku}>SKU: {product.uuid.slice(0, 8).toUpperCase()}</p>
+            )}
             <p style={styles.price}>${price.toFixed(2)}</p>
             
             <div style={styles.divider} />
@@ -113,6 +125,7 @@ export const ProductDetail = () => {
                 <button
                   onClick={() => setQuantity(q => Math.max(1, q - 1))}
                   style={styles.qtyBtn}
+                  disabled={isOutOfStock}
                 >
                   -
                 </button>
@@ -120,18 +133,26 @@ export const ProductDetail = () => {
                 <button
                   onClick={() => setQuantity(q => q + 1)}
                   style={styles.qtyBtn}
+                  disabled={isOutOfStock}
                 >
                   +
                 </button>
               </div>
               
-              <button onClick={handleAddToCart} style={styles.addButton}>
-                Add to Cart - ${(price * quantity).toFixed(2)}
+              <button 
+                onClick={handleAddToCart}
+                style={{
+                  ...styles.addButton,
+                  ...(isOutOfStock ? styles.addButtonDisabled : {}),
+                }}
+                disabled={isOutOfStock}
+              >
+                {isOutOfStock ? 'Out of Stock' : `Add to Cart - $${(price * quantity).toFixed(2)}`}
               </button>
             </div>
             
-            {product.stock > 0 ? (
-              <p style={styles.stock}>In Stock ({product.stock} available)</p>
+            {!isOutOfStock ? (
+              <p style={styles.stock}>In Stock ({product.stock_quantity} available)</p>
             ) : (
               <p style={{ ...styles.stock, color: '#ff6b6b' }}>Out of Stock</p>
             )}
@@ -251,6 +272,13 @@ const styles = {
     fontWeight: 600,
     marginBottom: '1.5rem',
   },
+  sku: {
+    fontSize: '0.75rem',
+    color: 'rgba(255, 255, 255, 0.4)',
+    fontFamily: 'monospace',
+    letterSpacing: '0.1em',
+    marginBottom: '0.5rem',
+  },
   divider: {
     height: '1px',
     backgroundColor: 'rgba(255, 255, 255, 0.1)',
@@ -300,6 +328,12 @@ const styles = {
     fontSize: '1rem',
     fontWeight: 600,
     cursor: 'pointer',
+    transition: 'all 0.2s',
+  },
+  addButtonDisabled: {
+    backgroundColor: 'rgba(255,255,255,0.2)',
+    color: 'rgba(255,255,255,0.4)',
+    cursor: 'not-allowed',
   },
   stock: {
     marginTop: '1rem',

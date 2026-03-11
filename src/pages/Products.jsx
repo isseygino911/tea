@@ -83,7 +83,7 @@ export const Products = () => {
         ) : (
           <div style={styles.grid}>
             {products.map((product, index) => (
-              <ScrollReveal key={product.id} delay={(index % 4) + 1}>
+              <ScrollReveal key={product.uuid || product.id} delay={(index % 4) + 1}>
                 <ProductCard product={product} onAddToCart={addToCart} />
               </ScrollReveal>
             ))}

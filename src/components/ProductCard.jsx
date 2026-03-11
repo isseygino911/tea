@@ -14,7 +14,7 @@ export const ProductCard = ({ product, onAddToCart }) => {
   const handleCardClick = (e) => {
     // Don't navigate if clicking the add to cart button
     if (e.target.closest('[data-quick-add]')) return;
-    navigate(`/products/${product.id}`);
+    navigate(`/products/${product.uuid || product.id}`);
   };
 
   const imageUrl = product.image_url || '';
