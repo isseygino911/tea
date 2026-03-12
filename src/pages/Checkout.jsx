@@ -1,9 +1,10 @@
-import { useState } from 'react';
+import { useState, useEffect } from 'react';
 import { useNavigate } from 'react-router-dom';
-import { ArrowLeft, CreditCard, Truck, Package } from 'lucide-react';
+import { ArrowLeft, CreditCard, Truck, Package, MapPin, Plus, ChevronDown } from 'lucide-react';
 import { Link } from 'react-router-dom';
 import { useCart } from '../context/CartContext';
 import { useAuth } from '../context/AuthContext';
+import { useAddressController } from '../hooks/useAddressController';
 import api from '../services/api';
 import { LoadingSpinner } from '../components/ui/LoadingBar';
 
@@ -11,28 +12,77 @@ export const Checkout = () => {
   const navigate = useNavigate();
   const { cart, cartTotal, clearCart } = useCart();
   const { user } = useAuth();
+  const { addresses, loading: addressesLoading, fetchAddresses, createAddress } = useAddressController();
   
   const [loading, setLoading] = useState(false);
   const [error, setError] = useState('');
-  const [step, setStep] = useState(1); // 1: shipping, 2: payment, 3: review
+  const [step, setStep] = useState(1); // 1: shipping, 2: review
   
-  const [shippingInfo, setShippingInfo] = useState({
-    fullName: user?.name || '',
-    email: user?.email || '',
+  // Selected address
+  const [selectedAddressId, setSelectedAddressId] = useState('');
+  const [showNewAddressForm, setShowNewAddressForm] = useState(false);
+  
+  // New address form
+  const [newAddress, setNewAddress] = useState({
+    label: 'Home',
+    recipient_name: '',
+    street_address: '',
+    city: '',
+    state: '',
+    postal_code: '',
+    country: 'Malaysia',
     phone: '',
+    is_default: false,
+  });
+
+  // Shipping info (either from selected address or new address)
+  const [shippingInfo, setShippingInfo] = useState({
+    fullName: '',
     address: '',
     city: '',
     state: '',
     zipCode: '',
-    country: 'US',
+    country: '',
+    phone: '',
   });
-  
-  const [paymentInfo, setPaymentInfo] = useState({
-    cardNumber: '',
-    expiryDate: '',
-    cvv: '',
-    cardName: '',
-  });
+
+  useEffect(() => {
+    fetchAddresses().catch(() => {});
+  }, []);
+
+  // Auto-select default address if available, or show new address form if none exist
+  useEffect(() => {
+    if (!addressesLoading && addresses.length === 0 && !selectedAddressId) {
+      // No addresses, show new address form
+      setSelectedAddressId('new');
+    } else if (addresses.length > 0 && !selectedAddressId) {
+      const defaultAddr = addresses.find(a => a.is_default);
+      if (defaultAddr) {
+        setSelectedAddressId(defaultAddr.id.toString());
+      }
+    }
+  }, [addresses, addressesLoading, selectedAddressId]);
+
+  // Update shipping info when address is selected
+  useEffect(() => {
+    if (selectedAddressId && selectedAddressId !== 'new') {
+      const addr = addresses.find(a => a.id.toString() === selectedAddressId);
+      if (addr) {
+        setShippingInfo({
+          fullName: addr.recipient_name,
+          address: addr.street_address,
+          city: addr.city,
+          state: addr.state || '',
+          zipCode: addr.postal_code,
+          country: addr.country,
+          phone: addr.phone || '',
+        });
+        setShowNewAddressForm(false);
+      }
+    } else if (selectedAddressId === 'new') {
+      setShowNewAddressForm(true);
+    }
+  }, [selectedAddressId, addresses]);
 
   // Redirect if cart is empty
   if (cart.length === 0) {
@@ -50,14 +100,47 @@ export const Checkout = () => {
     );
   }
 
-  const handleShippingSubmit = (e) => {
+  const handleAddressSelect = (e) => {
+    setSelectedAddressId(e.target.value);
+    setError('');
+  };
+
+  const handleNewAddressSubmit = (e) => {
     e.preventDefault();
+    setShippingInfo({
+      fullName: newAddress.recipient_name,
+      address: newAddress.street_address,
+      city: newAddress.city,
+      state: newAddress.state,
+      zipCode: newAddress.postal_code,
+      country: newAddress.country,
+      phone: newAddress.phone,
+    });
     setStep(2);
   };
 
-  const handlePaymentSubmit = (e) => {
-    e.preventDefault();
-    setStep(3);
+  const handleContinueToReview = () => {
+    if (!selectedAddressId) {
+      setError('Please select a shipping address');
+      return;
+    }
+    if (selectedAddressId === 'new') {
+      // Validate new address
+      if (!newAddress.recipient_name || !newAddress.street_address || !newAddress.city || !newAddress.postal_code) {
+        setError('Please fill in all required address fields');
+        return;
+      }
+      setShippingInfo({
+        fullName: newAddress.recipient_name,
+        address: newAddress.street_address,
+        city: newAddress.city,
+        state: newAddress.state,
+        zipCode: newAddress.postal_code,
+        country: newAddress.country,
+        phone: newAddress.phone,
+      });
+    }
+    setStep(2);
   };
 
   const handlePlaceOrder = async () => {
@@ -65,6 +148,26 @@ export const Checkout = () => {
     setError('');
     
     try {
+      // If using new address, save it to address book first (if user wants)
+      if (selectedAddressId === 'new') {
+        try {
+          await createAddress({
+            label: newAddress.label,
+            recipient_name: newAddress.recipient_name,
+            street_address: newAddress.street_address,
+            city: newAddress.city,
+            state: newAddress.state,
+            postal_code: newAddress.postal_code,
+            country: newAddress.country,
+            phone: newAddress.phone,
+            is_default: addresses.length === 0 ? true : newAddress.is_default, // Make default if first address
+          });
+        } catch (addrErr) {
+          // Continue with order even if saving address fails
+          console.log('Could not save address:', addrErr);
+        }
+      }
+
       const orderData = {
         items: cart.map(item => ({
           product_id: item.id,
@@ -116,14 +219,9 @@ export const Checkout = () => {
             <div style={{...styles.stepCircle, ...(step >= 1 ? styles.stepActive : {})}}>1</div>
             <span style={styles.stepLabel}>Shipping</span>
           </div>
-          <div style={styles.progressLine} />
+          <div style={{...styles.progressLine, ...(step >= 2 ? styles.stepLineActive : {})}} />
           <div style={styles.progressStep}>
             <div style={{...styles.stepCircle, ...(step >= 2 ? styles.stepActive : {})}}>2</div>
-            <span style={styles.stepLabel}>Payment</span>
-          </div>
-          <div style={styles.progressLine} />
-          <div style={styles.progressStep}>
-            <div style={{...styles.stepCircle, ...(step >= 3 ? styles.stepActive : {})}}>3</div>
             <span style={styles.stepLabel}>Review</span>
           </div>
         </div>
@@ -135,231 +233,221 @@ export const Checkout = () => {
 
             {/* Step 1: Shipping Information */}
             {step === 1 && (
-              <form onSubmit={handleShippingSubmit} style={styles.form}>
+              <div style={styles.form}>
                 <h2 style={styles.sectionTitle}>
                   <Truck size={20} />
-                  Shipping Information
+                  Shipping Address
                 </h2>
-                
-                <div style={styles.formGrid}>
-                  <div style={styles.formGroup}>
-                    <label style={styles.label}>Full Name *</label>
-                    <input
-                      type="text"
-                      value={shippingInfo.fullName}
-                      onChange={(e) => setShippingInfo({...shippingInfo, fullName: e.target.value})}
-                      style={styles.input}
-                      required
-                    />
-                  </div>
-                  
-                  <div style={styles.formGroup}>
-                    <label style={styles.label}>Email *</label>
-                    <input
-                      type="email"
-                      value={shippingInfo.email}
-                      onChange={(e) => setShippingInfo({...shippingInfo, email: e.target.value})}
-                      style={styles.input}
-                      required
-                    />
-                  </div>
-                </div>
 
-                <div style={styles.formGroup}>
-                  <label style={styles.label}>Phone Number *</label>
-                  <input
-                    type="tel"
-                    value={shippingInfo.phone}
-                    onChange={(e) => setShippingInfo({...shippingInfo, phone: e.target.value})}
-                    style={styles.input}
-                    required
-                  />
-                </div>
-
-                <div style={styles.formGroup}>
-                  <label style={styles.label}>Street Address *</label>
-                  <input
-                    type="text"
-                    value={shippingInfo.address}
-                    onChange={(e) => setShippingInfo({...shippingInfo, address: e.target.value})}
-                    style={styles.input}
-                    required
-                  />
-                </div>
-
-                <div style={styles.formGrid}>
+                {/* Address Selection Dropdown - Only show if addresses exist */}
+                {addresses.length > 0 && (
                   <div style={styles.formGroup}>
-                    <label style={styles.label}>City *</label>
-                    <input
-                      type="text"
-                      value={shippingInfo.city}
-                      onChange={(e) => setShippingInfo({...shippingInfo, city: e.target.value})}
-                      style={styles.input}
-                      required
-                    />
+                    <label style={styles.label}>Select Address *</label>
+                    <div style={styles.selectWrapper}>
+                      <select
+                        value={selectedAddressId}
+                        onChange={handleAddressSelect}
+                        style={styles.select}
+                        disabled={addressesLoading}
+                      >
+                        <option value="">{addressesLoading ? 'Loading...' : 'Choose an address'}</option>
+                        {addresses.map((addr) => (
+                          <option key={addr.id} value={addr.id}>
+                            {addr.label}: {addr.recipient_name}, {addr.city}
+                            {addr.is_default ? ' (Default)' : ''}
+                          </option>
+                        ))}
+                        <option value="new">+ Add New Address</option>
+                      </select>
+                      <ChevronDown size={16} style={styles.selectIcon} />
+                    </div>
                   </div>
-                  
-                  <div style={styles.formGroup}>
-                    <label style={styles.label}>State *</label>
-                    <input
-                      type="text"
-                      value={shippingInfo.state}
-                      onChange={(e) => setShippingInfo({...shippingInfo, state: e.target.value})}
-                      style={styles.input}
-                      required
-                    />
-                  </div>
-                </div>
+                )}
 
-                <div style={styles.formGrid}>
-                  <div style={styles.formGroup}>
-                    <label style={styles.label}>ZIP Code *</label>
-                    <input
-                      type="text"
-                      value={shippingInfo.zipCode}
-                      onChange={(e) => setShippingInfo({...shippingInfo, zipCode: e.target.value})}
-                      style={styles.input}
-                      required
-                    />
+                {/* No addresses message */}
+                {!addressesLoading && addresses.length === 0 && (
+                  <div style={styles.noAddressesMessage}>
+                    <MapPin size={24} style={{ opacity: 0.5 }} />
+                    <p>You don't have any saved addresses yet.</p>
+                    <p style={{ fontSize: '0.85rem', opacity: 0.7 }}>
+                      Enter your address below. It will be saved for future orders.
+                    </p>
                   </div>
-                  
-                  <div style={styles.formGroup}>
-                    <label style={styles.label}>Country *</label>
-                    <select
-                      value={shippingInfo.country}
-                      onChange={(e) => setShippingInfo({...shippingInfo, country: e.target.value})}
-                      style={styles.select}
-                      required
-                    >
-                      <option value="US">United States</option>
-                      <option value="CA">Canada</option>
-                      <option value="UK">United Kingdom</option>
-                      <option value="AU">Australia</option>
-                    </select>
-                  </div>
-                </div>
+                )}
 
-                <button type="submit" style={styles.continueButton}>
-                  Continue to Payment
-                </button>
-              </form>
-            )}
+                {/* New Address Form */}
+                {showNewAddressForm && (
+                  <form onSubmit={handleNewAddressSubmit} style={styles.newAddressForm}>
+                    <div style={styles.formDivider} />
+                    <h3 style={styles.subSectionTitle}>
+                      <Plus size={16} /> New Address
+                    </h3>
+                    
+                    <div style={styles.formGrid}>
+                      <div style={styles.formGroup}>
+                        <label style={styles.label}>Label</label>
+                        <select
+                          value={newAddress.label}
+                          onChange={(e) => setNewAddress({...newAddress, label: e.target.value})}
+                          style={styles.select}
+                        >
+                          <option value="Home">Home</option>
+                          <option value="Work">Work</option>
+                          <option value="Other">Other</option>
+                        </select>
+                      </div>
+                      <div style={styles.formGroup}>
+                        <label style={styles.label}>Recipient Name *</label>
+                        <input
+                          type="text"
+                          value={newAddress.recipient_name}
+                          onChange={(e) => setNewAddress({...newAddress, recipient_name: e.target.value})}
+                          style={styles.input}
+                          required
+                          placeholder="Full name"
+                        />
+                      </div>
+                    </div>
 
-            {/* Step 2: Payment Information */}
-            {step === 2 && (
-              <form onSubmit={handlePaymentSubmit} style={styles.form}>
-                <h2 style={styles.sectionTitle}>
-                  <CreditCard size={20} />
-                  Payment Information
-                </h2>
-                
-                <div style={styles.paymentMethods}>
-                  <div style={styles.paymentMethod}>
-                    <input 
-                      type="radio" 
-                      name="payment" 
-                      id="card" 
-                      defaultChecked 
-                      style={styles.radio}
-                    />
-                    <label htmlFor="card" style={styles.paymentLabel}>
-                      Credit / Debit Card
+                    <div style={styles.formGroup}>
+                      <label style={styles.label}>Street Address *</label>
+                      <input
+                        type="text"
+                        value={newAddress.street_address}
+                        onChange={(e) => setNewAddress({...newAddress, street_address: e.target.value})}
+                        style={styles.input}
+                        required
+                        placeholder="Street address"
+                      />
+                    </div>
+
+                    <div style={styles.formGrid}>
+                      <div style={styles.formGroup}>
+                        <label style={styles.label}>City *</label>
+                        <input
+                          type="text"
+                          value={newAddress.city}
+                          onChange={(e) => setNewAddress({...newAddress, city: e.target.value})}
+                          style={styles.input}
+                          required
+                          placeholder="City"
+                        />
+                      </div>
+                      <div style={styles.formGroup}>
+                        <label style={styles.label}>State</label>
+                        <input
+                          type="text"
+                          value={newAddress.state}
+                          onChange={(e) => setNewAddress({...newAddress, state: e.target.value})}
+                          style={styles.input}
+                          placeholder="State"
+                        />
+                      </div>
+                    </div>
+
+                    <div style={styles.formGrid}>
+                      <div style={styles.formGroup}>
+                        <label style={styles.label}>Postal Code *</label>
+                        <input
+                          type="text"
+                          value={newAddress.postal_code}
+                          onChange={(e) => setNewAddress({...newAddress, postal_code: e.target.value})}
+                          style={styles.input}
+                          required
+                          placeholder="Postal code"
+                        />
+                      </div>
+                      <div style={styles.formGroup}>
+                        <label style={styles.label}>Country</label>
+                        <input
+                          type="text"
+                          value={newAddress.country}
+                          onChange={(e) => setNewAddress({...newAddress, country: e.target.value})}
+                          style={styles.input}
+                          placeholder="Country"
+                        />
+                      </div>
+                    </div>
+
+                    <div style={styles.formGroup}>
+                      <label style={styles.label}>Phone</label>
+                      <input
+                        type="tel"
+                        value={newAddress.phone}
+                        onChange={(e) => setNewAddress({...newAddress, phone: e.target.value})}
+                        style={styles.input}
+                        placeholder="Phone number"
+                      />
+                    </div>
+
+                    <label style={styles.checkbox}>
+                      <input
+                        type="checkbox"
+                        checked={newAddress.is_default}
+                        onChange={(e) => setNewAddress({...newAddress, is_default: e.target.checked})}
+                      />
+                      Save as default address
                     </label>
+                  </form>
+                )}
+
+                {/* Selected Address Display */}
+                {selectedAddressId && selectedAddressId !== 'new' && shippingInfo.fullName && (
+                  <div style={styles.selectedAddress}>
+                    <div style={styles.addressIcon}>
+                      <MapPin size={20} />
+                    </div>
+                    <div style={styles.addressDetails}>
+                      <p style={styles.addressName}>{shippingInfo.fullName}</p>
+                      <p style={styles.addressText}>{shippingInfo.address}</p>
+                      <p style={styles.addressText}>
+                        {shippingInfo.city}, {shippingInfo.state} {shippingInfo.zipCode}
+                      </p>
+                      <p style={styles.addressText}>{shippingInfo.country}</p>
+                      {shippingInfo.phone && <p style={styles.addressPhone}>{shippingInfo.phone}</p>}
+                    </div>
                   </div>
-                </div>
+                )}
 
-                <div style={styles.formGroup}>
-                  <label style={styles.label}>Card Number *</label>
-                  <input
-                    type="text"
-                    placeholder="1234 5678 9012 3456"
-                    value={paymentInfo.cardNumber}
-                    onChange={(e) => setPaymentInfo({...paymentInfo, cardNumber: e.target.value})}
-                    style={styles.input}
-                    maxLength={19}
-                    required
-                  />
-                </div>
-
-                <div style={styles.formGroup}>
-                  <label style={styles.label}>Cardholder Name *</label>
-                  <input
-                    type="text"
-                    value={paymentInfo.cardName}
-                    onChange={(e) => setPaymentInfo({...paymentInfo, cardName: e.target.value})}
-                    style={styles.input}
-                    required
-                  />
-                </div>
-
-                <div style={styles.formGrid}>
-                  <div style={styles.formGroup}>
-                    <label style={styles.label}>Expiry Date *</label>
-                    <input
-                      type="text"
-                      placeholder="MM/YY"
-                      value={paymentInfo.expiryDate}
-                      onChange={(e) => setPaymentInfo({...paymentInfo, expiryDate: e.target.value})}
-                      style={styles.input}
-                      maxLength={5}
-                      required
-                    />
-                  </div>
-                  
-                  <div style={styles.formGroup}>
-                    <label style={styles.label}>CVV *</label>
-                    <input
-                      type="text"
-                      placeholder="123"
-                      value={paymentInfo.cvv}
-                      onChange={(e) => setPaymentInfo({...paymentInfo, cvv: e.target.value})}
-                      style={styles.input}
-                      maxLength={4}
-                      required
-                    />
-                  </div>
-                </div>
-
-                <div style={styles.buttonGroup}>
-                  <button type="button" onClick={() => setStep(1)} style={styles.backButton}>
-                    Back to Shipping
-                  </button>
-                  <button type="submit" style={styles.continueButton}>
-                    Review Order
-                  </button>
-                </div>
-              </form>
+                <button 
+                  onClick={handleContinueToReview} 
+                  style={styles.continueButton}
+                  disabled={!selectedAddressId}
+                >
+                  Continue to Review
+                </button>
+              </div>
             )}
 
-            {/* Step 3: Review Order */}
-            {step === 3 && (
+            {/* Step 2: Review Order */}
+            {step === 2 && (
               <div style={styles.form}>
                 <h2 style={styles.sectionTitle}>Review Your Order</h2>
                 
                 <div style={styles.reviewSection}>
                   <h3 style={styles.reviewTitle}>Shipping Address</h3>
                   <div style={styles.reviewContent}>
-                    <p>{shippingInfo.fullName}</p>
+                    <p><strong>{shippingInfo.fullName}</strong></p>
                     <p>{shippingInfo.address}</p>
                     <p>{shippingInfo.city}, {shippingInfo.state} {shippingInfo.zipCode}</p>
                     <p>{shippingInfo.country}</p>
-                    <p>{shippingInfo.phone}</p>
+                    {shippingInfo.phone && <p>📞 {shippingInfo.phone}</p>}
                   </div>
-                  <button onClick={() => setStep(1)} style={styles.editLink}>Edit</button>
+                  <button onClick={() => setStep(1)} style={styles.editLink}>Change</button>
                 </div>
 
                 <div style={styles.reviewSection}>
-                  <h3 style={styles.reviewTitle}>Payment Method</h3>
+                  <h3 style={styles.reviewTitle}>Payment</h3>
                   <div style={styles.reviewContent}>
-                    <p>Card ending in {paymentInfo.cardNumber.slice(-4) || '****'}</p>
-                    <p>{paymentInfo.cardName}</p>
+                    <p style={styles.paymentPlaceholder}>
+                      💳 Payment will be processed on the next step
+                    </p>
                   </div>
-                  <button onClick={() => setStep(2)} style={styles.editLink}>Edit</button>
                 </div>
 
                 <div style={styles.buttonGroup}>
-                  <button type="button" onClick={() => setStep(2)} style={styles.backButton}>
-                    Back to Payment
+                  <button type="button" onClick={() => setStep(1)} style={styles.backButton}>
+                    Back to Shipping
                   </button>
                   <button 
                     onClick={handlePlaceOrder} 
@@ -369,10 +457,10 @@ export const Checkout = () => {
                     {loading ? (
                       <span style={{ display: 'flex', alignItems: 'center', gap: '0.5rem' }}>
                         <LoadingSpinner size={16} thickness={2} />
-                        Placing Order...
+                        Creating Order...
                       </span>
                     ) : (
-                      `Place Order - $${formatPrice(cartTotal)}`
+                      `Place Order - $${formatPrice(cartTotal * 1.08)}`
                     )}
                   </button>
                 </div>
@@ -415,7 +503,7 @@ export const Checkout = () => {
                 <span style={styles.free}>FREE</span>
               </div>
               <div style={styles.summaryRow}>
-                <span>Tax</span>
+                <span>Tax (8%)</span>
                 <span>${formatPrice(cartTotal * 0.08)}</span>
               </div>
 
@@ -496,6 +584,9 @@ const styles = {
     height: '2px',
     backgroundColor: 'rgba(255, 255, 255, 0.1)',
   },
+  stepLineActive: {
+    backgroundColor: '#ffffff',
+  },
   content: {
     display: 'grid',
     gridTemplateColumns: '1fr 400px',
@@ -525,6 +616,20 @@ const styles = {
     fontWeight: 600,
     marginBottom: '1.5rem',
   },
+  subSectionTitle: {
+    display: 'flex',
+    alignItems: 'center',
+    gap: '0.5rem',
+    fontSize: '1rem',
+    fontWeight: 600,
+    marginBottom: '1rem',
+    color: 'rgba(255, 255, 255, 0.8)',
+  },
+  formDivider: {
+    height: '1px',
+    backgroundColor: 'rgba(255, 255, 255, 0.1)',
+    margin: '1.5rem 0',
+  },
   formGrid: {
     display: 'grid',
     gridTemplateColumns: '1fr 1fr',
@@ -552,9 +657,12 @@ const styles = {
     outline: 'none',
     transition: 'border-color 0.2s',
   },
+  selectWrapper: {
+    position: 'relative',
+  },
   select: {
     width: '100%',
-    padding: '0.875rem 1rem',
+    padding: '0.875rem 2.5rem 0.875rem 1rem',
     backgroundColor: 'rgba(255, 255, 255, 0.05)',
     border: '1px solid rgba(255, 255, 255, 0.1)',
     borderRadius: '8px',
@@ -562,6 +670,64 @@ const styles = {
     fontSize: '0.9rem',
     outline: 'none',
     cursor: 'pointer',
+    appearance: 'none',
+  },
+  selectIcon: {
+    position: 'absolute',
+    right: '1rem',
+    top: '50%',
+    transform: 'translateY(-50%)',
+    pointerEvents: 'none',
+    color: 'rgba(255, 255, 255, 0.5)',
+  },
+  newAddressForm: {
+    marginTop: '1rem',
+  },
+  checkbox: {
+    display: 'flex',
+    alignItems: 'center',
+    gap: '0.5rem',
+    fontSize: '0.875rem',
+    color: 'rgba(255, 255, 255, 0.8)',
+    cursor: 'pointer',
+    marginBottom: '1rem',
+  },
+  selectedAddress: {
+    display: 'flex',
+    gap: '1rem',
+    padding: '1.25rem',
+    backgroundColor: 'rgba(255, 255, 255, 0.03)',
+    border: '1px solid rgba(255, 255, 255, 0.1)',
+    borderRadius: '8px',
+    marginTop: '1.5rem',
+    marginBottom: '1.5rem',
+  },
+  addressIcon: {
+    width: '40px',
+    height: '40px',
+    borderRadius: '50%',
+    backgroundColor: 'rgba(255, 255, 255, 0.1)',
+    display: 'flex',
+    alignItems: 'center',
+    justifyContent: 'center',
+    flexShrink: 0,
+  },
+  addressDetails: {
+    flex: 1,
+  },
+  addressName: {
+    fontWeight: 600,
+    marginBottom: '0.25rem',
+  },
+  addressText: {
+    fontSize: '0.9rem',
+    color: 'rgba(255, 255, 255, 0.7)',
+    marginBottom: '0.25rem',
+  },
+  addressPhone: {
+    fontSize: '0.85rem',
+    color: 'rgba(255, 255, 255, 0.5)',
+    marginTop: '0.5rem',
   },
   continueButton: {
     width: '100%',
@@ -574,6 +740,7 @@ const styles = {
     fontWeight: 600,
     cursor: 'pointer',
     marginTop: '1rem',
+    opacity: 1,
   },
   backButton: {
     padding: '1rem 1.5rem',
@@ -600,26 +767,6 @@ const styles = {
     gap: '1rem',
     marginTop: '1.5rem',
   },
-  paymentMethods: {
-    marginBottom: '1.5rem',
-  },
-  paymentMethod: {
-    display: 'flex',
-    alignItems: 'center',
-    gap: '0.75rem',
-    padding: '1rem',
-    backgroundColor: 'rgba(255, 255, 255, 0.05)',
-    borderRadius: '8px',
-    border: '1px solid rgba(255, 255, 255, 0.1)',
-  },
-  radio: {
-    width: '20px',
-    height: '20px',
-    accentColor: '#ffffff',
-  },
-  paymentLabel: {
-    fontSize: '0.9rem',
-  },
   reviewSection: {
     position: 'relative',
     padding: '1.5rem',
@@ -639,6 +786,10 @@ const styles = {
     fontSize: '0.9rem',
     lineHeight: 1.6,
     color: 'rgba(255, 255, 255, 0.8)',
+  },
+  paymentPlaceholder: {
+    fontStyle: 'italic',
+    color: 'rgba(255, 255, 255, 0.5)',
   },
   editLink: {
     position: 'absolute',
@@ -766,5 +917,18 @@ const styles = {
     borderRadius: '8px',
     textDecoration: 'none',
     fontWeight: 600,
+  },
+  noAddressesMessage: {
+    display: 'flex',
+    flexDirection: 'column',
+    alignItems: 'center',
+    gap: '0.75rem',
+    padding: '2rem',
+    backgroundColor: 'rgba(255, 255, 255, 0.03)',
+    border: '1px dashed rgba(255, 255, 255, 0.2)',
+    borderRadius: '12px',
+    marginBottom: '1.5rem',
+    textAlign: 'center',
+    color: 'rgba(255, 255, 255, 0.7)',
   },
 };

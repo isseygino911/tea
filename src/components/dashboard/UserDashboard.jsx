@@ -10,10 +10,17 @@ import {
   Clock,
   ChevronRight,
   User,
-  Loader2
+  Loader2,
+  Plus,
+  Edit2,
+  Trash2,
+  Star,
+  X,
+  Check
 } from 'lucide-react';
 import { Link } from 'react-router-dom';
 import { useOrderController } from '../../hooks/useOrderController';
+import { useAddressController } from '../../hooks/useAddressController';
 import { LoadingBar } from '../ui/LoadingBar';
 
 const menuItems = [
@@ -21,11 +28,6 @@ const menuItems = [
   { id: 'wishlist', label: 'Wishlist', icon: Heart },
   { id: 'addresses', label: 'Addresses', icon: MapPin },
   { id: 'settings', label: 'Settings', icon: Settings },
-];
-
-const savedAddresses = [
-  { id: 1, type: 'Home', address: '123 Main Street, Apt 4B', city: 'New York', zip: '10001', default: true },
-  { id: 2, type: 'Work', address: '456 Office Blvd, Floor 12', city: 'New York', zip: '10002', default: false },
 ];
 
 // Status style mapping
@@ -37,19 +39,203 @@ const statusStyles = {
   cancelled: { backgroundColor: 'rgba(239,68,68,0.1)', color: '#ef4444' },
 };
 
+// Address Form Component
+const AddressForm = ({ address, onSave, onCancel }) => {
+  const [formData, setFormData] = useState({
+    label: address?.label || 'Home',
+    recipient_name: address?.recipient_name || '',
+    street_address: address?.street_address || '',
+    city: address?.city || '',
+    state: address?.state || '',
+    postal_code: address?.postal_code || '',
+    country: address?.country || 'Malaysia',
+    phone: address?.phone || '',
+    is_default: address?.is_default || false,
+  });
+
+  const handleSubmit = (e) => {
+    e.preventDefault();
+    onSave(formData);
+  };
+
+  return (
+    <form onSubmit={handleSubmit} style={styles.form}>
+      <div style={styles.formGrid}>
+        <div style={styles.formGroup}>
+          <label style={styles.label}>Label</label>
+          <select
+            value={formData.label}
+            onChange={(e) => setFormData({ ...formData, label: e.target.value })}
+            style={styles.select}
+          >
+            <option value="Home">Home</option>
+            <option value="Work">Work</option>
+            <option value="Other">Other</option>
+          </select>
+        </div>
+        <div style={styles.formGroup}>
+          <label style={styles.label}>Recipient Name *</label>
+          <input
+            type="text"
+            required
+            value={formData.recipient_name}
+            onChange={(e) => setFormData({ ...formData, recipient_name: e.target.value })}
+            style={styles.input}
+            placeholder="Full name"
+          />
+        </div>
+      </div>
+      
+      <div style={styles.formGroup}>
+        <label style={styles.label}>Street Address *</label>
+        <input
+          type="text"
+          required
+          value={formData.street_address}
+          onChange={(e) => setFormData({ ...formData, street_address: e.target.value })}
+          style={styles.input}
+          placeholder="Street address"
+        />
+      </div>
+
+      <div style={styles.formGrid}>
+        <div style={styles.formGroup}>
+          <label style={styles.label}>City *</label>
+          <input
+            type="text"
+            required
+            value={formData.city}
+            onChange={(e) => setFormData({ ...formData, city: e.target.value })}
+            style={styles.input}
+            placeholder="City"
+          />
+        </div>
+        <div style={styles.formGroup}>
+          <label style={styles.label}>State</label>
+          <input
+            type="text"
+            value={formData.state}
+            onChange={(e) => setFormData({ ...formData, state: e.target.value })}
+            style={styles.input}
+            placeholder="State"
+          />
+        </div>
+      </div>
+
+      <div style={styles.formGrid}>
+        <div style={styles.formGroup}>
+          <label style={styles.label}>Postal Code *</label>
+          <input
+            type="text"
+            required
+            value={formData.postal_code}
+            onChange={(e) => setFormData({ ...formData, postal_code: e.target.value })}
+            style={styles.input}
+            placeholder="Postal code"
+          />
+        </div>
+        <div style={styles.formGroup}>
+          <label style={styles.label}>Country</label>
+          <input
+            type="text"
+            value={formData.country}
+            onChange={(e) => setFormData({ ...formData, country: e.target.value })}
+            style={styles.input}
+            placeholder="Country"
+          />
+        </div>
+      </div>
+
+      <div style={styles.formGroup}>
+        <label style={styles.label}>Phone</label>
+        <input
+          type="tel"
+          value={formData.phone}
+          onChange={(e) => setFormData({ ...formData, phone: e.target.value })}
+          style={styles.input}
+          placeholder="Phone number"
+        />
+      </div>
+
+      <label style={styles.checkbox}>
+        <input
+          type="checkbox"
+          checked={formData.is_default}
+          onChange={(e) => setFormData({ ...formData, is_default: e.target.checked })}
+        />
+        Set as default address
+      </label>
+
+      <div style={styles.formActions}>
+        <button type="button" onClick={onCancel} style={styles.cancelBtn}>
+          Cancel
+        </button>
+        <button type="submit" style={styles.saveBtn}>
+          <Check size={16} /> Save Address
+        </button>
+      </div>
+    </form>
+  );
+};
+
 export const UserDashboard = () => {
   const { user, logout } = useAuth();
-  const { orders, loading, fetchUserOrders } = useOrderController();
+  const { orders, loading: ordersLoading, fetchUserOrders } = useOrderController();
+  const { 
+    addresses, 
+    loading: addressesLoading, 
+    fetchAddresses, 
+    createAddress, 
+    updateAddress, 
+    deleteAddress,
+    setDefaultAddress 
+  } = useAddressController();
   const [activeTab, setActiveTab] = useState('orders');
+  const [showAddressForm, setShowAddressForm] = useState(false);
+  const [editingAddress, setEditingAddress] = useState(null);
 
   useEffect(() => {
-    // Fetch orders silently - errors handled internally
-    fetchUserOrders().catch(() => {
-      // Error already handled in controller, just prevent unhandled rejection
-    });
-    // Only fetch once on mount
+    fetchUserOrders().catch(() => {});
+    fetchAddresses().catch(() => {});
     // eslint-disable-next-line react-hooks/exhaustive-deps
   }, []);
+
+  const handleSaveAddress = async (formData) => {
+    try {
+      if (editingAddress) {
+        await updateAddress(editingAddress.id, formData);
+      } else {
+        await createAddress(formData);
+      }
+      setShowAddressForm(false);
+      setEditingAddress(null);
+    } catch (err) {
+      // Error handled in controller
+    }
+  };
+
+  const handleEditAddress = (address) => {
+    setEditingAddress(address);
+    setShowAddressForm(true);
+  };
+
+  const handleDeleteAddress = async (id) => {
+    if (window.confirm('Are you sure you want to delete this address?')) {
+      try {
+        await deleteAddress(id);
+      } catch (err) {
+        // Error handled in controller
+      }
+    }
+  };
+
+  const handleSetDefault = async (id) => {
+    try {
+      await setDefaultAddress(id);
+    } catch (err) {
+      // Error handled in controller
+    }
+  };
 
   const renderContent = () => {
     switch (activeTab) {
@@ -57,7 +243,7 @@ export const UserDashboard = () => {
         return (
           <div style={styles.section}>
             <h3 style={styles.sectionTitle}>My Orders</h3>
-            {loading ? (
+            {ordersLoading ? (
               <div style={styles.loadingState}>
                 <LoadingBar size="medium" text="Loading orders..." />
               </div>
@@ -118,20 +304,110 @@ export const UserDashboard = () => {
       case 'addresses':
         return (
           <div style={styles.section}>
-            <h3 style={styles.sectionTitle}>Saved Addresses</h3>
-            <div style={styles.addressesList}>
-              {savedAddresses.map((addr) => (
-                <div key={addr.id} style={styles.addressCard}>
-                  <div style={styles.addressHeader}>
-                    <span style={styles.addressType}>{addr.type}</span>
-                    {addr.default && <span style={styles.defaultBadge}>Default</span>}
-                  </div>
-                  <p style={styles.addressText}>{addr.address}</p>
-                  <p style={styles.addressCity}>{addr.city}, {addr.zip}</p>
-                </div>
-              ))}
-              <button style={styles.addAddressBtn}>+ Add New Address</button>
+            <div style={styles.sectionHeader}>
+              <h3 style={styles.sectionTitle}>Saved Addresses</h3>
+              {!showAddressForm && (
+                <button 
+                  style={styles.addBtn}
+                  onClick={() => {
+                    setEditingAddress(null);
+                    setShowAddressForm(true);
+                  }}
+                >
+                  <Plus size={16} /> Add New
+                </button>
+              )}
             </div>
+
+            {showAddressForm && (
+              <div style={styles.formCard}>
+                <div style={styles.formHeader}>
+                  <h4>{editingAddress ? 'Edit Address' : 'Add New Address'}</h4>
+                  <button 
+                    style={styles.closeBtn}
+                    onClick={() => {
+                      setShowAddressForm(false);
+                      setEditingAddress(null);
+                    }}
+                  >
+                    <X size={20} />
+                  </button>
+                </div>
+                <AddressForm 
+                  address={editingAddress}
+                  onSave={handleSaveAddress}
+                  onCancel={() => {
+                    setShowAddressForm(false);
+                    setEditingAddress(null);
+                  }}
+                />
+              </div>
+            )}
+
+            {addressesLoading ? (
+              <div style={styles.loadingState}>
+                <LoadingBar size="medium" text="Loading addresses..." />
+              </div>
+            ) : addresses.length === 0 ? (
+              <div style={styles.emptyState}>
+                <MapPin size={48} strokeWidth={1} style={{ opacity: 0.3 }} />
+                <p style={styles.emptyText}>No saved addresses</p>
+                <button 
+                  style={styles.actionBtn}
+                  onClick={() => {
+                    setEditingAddress(null);
+                    setShowAddressForm(true);
+                  }}
+                >
+                  Add Your First Address
+                </button>
+              </div>
+            ) : (
+              <div style={styles.addressesList}>
+                {addresses.map((addr) => (
+                  <div key={addr.id} style={styles.addressCard}>
+                    <div style={styles.addressHeader}>
+                      <div style={styles.addressTitle}>
+                        <span style={styles.addressType}>{addr.label}</span>
+                        {addr.is_default && <span style={styles.defaultBadge}>Default</span>}
+                      </div>
+                      <div style={styles.addressActions}>
+                        {!addr.is_default && (
+                          <button 
+                            style={styles.iconBtn}
+                            onClick={() => handleSetDefault(addr.id)}
+                            title="Set as default"
+                          >
+                            <Star size={16} />
+                          </button>
+                        )}
+                        <button 
+                          style={styles.iconBtn}
+                          onClick={() => handleEditAddress(addr)}
+                          title="Edit"
+                        >
+                          <Edit2 size={16} />
+                        </button>
+                        <button 
+                          style={{ ...styles.iconBtn, color: '#ef4444' }}
+                          onClick={() => handleDeleteAddress(addr.id)}
+                          title="Delete"
+                        >
+                          <Trash2 size={16} />
+                        </button>
+                      </div>
+                    </div>
+                    <p style={styles.addressText}>{addr.recipient_name}</p>
+                    <p style={styles.addressText}>{addr.street_address}</p>
+                    <p style={styles.addressCity}>
+                      {addr.city}, {addr.state} {addr.postal_code}
+                    </p>
+                    <p style={styles.addressCity}>{addr.country}</p>
+                    {addr.phone && <p style={styles.addressPhone}>📞 {addr.phone}</p>}
+                  </div>
+                ))}
+              </div>
+            )}
           </div>
         );
       
@@ -186,7 +462,7 @@ export const UserDashboard = () => {
             <span style={styles.statLabel}>Wishlist</span>
           </div>
           <div style={styles.stat}>
-            <span style={styles.statValue}>2</span>
+            <span style={styles.statValue}>{addresses.length}</span>
             <span style={styles.statLabel}>Addresses</span>
           </div>
         </div>
@@ -318,10 +594,28 @@ const styles = {
     marginLeft: 'auto',
   },
   section: {},
+  sectionHeader: {
+    display: 'flex',
+    justifyContent: 'space-between',
+    alignItems: 'center',
+    marginBottom: '1.5rem',
+  },
   sectionTitle: {
     fontSize: '1.25rem',
     fontWeight: 600,
-    marginBottom: '1.5rem',
+  },
+  addBtn: {
+    display: 'flex',
+    alignItems: 'center',
+    gap: '0.5rem',
+    padding: '0.625rem 1rem',
+    backgroundColor: '#ffffff',
+    border: 'none',
+    borderRadius: '8px',
+    color: '#000000',
+    fontSize: '0.875rem',
+    fontWeight: 500,
+    cursor: 'pointer',
   },
   loadingState: {
     display: 'flex',
@@ -353,6 +647,7 @@ const styles = {
     fontWeight: 500,
     textDecoration: 'none',
     marginTop: '0.5rem',
+    cursor: 'pointer',
   },
   ordersList: {
     display: 'flex',
@@ -432,8 +727,14 @@ const styles = {
   },
   addressHeader: {
     display: 'flex',
-    gap: '0.75rem',
+    justifyContent: 'space-between',
+    alignItems: 'center',
     marginBottom: '0.75rem',
+  },
+  addressTitle: {
+    display: 'flex',
+    alignItems: 'center',
+    gap: '0.75rem',
   },
   addressType: {
     fontSize: '0.875rem',
@@ -447,6 +748,19 @@ const styles = {
     textTransform: 'uppercase',
     letterSpacing: '0.05em',
   },
+  addressActions: {
+    display: 'flex',
+    gap: '0.5rem',
+  },
+  iconBtn: {
+    padding: '0.5rem',
+    backgroundColor: 'transparent',
+    border: 'none',
+    borderRadius: '6px',
+    color: 'rgba(255,255,255,0.6)',
+    cursor: 'pointer',
+    transition: 'all 0.2s',
+  },
   addressText: {
     fontSize: '0.9rem',
     color: 'rgba(255,255,255,0.8)',
@@ -456,13 +770,107 @@ const styles = {
     fontSize: '0.85rem',
     color: 'rgba(255,255,255,0.5)',
   },
-  addAddressBtn: {
-    padding: '1.25rem',
-    backgroundColor: 'transparent',
-    border: '1px dashed rgba(255,255,255,0.2)',
-    borderRadius: '12px',
+  addressPhone: {
+    fontSize: '0.85rem',
     color: 'rgba(255,255,255,0.6)',
+    marginTop: '0.5rem',
+  },
+  formCard: {
+    padding: '1.5rem',
+    backgroundColor: '#0a0a0a',
+    border: '1px solid rgba(255,255,255,0.1)',
+    borderRadius: '12px',
+    marginBottom: '1.5rem',
+  },
+  formHeader: {
+    display: 'flex',
+    justifyContent: 'space-between',
+    alignItems: 'center',
+    marginBottom: '1.5rem',
+  },
+  closeBtn: {
+    padding: '0.5rem',
+    backgroundColor: 'transparent',
+    border: 'none',
+    color: 'rgba(255,255,255,0.5)',
+    cursor: 'pointer',
+  },
+  form: {
+    display: 'flex',
+    flexDirection: 'column',
+    gap: '1rem',
+  },
+  formGrid: {
+    display: 'grid',
+    gridTemplateColumns: '1fr 1fr',
+    gap: '1rem',
+  },
+  formGroup: {
+    display: 'flex',
+    flexDirection: 'column',
+    gap: '0.5rem',
+  },
+  label: {
+    fontSize: '0.75rem',
+    textTransform: 'uppercase',
+    letterSpacing: '0.1em',
+    color: 'rgba(255,255,255,0.5)',
+  },
+  input: {
+    padding: '0.75rem 1rem',
+    backgroundColor: 'rgba(255,255,255,0.05)',
+    border: '1px solid rgba(255,255,255,0.1)',
+    borderRadius: '8px',
+    color: '#ffffff',
     fontSize: '0.875rem',
+    outline: 'none',
+  },
+  select: {
+    padding: '0.75rem 1rem',
+    backgroundColor: 'rgba(255,255,255,0.05)',
+    border: '1px solid rgba(255,255,255,0.1)',
+    borderRadius: '8px',
+    color: '#ffffff',
+    fontSize: '0.875rem',
+    outline: 'none',
+    cursor: 'pointer',
+  },
+  checkbox: {
+    display: 'flex',
+    alignItems: 'center',
+    gap: '0.5rem',
+    fontSize: '0.875rem',
+    color: 'rgba(255,255,255,0.8)',
+    cursor: 'pointer',
+  },
+  formActions: {
+    display: 'flex',
+    gap: '1rem',
+    marginTop: '1rem',
+  },
+  cancelBtn: {
+    flex: 1,
+    padding: '0.875rem',
+    backgroundColor: 'transparent',
+    border: '1px solid rgba(255,255,255,0.2)',
+    borderRadius: '8px',
+    color: 'rgba(255,255,255,0.7)',
+    fontSize: '0.875rem',
+    cursor: 'pointer',
+  },
+  saveBtn: {
+    flex: 1,
+    display: 'flex',
+    alignItems: 'center',
+    justifyContent: 'center',
+    gap: '0.5rem',
+    padding: '0.875rem',
+    backgroundColor: '#ffffff',
+    border: 'none',
+    borderRadius: '8px',
+    color: '#000000',
+    fontSize: '0.875rem',
+    fontWeight: 500,
     cursor: 'pointer',
   },
   settingsList: {
