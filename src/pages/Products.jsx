@@ -81,7 +81,7 @@ export const Products = () => {
         {loading ? (
           <div style={styles.loading}><LoadingBar text="Loading products..." /></div>
         ) : (
-          <div style={styles.grid}>
+          <div style={styles.grid} className="products-grid">
             {products.map((product, index) => (
               <ScrollReveal key={product.uuid || product.id} delay={(index % 4) + 1}>
                 <ProductCard product={product} onAddToCart={addToCart} />
@@ -167,8 +167,8 @@ const styles = {
   },
   grid: {
     display: 'grid',
-    gridTemplateColumns: 'repeat(auto-fill, minmax(280px, 1fr))',
-    gap: '2rem',
+    gridTemplateColumns: 'repeat(2, 1fr)',
+    gap: '1rem',
   },
   empty: {
     textAlign: 'center',
@@ -176,3 +176,18 @@ const styles = {
     color: 'rgba(255, 255, 255, 0.5)',
   },
 };
+
+// CSS for responsive grid
+const responsiveStyles = `
+  @media (min-width: 640px) {
+    .products-grid {
+      grid-template-columns: repeat(auto-fill, minmax(280px, 1fr)) !important;
+      gap: 2rem !important;
+    }
+  }
+`;
+
+// Inject responsive styles
+const styleTag = document.createElement('style');
+styleTag.textContent = responsiveStyles;
+document.head.appendChild(styleTag);

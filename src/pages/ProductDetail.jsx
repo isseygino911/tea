@@ -9,7 +9,7 @@ import { LoadingBar } from '../components/ui/LoadingBar';
 export const ProductDetail = () => {
   const { id } = useParams();
   const { addToCart } = useCart();
-  const { product, loading, error, fetchProductById } = useProductController();
+  const { product, productImages, loading, error, fetchProductById } = useProductController();
   
   const [quantity, setQuantity] = useState(1);
   const [currentImageIndex, setCurrentImageIndex] = useState(0);
@@ -44,7 +44,10 @@ export const ProductDetail = () => {
   }
 
   // All hooks must be called before this point
-  const images = product.images?.length > 0 ? product.images : [product.image_url];
+  // Use productImages from API, fallback to product.image_url
+  const images = productImages?.length > 0 
+    ? productImages.map(img => img.image_url)
+    : [product.image_url];
   const currentImage = images[currentImageIndex];
   const isOutOfStock = !product.stock_quantity || product.stock_quantity === 0;
 
@@ -73,7 +76,7 @@ export const ProductDetail = () => {
           <span>Back to Products</span>
         </Link>
 
-        <div style={styles.content}>
+        <div style={styles.content} className="product-detail-content">
           <div style={styles.imageSection}>
             <div style={styles.mainImageContainer}>
               <img src={currentImage} alt={product.name} style={styles.mainImage} />
@@ -120,7 +123,7 @@ export const ProductDetail = () => {
             
             <p style={styles.description}>{product.description}</p>
             
-            <div style={styles.actions}>
+            <div style={styles.actions} className="product-detail-actions">
               <div style={styles.quantity}>
                 <button
                   onClick={() => setQuantity(q => Math.max(1, q - 1))}
@@ -145,6 +148,7 @@ export const ProductDetail = () => {
                   ...styles.addButton,
                   ...(isOutOfStock ? styles.addButtonDisabled : {}),
                 }}
+                className="product-detail-add-btn"
                 disabled={isOutOfStock}
               >
                 {isOutOfStock ? 'Out of Stock' : `Add to Cart 
@@ -181,9 +185,9 @@ const styles = {
     marginBottom: '2rem',
   },
   content: {
-    display: 'grid',
-    gridTemplateColumns: '1fr 1fr',
-    gap: '4rem',
+    display: 'flex',
+    flexDirection: 'column',
+    gap: '2rem',
   },
   imageSection: {
     display: 'flex',
@@ -200,6 +204,7 @@ const styles = {
     width: '100%',
     aspectRatio: '1',
     objectFit: 'contain',
+    maxHeight: '50vh',
   },
   navButtonLeft: {
     position: 'absolute',
@@ -293,6 +298,7 @@ const styles = {
   },
   actions: {
     display: 'flex',
+    flexDirection: 'column',
     gap: '1rem',
     marginTop: '2rem',
   },
@@ -321,7 +327,7 @@ const styles = {
     textAlign: 'center',
   },
   addButton: {
-    flex: 1,
+    width: '100%',
     padding: '1rem 2rem',
     backgroundColor: '#ffffff',
     color: '#000000',
@@ -353,3 +359,28 @@ const styles = {
     color: '#ff6b6b',
   },
 };
+
+// Responsive CSS
+const responsiveStyles = `
+  @media (min-width: 768px) {
+    .product-detail-content {
+      display: grid !important;
+      grid-template-columns: 1fr 1fr !important;
+      gap: 4rem !important;
+    }
+  }
+  @media (min-width: 640px) {
+    .product-detail-actions {
+      flex-direction: row !important;
+    }
+    .product-detail-add-btn {
+      width: auto !important;
+      flex: 1 !important;
+    }
+  }
+`;
+
+// Inject responsive styles
+const styleTag = document.createElement('style');
+styleTag.textContent = responsiveStyles;
+document.head.appendChild(styleTag);

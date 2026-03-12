@@ -5,6 +5,7 @@ export const useProductController = () => {
   const [products, setProducts] = useState([]);
   const [categories, setCategories] = useState([]);
   const [product, setProduct] = useState(null);
+  const [productImages, setProductImages] = useState([]);
   const [loading, setLoading] = useState(false);
   const [error, setError] = useState(null);
 
@@ -55,6 +56,7 @@ export const useProductController = () => {
     try {
       const res = await adminAPI.getProduct(id);
       setProduct(res.data.product || null);
+      setProductImages(res.data.images || []);
       return res.data;
     } catch (err) {
       setError(err.message || 'Failed to fetch product');
@@ -68,6 +70,7 @@ export const useProductController = () => {
     products,
     categories,
     product,
+    productImages,
     loading,
     error,
     fetchProducts,
