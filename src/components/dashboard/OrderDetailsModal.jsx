@@ -123,11 +123,19 @@ export const OrderDetailsModal = ({ order, items, isOpen, onClose, onUpdate }) =
               {items?.map((item) => (
                 <div key={item.id} style={styles.item}>
                   <div style={styles.itemImage}>
-                    <img 
-                      src={item.image_url || `https://via.placeholder.com/60x80/111/333?text=${encodeURIComponent(item.product_name)}`}
-                      alt={item.product_name}
-                      style={{ width: '100%', height: '100%', objectFit: 'cover' }}
-                    />
+                    {item.image_url ? (
+                      <img 
+                        src={item.image_url}
+                        alt={item.product_name}
+                        style={styles.itemImg}
+                        onError={(e) => {
+                          e.target.style.display = 'none';
+                          e.target.parentElement.innerHTML = '<div style="display:flex;align-items:center;justify-content:center;width:100%;height:100%;font-size:0.65rem;color:rgba(255,255,255,0.3)">No Image</div>';
+                        }}
+                      />
+                    ) : (
+                      <div style={styles.noImage}>No Image</div>
+                    )}
                   </div>
                   <div style={styles.itemInfo}>
                     <p style={styles.itemName}>{item.product_name}</p>
@@ -316,6 +324,20 @@ const styles = {
     borderRadius: '6px',
     overflow: 'hidden',
     backgroundColor: '#111',
+  },
+  itemImg: {
+    width: '100%',
+    height: '100%',
+    objectFit: 'cover',
+  },
+  noImage: {
+    width: '100%',
+    height: '100%',
+    display: 'flex',
+    alignItems: 'center',
+    justifyContent: 'center',
+    fontSize: '0.65rem',
+    color: 'rgba(255,255,255,0.3)',
   },
   itemInfo: {
     flex: 1,

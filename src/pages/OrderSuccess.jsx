@@ -7,6 +7,7 @@ import { LoadingBar } from '../components/ui/LoadingBar';
 export const OrderSuccess = () => {
   const { id } = useParams();
   const [order, setOrder] = useState(null);
+  const [items, setItems] = useState([]);
   const [loading, setLoading] = useState(true);
 
   useEffect(() => {
@@ -14,6 +15,7 @@ export const OrderSuccess = () => {
       try {
         const res = await api.get(`/orders/${id}`);
         setOrder(res.data.order);
+        setItems(res.data.items || []);
       } catch (err) {
         console.error('Failed to fetch order:', err);
       } finally {
@@ -68,6 +70,43 @@ export const OrderSuccess = () => {
                 <span style={styles.detailValue}>${parseFloat(order.total_amount).toFixed(2)}</span>
               </div>
             </div>
+
+            {/* Order Items */}
+            {items.length > 0 && (
+              <div style={styles.itemsSection}>
+                <h3 style={styles.itemsTitle}>Order Items</h3>
+                <div style={styles.itemsList}>
+                  {items.map((item) => (
+                    <div key={item.id} style={styles.item}>
+                      <div style={styles.itemImage}>
+                        {item.image_url ? (
+                          <img 
+                            src={item.image_url} 
+                            alt={item.name}
+                            style={styles.itemImg}
+                            onError={(e) => {
+                              e.target.style.display = 'none';
+                              e.target.nextSibling.style.display = 'flex';
+                            }}
+                          />
+                        ) : (
+                          <div style={styles.noImage}>No Image</div>
+                        )}
+                      </div>
+                      <div style={styles.itemInfo}>
+                        <p style={styles.itemName}>{item.name}</p>
+                        <p style={styles.itemMeta}>
+                          Qty: {item.quantity} × ${parseFloat(item.price_at_time).toFixed(2)}
+                        </p>
+                      </div>
+                      <p style={styles.itemTotal}>
+                        ${(item.quantity * parseFloat(item.price_at_time)).toFixed(2)}
+                      </p>
+                    </div>
+                  ))}
+                </div>
+              </div>
+            )}
           </div>
         )}
 
@@ -156,6 +195,7 @@ const styles = {
     display: 'flex',
     flexDirection: 'column',
     gap: '0.75rem',
+    marginBottom: '1.5rem',
   },
   detailRow: {
     display: 'flex',
@@ -167,6 +207,71 @@ const styles = {
   },
   detailValue: {
     fontWeight: 500,
+  },
+  itemsSection: {
+    borderTop: '1px solid rgba(255, 255, 255, 0.1)',
+    paddingTop: '1.5rem',
+  },
+  itemsTitle: {
+    fontSize: '0.875rem',
+    fontWeight: 600,
+    textTransform: 'uppercase',
+    letterSpacing: '0.05em',
+    color: 'rgba(255, 255, 255, 0.5)',
+    marginBottom: '1rem',
+    textAlign: 'left',
+  },
+  itemsList: {
+    display: 'flex',
+    flexDirection: 'column',
+    gap: '0.75rem',
+  },
+  item: {
+    display: 'flex',
+    alignItems: 'center',
+    gap: '1rem',
+    padding: '0.75rem',
+    backgroundColor: 'rgba(255, 255, 255, 0.03)',
+    borderRadius: '8px',
+  },
+  itemImage: {
+    width: '50px',
+    height: '50px',
+    borderRadius: '6px',
+    overflow: 'hidden',
+    backgroundColor: '#111',
+    flexShrink: 0,
+  },
+  itemImg: {
+    width: '100%',
+    height: '100%',
+    objectFit: 'cover',
+  },
+  noImage: {
+    width: '100%',
+    height: '100%',
+    display: 'flex',
+    alignItems: 'center',
+    justifyContent: 'center',
+    fontSize: '0.65rem',
+    color: 'rgba(255, 255, 255, 0.3)',
+  },
+  itemInfo: {
+    flex: 1,
+    textAlign: 'left',
+  },
+  itemName: {
+    fontSize: '0.9rem',
+    fontWeight: 500,
+    marginBottom: '0.25rem',
+  },
+  itemMeta: {
+    fontSize: '0.75rem',
+    color: 'rgba(255, 255, 255, 0.5)',
+  },
+  itemTotal: {
+    fontSize: '0.9rem',
+    fontWeight: 600,
   },
   actions: {
     display: 'flex',

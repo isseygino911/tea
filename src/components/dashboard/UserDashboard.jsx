@@ -258,11 +258,21 @@ export const UserDashboard = () => {
                 {orders.map((order) => (
                   <div key={order.id} style={styles.orderCard}>
                     <div style={styles.orderImage}>
-                      <img 
-                        src={order.image_url || `https://via.placeholder.com/80x100/111/333?text=Order`}
-                        alt={order.product_name || 'Product'}
-                        style={{ width: '100%', height: '100%', objectFit: 'cover' }}
-                      />
+                      {order.image_url ? (
+                        <img 
+                          src={order.image_url}
+                          alt={order.product_name || 'Product'}
+                          style={styles.orderImg}
+                          onError={(e) => {
+                            e.target.style.display = 'none';
+                            e.target.nextSibling.style.display = 'flex';
+                          }}
+                        />
+                      ) : (
+                        <div style={styles.orderPlaceholder}>
+                          <Package size={24} opacity={0.3} />
+                        </div>
+                      )}
                     </div>
                     <div style={styles.orderInfo}>
                       <div style={styles.orderHeader}>
@@ -671,6 +681,21 @@ const styles = {
     overflow: 'hidden',
     backgroundColor: '#111',
     flexShrink: 0,
+    display: 'flex',
+    alignItems: 'center',
+    justifyContent: 'center',
+  },
+  orderImg: {
+    width: '100%',
+    height: '100%',
+    objectFit: 'cover',
+  },
+  orderPlaceholder: {
+    width: '100%',
+    height: '100%',
+    display: 'flex',
+    alignItems: 'center',
+    justifyContent: 'center',
   },
   orderInfo: {
     flex: 1,
