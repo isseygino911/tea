@@ -193,18 +193,24 @@ const styles = {
     display: 'flex',
     flexDirection: 'column',
     gap: '1rem',
+    width: '100%',
+    maxWidth: '600px',
+    margin: '0 auto',
   },
   mainImageContainer: {
     position: 'relative',
+    width: '100%',
     borderRadius: '16px',
     overflow: 'hidden',
     backgroundColor: '#0a0a0a',
+    aspectRatio: '1',
   },
   mainImage: {
     width: '100%',
-    aspectRatio: '1',
-    objectFit: 'contain',
-    maxHeight: '50vh',
+    height: '100%',
+    objectFit: 'cover',
+    objectPosition: 'center',
+    display: 'block',
   },
   navButtonLeft: {
     position: 'absolute',
@@ -241,6 +247,8 @@ const styles = {
   thumbnails: {
     display: 'flex',
     gap: '0.75rem',
+    overflowX: 'auto',
+    paddingBottom: '0.5rem',
   },
   thumbnail: {
     width: '80px',
@@ -251,11 +259,14 @@ const styles = {
     padding: 0,
     cursor: 'pointer',
     backgroundColor: '#0a0a0a',
+    flexShrink: 0,
   },
   thumbnailImg: {
     width: '100%',
     height: '100%',
     objectFit: 'cover',
+    objectPosition: 'center',
+    display: 'block',
   },
   infoSection: {
     display: 'flex',
