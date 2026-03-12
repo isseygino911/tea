@@ -16,10 +16,14 @@ import {
   Trash2,
   Star,
   X,
-  Check
+  Check,
+  Truck,
+  CheckCircle,
+  XCircle
 } from 'lucide-react';
 import { Link } from 'react-router-dom';
 import { useOrderController } from '../../hooks/useOrderController';
+import api from '../../services/api';
 import { useAddressController } from '../../hooks/useAddressController';
 import { LoadingBar } from '../ui/LoadingBar';
 
@@ -193,6 +197,10 @@ export const UserDashboard = () => {
   const [activeTab, setActiveTab] = useState('orders');
   const [showAddressForm, setShowAddressForm] = useState(false);
   const [editingAddress, setEditingAddress] = useState(null);
+  
+  // Order accordion state
+  const [expandedOrderId, setExpandedOrderId] = useState(null);
+  const [orderItemsMap, setOrderItemsMap] = useState({});
 
   useEffect(() => {
     fetchUserOrders().catch(() => {});
@@ -237,6 +245,30 @@ export const UserDashboard = () => {
     }
   };
 
+  const toggleOrderAccordion = async (orderId) => {
+    // If already expanded, collapse it
+    if (expandedOrderId === orderId) {
+      setExpandedOrderId(null);
+      return;
+    }
+    
+    // Expand this order
+    setExpandedOrderId(orderId);
+    
+    // Fetch items if not already cached
+    if (!orderItemsMap[orderId]) {
+      try {
+        const res = await api.get(`/orders/${orderId}`);
+        setOrderItemsMap(prev => ({
+          ...prev,
+          [orderId]: res.data.items || []
+        }));
+      } catch (err) {
+        console.error('Failed to fetch order items:', err);
+      }
+    }
+  };
+
   const renderContent = () => {
     switch (activeTab) {
       case 'orders':
@@ -256,42 +288,126 @@ export const UserDashboard = () => {
             ) : (
               <div style={styles.ordersList}>
                 {orders.map((order) => (
-                  <div key={order.id} style={styles.orderCard}>
-                    <div style={styles.orderImage}>
-                      {order.image_url ? (
-                        <img 
-                          src={order.image_url}
-                          alt={order.product_name || 'Product'}
-                          style={styles.orderImg}
-                          onError={(e) => {
-                            e.target.style.display = 'none';
-                            e.target.nextSibling.style.display = 'flex';
-                          }}
-                        />
-                      ) : (
-                        <div style={styles.orderPlaceholder}>
-                          <Package size={24} opacity={0.3} />
-                        </div>
-                      )}
-                    </div>
-                    <div style={styles.orderInfo}>
-                      <div style={styles.orderHeader}>
-                        <span style={styles.orderId}>{order.order_number || `#ORD-${order.id}`}</span>
-                        <span style={{
-                          ...styles.status,
-                          backgroundColor: statusStyles[order.status]?.backgroundColor,
-                          color: statusStyles[order.status]?.color,
-                        }}>
-                          {order.status}
-                        </span>
+                  <div key={order.id} style={styles.orderAccordion}>
+                    <div 
+                      style={{
+                        ...styles.orderCard,
+                        ...(expandedOrderId === order.id ? styles.orderCardActive : {})
+                      }}
+                      onClick={() => toggleOrderAccordion(order.id)}
+                    >
+                      <div style={styles.orderImage}>
+                        {order.image_url ? (
+                          <img 
+                            src={order.image_url}
+                            alt={order.product_name || 'Product'}
+                            style={styles.orderImg}
+                            onError={(e) => {
+                              e.target.style.display = 'none';
+                              e.target.nextSibling.style.display = 'flex';
+                            }}
+                          />
+                        ) : (
+                          <div style={styles.orderPlaceholder}>
+                            <Package size={24} opacity={0.3} />
+                          </div>
+                        )}
                       </div>
-                      <h4 style={styles.orderProduct}>{order.product_name || `Order #${order.id}`}</h4>
-                      <p style={styles.orderPrice}>${order.total_amount}</p>
-                      <p style={styles.orderDate}>
-                        <Clock size={14} /> Ordered on {new Date(order.created_at).toLocaleDateString()}
-                      </p>
+                      <div style={styles.orderInfo}>
+                        <div style={styles.orderHeader}>
+                          <span style={styles.orderId}>{order.order_number || `#ORD-${order.id}`}</span>
+                          <span style={{
+                            ...styles.status,
+                            backgroundColor: statusStyles[order.status]?.backgroundColor,
+                            color: statusStyles[order.status]?.color,
+                          }}>
+                            {order.status}
+                          </span>
+                        </div>
+                        <h4 style={styles.orderProduct}>{order.product_name || `Order #${order.id}`}</h4>
+                        <p style={styles.orderPrice}>${order.total_amount}</p>
+                        <p style={styles.orderDate}>
+                          <Clock size={14} /> Ordered on {new Date(order.created_at).toLocaleDateString()}
+                        </p>
+                      </div>
+                      <ChevronRight 
+                        size={20} 
+                        style={{
+                          opacity: 0.5,
+                          transform: expandedOrderId === order.id ? 'rotate(90deg)' : 'rotate(0deg)',
+                          transition: 'transform 0.2s'
+                        }} 
+                      />
                     </div>
-                    <ChevronRight size={20} style={{ opacity: 0.5 }} />
+                    
+                    {/* Accordion Content */}
+                    {expandedOrderId === order.id && (
+                      <div style={styles.orderDetails}>
+                        <div style={styles.orderDetailsHeader}>
+                          <h4 style={styles.orderDetailsTitle}>Order Items</h4>
+                          <span style={styles.orderItemCount}>
+                            {orderItemsMap[order.id]?.length || 0} items
+                          </span>
+                        </div>
+                        
+                        {orderItemsMap[order.id] ? (
+                          <div style={styles.orderItemsList}>
+                            {orderItemsMap[order.id].map((item) => (
+                              <div key={item.id} style={styles.orderItem}>
+                                <div style={styles.orderItemImage}>
+                                  {item.image_url ? (
+                                    <img 
+                                      src={item.image_url}
+                                      alt={item.name}
+                                      style={styles.orderItemImg}
+                                      onError={(e) => {
+                                        e.target.style.display = 'none';
+                                      }}
+                                    />
+                                  ) : (
+                                    <div style={styles.orderItemNoImage}>
+                                      <Package size={16} opacity={0.3} />
+                                    </div>
+                                  )}
+                                </div>
+                                <div style={styles.orderItemInfo}>
+                                  <p style={styles.orderItemName}>{item.name}</p>
+                                  <p style={styles.orderItemMeta}>
+                                    Qty: {item.quantity} × ${parseFloat(item.price_at_time).toFixed(2)}
+                                  </p>
+                                </div>
+                                <p style={styles.orderItemTotal}>
+                                  ${(item.quantity * parseFloat(item.price_at_time)).toFixed(2)}
+                                </p>
+                              </div>
+                            ))}
+                          </div>
+                        ) : (
+                          <div style={styles.loadingItems}>
+                            <Loader2 size={20} className="spin" />
+                            <span>Loading items...</span>
+                          </div>
+                        )}
+                        
+                        {/* Shipping Address */}
+                        {order.shipping_address && (
+                          <div style={styles.shippingSection}>
+                            <h4 style={styles.shippingTitle}>
+                              <Truck size={14} /> Shipping Address
+                            </h4>
+                            <div style={styles.shippingAddress}>
+                              <p><strong>{order.shipping_address.fullName}</strong></p>
+                              <p>{order.shipping_address.address}</p>
+                              <p>{order.shipping_address.city}, {order.shipping_address.state} {order.shipping_address.zipCode}</p>
+                              <p>{order.shipping_address.country}</p>
+                              {order.shipping_address.phone && (
+                                <p style={styles.shippingPhone}>📞 {order.shipping_address.phone}</p>
+                              )}
+                            </div>
+                          </div>
+                        )}
+                      </div>
+                    )}
                   </div>
                 ))}
               </div>
@@ -664,6 +780,15 @@ const styles = {
     flexDirection: 'column',
     gap: '1rem',
   },
+  orderAccordion: {
+    backgroundColor: '#0a0a0a',
+    border: '1px solid rgba(255,255,255,0.1)',
+    borderRadius: '12px',
+    overflow: 'hidden',
+  },
+  orderCardActive: {
+    backgroundColor: 'rgba(255,255,255,0.03)',
+  },
   orderCard: {
     display: 'flex',
     alignItems: 'center',
@@ -738,6 +863,110 @@ const styles = {
     gap: '0.5rem',
     fontSize: '0.8rem',
     color: 'rgba(255,255,255,0.4)',
+  },
+  orderDetails: {
+    padding: '1rem 1.25rem',
+    borderTop: '1px solid rgba(255,255,255,0.1)',
+    backgroundColor: 'rgba(0,0,0,0.3)',
+  },
+  orderDetailsHeader: {
+    display: 'flex',
+    justifyContent: 'space-between',
+    alignItems: 'center',
+    marginBottom: '1rem',
+  },
+  orderDetailsTitle: {
+    fontSize: '0.875rem',
+    fontWeight: 600,
+  },
+  orderItemCount: {
+    fontSize: '0.75rem',
+    color: 'rgba(255,255,255,0.5)',
+    backgroundColor: 'rgba(255,255,255,0.1)',
+    padding: '0.25rem 0.5rem',
+    borderRadius: '4px',
+  },
+  orderItemsList: {
+    display: 'flex',
+    flexDirection: 'column',
+    gap: '0.75rem',
+    marginBottom: '1.5rem',
+  },
+  orderItem: {
+    display: 'flex',
+    alignItems: 'center',
+    gap: '0.75rem',
+    padding: '0.75rem',
+    backgroundColor: 'rgba(255,255,255,0.05)',
+    borderRadius: '8px',
+  },
+  orderItemImage: {
+    width: '48px',
+    height: '48px',
+    borderRadius: '6px',
+    overflow: 'hidden',
+    backgroundColor: '#111',
+    flexShrink: 0,
+  },
+  orderItemImg: {
+    width: '100%',
+    height: '100%',
+    objectFit: 'cover',
+  },
+  orderItemNoImage: {
+    width: '100%',
+    height: '100%',
+    display: 'flex',
+    alignItems: 'center',
+    justifyContent: 'center',
+  },
+  orderItemInfo: {
+    flex: 1,
+  },
+  orderItemName: {
+    fontSize: '0.875rem',
+    fontWeight: 500,
+    marginBottom: '0.25rem',
+  },
+  orderItemMeta: {
+    fontSize: '0.75rem',
+    color: 'rgba(255,255,255,0.5)',
+  },
+  orderItemTotal: {
+    fontSize: '0.875rem',
+    fontWeight: 600,
+  },
+  loadingItems: {
+    display: 'flex',
+    alignItems: 'center',
+    justifyContent: 'center',
+    gap: '0.5rem',
+    padding: '1.5rem',
+    color: 'rgba(255,255,255,0.5)',
+    fontSize: '0.875rem',
+  },
+  shippingSection: {
+    paddingTop: '1rem',
+    borderTop: '1px solid rgba(255,255,255,0.1)',
+  },
+  shippingTitle: {
+    display: 'flex',
+    alignItems: 'center',
+    gap: '0.5rem',
+    fontSize: '0.75rem',
+    textTransform: 'uppercase',
+    letterSpacing: '0.1em',
+    color: 'rgba(255,255,255,0.5)',
+    marginBottom: '0.75rem',
+  },
+  shippingAddress: {
+    fontSize: '0.875rem',
+    color: 'rgba(255,255,255,0.8)',
+    lineHeight: 1.6,
+  },
+  shippingPhone: {
+    marginTop: '0.5rem',
+    color: 'rgba(255,255,255,0.6)',
   },
   addressesList: {
     display: 'flex',
@@ -922,3 +1151,17 @@ const styles = {
     cursor: 'pointer',
   },
 };
+
+// Inject spin animation
+const spinStyles = `
+  @keyframes spin {
+    from { transform: rotate(0deg); }
+    to { transform: rotate(360deg); }
+  }
+  .spin {
+    animation: spin 1s linear infinite;
+  }
+`;
+const styleTag = document.createElement('style');
+styleTag.textContent = spinStyles;
+document.head.appendChild(styleTag);
