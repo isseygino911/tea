@@ -147,7 +147,9 @@ export const ProductDetail = () => {
                 }}
                 disabled={isOutOfStock}
               >
-                {isOutOfStock ? 'Out of Stock' : `Add to Cart - $${(price * quantity).toFixed(2)}`}
+                {isOutOfStock ? 'Out of Stock' : `Add to Cart 
+               `
+                }
               </button>
             </div>
             
