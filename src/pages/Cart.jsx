@@ -10,7 +10,7 @@ const formatPrice = (price) => {
 };
 
 export const Cart = () => {
-  const { items, updateQuantity, removeFromCart, clearCart, total } = useCart();
+  const { cart: items, updateQuantity, removeFromCart, clearCart, cartTotal: total } = useCart();
   const { createOrder, isSubmitting, orderStatus, resetOrderStatus } = useCartController();
   
   const [showCheckout, setShowCheckout] = useState(false);
@@ -72,7 +72,7 @@ export const Cart = () => {
               <div style={styles.items}>
                 {items.map(item => (
                   <div key={item.id} style={styles.item}>
-                    <img src={item.image} alt={item.name} style={styles.itemImage} />
+                    <img src={item.image_url} alt={item.name} style={styles.itemImage} />
                     <div style={styles.itemInfo}>
                       <h3 style={styles.itemName}>{item.name}</h3>
                       <p style={styles.itemPrice}>${formatPrice(item.price)}</p>
