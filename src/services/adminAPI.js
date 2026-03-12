@@ -15,6 +15,8 @@ export const adminAPI = {
   
   // Public products (for storefront)
   getStoreProducts: (params) => api.get('/products', { params }),
+  getStoreProduct: (id) => api.get(`/products/${id}`),
+  getStoreCategories: () => api.get('/products/categories'),
   
   // Orders
   getOrders: (params) => api.get('/admin/orders', { params }),

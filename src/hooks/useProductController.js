@@ -41,7 +41,7 @@ export const useProductController = () => {
 
   const fetchCategories = useCallback(async () => {
     try {
-      const res = await adminAPI.getCategories();
+      const res = await adminAPI.getStoreCategories();
       setCategories(res.data.categories || []);
       return res.data;
     } catch (err) {
@@ -54,7 +54,7 @@ export const useProductController = () => {
     setLoading(true);
     setError(null);
     try {
-      const res = await adminAPI.getProduct(id);
+      const res = await adminAPI.getStoreProduct(id);
       setProduct(res.data.product || null);
       setProductImages(res.data.images || []);
       return res.data;
