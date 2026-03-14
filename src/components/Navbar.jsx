@@ -66,13 +66,19 @@ export const Navbar = () => {
         }}>
           {/* Logo */}
           <Link to="/" style={{
-            fontSize: '1.5rem',
-            fontWeight: 800,
-            letterSpacing: '-0.02em',
-            color: '#ffffff',
+            display: 'flex',
+            alignItems: 'center',
             textDecoration: 'none',
           }}>
-            STORE
+            <img 
+              src="/brand.png" 
+              alt="Brand Logo"
+              style={{
+                height: '25px',
+                width: 'auto',
+                objectFit: 'contain',
+              }}
+            />
           </Link>
 
           {/* Desktop Nav */}
