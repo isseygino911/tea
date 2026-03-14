@@ -5,6 +5,7 @@ import { Link } from 'react-router-dom';
 import { useCart } from '../context/CartContext';
 import { useProductController } from '../hooks/useProductController';
 import { LoadingBar } from '../components/ui/LoadingBar';
+import { ScrollReveal } from '../components/ScrollReveal';
 
 export const ProductDetail = () => {
   const { id } = useParams();
@@ -76,6 +77,7 @@ export const ProductDetail = () => {
           <span>Back to Products</span>
         </Link>
 
+        <ScrollReveal>
         <div style={styles.content} className="product-detail-content">
           <div style={styles.imageSection}>
             <div style={styles.mainImageContainer}>
@@ -164,6 +166,7 @@ export const ProductDetail = () => {
             )}
           </div>
         </div>
+        </ScrollReveal>
       </div>
     </div>
   );

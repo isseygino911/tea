@@ -7,6 +7,7 @@ import { useAuth } from '../context/AuthContext';
 import { useAddressController } from '../hooks/useAddressController';
 import api from '../services/api';
 import { LoadingSpinner } from '../components/ui/LoadingBar';
+import { ScrollReveal } from '../components/ScrollReveal';
 
 export const Checkout = () => {
   const navigate = useNavigate();
@@ -228,6 +229,7 @@ export const Checkout = () => {
 
         <div style={styles.content}>
           {/* Left Column - Forms */}
+          <ScrollReveal>
           <div style={styles.leftColumn}>
             {error && <div style={styles.error}>{error}</div>}
 
@@ -467,8 +469,10 @@ export const Checkout = () => {
               </div>
             )}
           </div>
+          </ScrollReveal>
 
           {/* Right Column - Order Summary */}
+          <ScrollReveal delay={2}>
           <div style={styles.rightColumn}>
             <div style={styles.summaryCard}>
               <h2 style={styles.summaryTitle}>Order Summary</h2>
@@ -515,6 +519,7 @@ export const Checkout = () => {
               </div>
             </div>
           </div>
+          </ScrollReveal>
         </div>
       </div>
     </div>

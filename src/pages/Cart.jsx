@@ -2,6 +2,7 @@ import { useState } from 'react';
 import { Minus, Plus, Trash2, ArrowRight, Check, Loader2 } from 'lucide-react';
 import { useCart } from '../context/CartContext';
 import { useCartController } from '../hooks/useCartController';
+import { ScrollReveal } from '../components/ScrollReveal';
 
 // Helper to safely format prices
 const formatPrice = (price) => {
@@ -70,8 +71,9 @@ export const Cart = () => {
             
             <div style={styles.grid}>
               <div style={styles.items}>
-                {items.map(item => (
-                  <div key={item.id} style={styles.item}>
+                {items.map((item, index) => (
+                  <ScrollReveal key={item.id} delay={(index % 3) + 1}>
+                  <div style={styles.item}>
                     <img src={item.image_url} alt={item.name} style={styles.itemImage} />
                     <div style={styles.itemInfo}>
                       <h3 style={styles.itemName}>{item.name}</h3>
@@ -101,9 +103,11 @@ export const Cart = () => {
                       </button>
                     </div>
                   </div>
+                  </ScrollReveal>
                 ))}
               </div>
 
+              <ScrollReveal delay={2}>
               <div style={styles.summary}>
                 <h2 style={styles.summaryTitle}>Order Summary</h2>
                 
@@ -189,6 +193,7 @@ export const Cart = () => {
                   </button>
                 )}
               </div>
+              </ScrollReveal>
             </div>
           </>
         )}
