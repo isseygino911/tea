@@ -35,7 +35,7 @@ const DocumentCard = ({ document, onDownload, index }) => {
     <ScrollReveal delay={(index % 4) + 1}>
       <div style={styles.documentCard}>
         <div style={styles.documentIcon}>
-          <FileText size={32} color="#3b82f6" />
+          <FileText size={32} color="#ffffff" />
         </div>
         <div style={styles.documentInfo}>
           <h4 style={styles.documentTitle}>{document.title}</h4>
@@ -78,7 +78,7 @@ const FolderSection = ({ folder, documents, isExpanded, onToggle, onDownload }) 
         >
           <div style={styles.folderHeaderLeft}>
             <div style={styles.folderIconLarge}>
-              <FolderIcon size={28} color="#3b82f6" />
+              <FolderIcon size={28} color="#ffffff" />
             </div>
             <div>
               <h3 style={styles.folderTitle}>{folder.name}</h3>
@@ -210,7 +210,7 @@ const Tools = () => {
         <ScrollReveal>
           <div style={styles.heroContent}>
             <div style={styles.heroIcon}>
-              <Folder size={48} color="#3b82f6" />
+              <Folder size={48} color="#ffffff" />
             </div>
             <h1 style={styles.heroTitle}>Tools & Resources</h1>
             <p style={styles.heroSubtitle}>
@@ -326,14 +326,14 @@ const Tools = () => {
 const styles = {
   container: {
     minHeight: '100vh',
-    backgroundColor: '#000000',
+    background: '#000000',
     paddingTop: '80px',
     color: '#ffffff',
   },
   hero: {
     padding: '4rem 2rem',
     textAlign: 'center',
-    background: 'linear-gradient(180deg, rgba(59, 130, 246, 0.1) 0%, transparent 100%)',
+    background: 'linear-gradient(180deg, rgba(255,255,255,0.08) 0%, transparent 100%)',
   },
   heroContent: {
     maxWidth: '600px',
@@ -345,10 +345,10 @@ const styles = {
     justifyContent: 'center',
     width: '100px',
     height: '100px',
-    backgroundColor: 'rgba(59, 130, 246, 0.1)',
+    background: 'linear-gradient(135deg, rgba(255,255,255,0.1) 0%, rgba(255,255,255,0.05) 100%)',
     borderRadius: '24px',
     marginBottom: '1.5rem',
-    border: '1px solid rgba(59, 130, 246, 0.2)',
+    borderWidth: '1px', borderStyle: 'solid', borderColor: 'rgba(255,255,255,0.15)',
   },
   heroTitle: {
     fontSize: '2.5rem',
@@ -375,8 +375,8 @@ const styles = {
     alignItems: 'center',
     gap: '1rem',
     padding: '1rem 1.5rem',
-    backgroundColor: 'rgba(255,255,255,0.03)',
-    border: '1px solid rgba(255,255,255,0.1)',
+    background: 'rgba(255,255,255,0.03)',
+    borderWidth: '1px', borderStyle: 'solid', borderColor: 'rgba(255,255,255,0.1)',
     borderRadius: '16px',
     transition: 'all 0.3s ease',
   },
@@ -393,7 +393,7 @@ const styles = {
   },
   clearBtn: {
     padding: '0.5rem 1rem',
-    backgroundColor: 'rgba(255,255,255,0.1)',
+    background: 'rgba(255,255,255,0.1)',
     border: 'none',
     borderRadius: '8px',
     color: 'rgba(255,255,255,0.6)',
@@ -417,8 +417,8 @@ const styles = {
   spinner: {
     width: '40px',
     height: '40px',
-    border: '3px solid rgba(255,255,255,0.1)',
-    borderTopColor: '#3b82f6',
+    borderWidth: '3px', borderStyle: 'solid', borderColor: 'rgba(255,255,255,0.1)',
+    borderTopColor: '#ffffff',
     borderRadius: '50%',
     animation: 'spin 1s linear infinite',
     marginBottom: '1rem',
@@ -431,10 +431,10 @@ const styles = {
   retryBtn: {
     marginTop: '1rem',
     padding: '0.75rem 1.5rem',
-    backgroundColor: 'rgba(59, 130, 246, 0.2)',
-    border: '1px solid #3b82f6',
+    background: 'linear-gradient(135deg, rgba(255,255,255,0.15) 0%, rgba(255,255,255,0.05) 100%)',
+    borderWidth: '1px', borderStyle: 'solid', borderColor: 'rgba(255,255,255,0.3)',
     borderRadius: '8px',
-    color: '#3b82f6',
+    color: '#ffffff',
     fontSize: '0.9rem',
     fontWeight: 500,
     cursor: 'pointer',
@@ -457,8 +457,8 @@ const styles = {
     gap: '1rem',
   },
   folderSection: {
-    backgroundColor: 'rgba(255,255,255,0.02)',
-    border: '1px solid rgba(255,255,255,0.08)',
+    background: 'rgba(255,255,255,0.02)',
+    borderWidth: '1px', borderStyle: 'solid', borderColor: 'rgba(255,255,255,0.08)',
     borderRadius: '16px',
     overflow: 'hidden',
     transition: 'all 0.3s ease',
@@ -469,7 +469,7 @@ const styles = {
     justifyContent: 'space-between',
     width: '100%',
     padding: '1.25rem 1.5rem',
-    backgroundColor: 'transparent',
+    background: 'transparent',
     border: 'none',
     color: '#ffffff',
     cursor: 'pointer',
@@ -486,7 +486,7 @@ const styles = {
     justifyContent: 'center',
     width: '56px',
     height: '56px',
-    backgroundColor: 'rgba(59, 130, 246, 0.1)',
+    background: 'linear-gradient(135deg, rgba(255,255,255,0.1) 0%, rgba(255,255,255,0.03) 100%)',
     borderRadius: '12px',
     flexShrink: 0,
   },
@@ -510,7 +510,7 @@ const styles = {
   },
   documentCount: {
     padding: '0.5rem 1rem',
-    backgroundColor: 'rgba(255,255,255,0.05)',
+    background: 'rgba(255,255,255,0.05)',
     borderRadius: '9999px',
     fontSize: '0.85rem',
     color: 'rgba(255,255,255,0.6)',
@@ -521,7 +521,7 @@ const styles = {
     justifyContent: 'center',
     width: '36px',
     height: '36px',
-    backgroundColor: 'rgba(255,255,255,0.05)',
+    background: 'rgba(255,255,255,0.05)',
     borderRadius: '10px',
     transition: 'transform 0.3s ease, background-color 0.2s ease',
   },
@@ -540,7 +540,7 @@ const styles = {
     alignItems: 'flex-start',
     gap: '1rem',
     padding: '1.25rem',
-    backgroundColor: 'rgba(255,255,255,0.03)',
+    background: 'rgba(255,255,255,0.03)',
     border: '1px solid rgba(255,255,255,0.08)',
     borderRadius: '12px',
     transition: 'all 0.3s cubic-bezier(0.4, 0, 0.2, 1)',
@@ -551,7 +551,7 @@ const styles = {
     justifyContent: 'center',
     width: '52px',
     height: '52px',
-    backgroundColor: 'rgba(59, 130, 246, 0.1)',
+    background: 'linear-gradient(135deg, rgba(255,255,255,0.1) 0%, rgba(255,255,255,0.03) 100%)',
     borderRadius: '10px',
     flexShrink: 0,
   },
@@ -593,10 +593,10 @@ const styles = {
     justifyContent: 'center',
     width: '44px',
     height: '44px',
-    backgroundColor: 'rgba(59, 130, 246, 0.1)',
-    border: '1px solid rgba(59, 130, 246, 0.3)',
+    background: 'linear-gradient(135deg, rgba(255,255,255,0.12) 0%, rgba(255,255,255,0.03) 100%)',
+    borderWidth: '1px', borderStyle: 'solid', borderColor: 'rgba(255,255,255,0.2)',
     borderRadius: '10px',
-    color: '#3b82f6',
+    color: '#ffffff',
     cursor: 'pointer',
     transition: 'all 0.2s ease',
     flexShrink: 0,

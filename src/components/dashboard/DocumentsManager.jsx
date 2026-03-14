@@ -172,7 +172,7 @@ const UploadModal = ({ isOpen, onClose, folders, onUpload, onUploadMultiple, loa
             <div style={styles.fileList}>
               {selectedFiles.map((file, index) => (
                 <div key={index} style={styles.fileListItem}>
-                  <FileText size={20} color="#3b82f6" />
+                  <FileText size={20} color="#ffffff" />
                   <div style={styles.fileListInfo}>
                     <p style={styles.fileListName}>{file.name}</p>
                     <p style={styles.fileListMeta}>{formatFileSize(file.size)}</p>
@@ -285,7 +285,7 @@ const MoveDocumentModal = ({ isOpen, onClose, document, folders, onMove, loading
     <Modal isOpen={isOpen} onClose={onClose} title="Move Document">
       <div style={styles.modalBody}>
         <div style={styles.moveDocInfo}>
-          <FileText size={32} color="#3b82f6" />
+          <FileText size={32} color="#ffffff" />
           <div>
             <p style={styles.moveDocTitle}>{document.title}</p>
             <p style={styles.moveDocCurrent}>
@@ -624,20 +624,20 @@ export const DocumentsManager = () => {
             <div style={styles.fileList}>
               {/* Table Header */}
               <div style={styles.fileListHeader}>
-                <div style={{ ...styles.fileCell, flex: 2 }}>Document</div>
-                <div style={{ ...styles.fileCell, flex: 1 }}>Folder</div>
-                <div style={{ ...styles.fileCell, flex: 0.5 }}>Size</div>
-                <div style={{ ...styles.fileCell, flex: 0.5 }}>Downloads</div>
-                <div style={{ ...styles.fileCell, flex: 0.5 }}>Date</div>
-                <div style={{ ...styles.fileCell, flex: 0.5, textAlign: 'center' }}>Actions</div>
+                <div style={styles.cellDoc}>Document</div>
+                <div style={styles.cellFolder}>Folder</div>
+                <div style={styles.cellSize}>Size</div>
+                <div style={styles.cellDownloads}>Downloads</div>
+                <div style={styles.cellDate}>Date</div>
+                <div style={styles.cellActions}>Actions</div>
               </div>
 
               {/* Table Body */}
               {filteredDocuments.map(doc => (
                 <div key={doc.id} style={styles.fileRow}>
-                  <div style={{ ...styles.fileCell, flex: 2 }}>
+                  <div style={styles.cellDoc}>
                     <div style={styles.fileInfo}>
-                      <FileText size={24} color="#3b82f6" />
+                      <FileText size={24} color="#ffffff" />
                       <div>
                         <p style={styles.fileTitle}>{doc.title}</p>
                         {doc.description && (
@@ -646,21 +646,21 @@ export const DocumentsManager = () => {
                       </div>
                     </div>
                   </div>
-                  <div style={{ ...styles.fileCell, flex: 1 }}>
+                  <div style={styles.cellFolder}>
                     <span style={styles.folderTag}>
                       {doc.folder_name || 'Uncategorized'}
                     </span>
                   </div>
-                  <div style={{ ...styles.fileCell, flex: 0.5, color: 'rgba(255,255,255,0.6)' }}>
+                  <div style={styles.cellSizeMuted}>
                     {doc.file_size_formatted}
                   </div>
-                  <div style={{ ...styles.fileCell, flex: 0.5, color: 'rgba(255,255,255,0.6)' }}>
+                  <div style={styles.cellDownloadsMuted}>
                     {doc.download_count || 0}
                   </div>
-                  <div style={{ ...styles.fileCell, flex: 0.5, color: 'rgba(255,255,255,0.6)' }}>
+                  <div style={styles.cellDateMuted}>
                     {formatDate(doc.created_at)}
                   </div>
-                  <div style={{ ...styles.fileCell, flex: 0.5, textAlign: 'center' }}>
+                  <div style={styles.cellActions}>
                     <div style={styles.actions}>
                       <button 
                         style={styles.actionBtn}
@@ -727,7 +727,7 @@ export const DocumentsManager = () => {
               {folders.map(folder => (
                 <div key={folder.id} style={styles.folderCard}>
                   <div style={styles.folderIcon}>
-                    <Folder size={40} color="#3b82f6" />
+                    <Folder size={40} color="#ffffff" />
                   </div>
                   <div style={styles.folderInfo}>
                     <h4 style={styles.folderName}>{folder.name}</h4>
@@ -806,12 +806,18 @@ const styles = {
   container: {
     padding: '1.5rem',
     color: '#ffffff',
+    display: 'flex',
+    flexDirection: 'column',
+    height: 'calc(100vh - 180px)',
+    minHeight: '500px',
+    overflow: 'hidden',
   },
   header: {
     display: 'flex',
     justifyContent: 'space-between',
     alignItems: 'center',
-    marginBottom: '1.5rem',
+    marginBottom: '1rem',
+    flexShrink: 0,
   },
   title: {
     fontSize: '1.5rem',
@@ -823,7 +829,7 @@ const styles = {
     alignItems: 'center',
     gap: '0.5rem',
     padding: '0.75rem 1.25rem',
-    backgroundColor: '#3b82f6',
+    background: 'linear-gradient(135deg, rgba(255,255,255,0.2) 0%, rgba(255,255,255,0.1) 100%)',
     color: '#ffffff',
     border: 'none',
     borderRadius: '8px',
@@ -837,11 +843,12 @@ const styles = {
     alignItems: 'center',
     gap: '0.75rem',
     padding: '1rem',
-    backgroundColor: 'rgba(239, 68, 68, 0.1)',
-    border: '1px solid rgba(239, 68, 68, 0.3)',
+    background: 'rgba(239, 68, 68, 0.1)',
+    borderWidth: '1px', borderStyle: 'solid', borderColor: 'rgba(239, 68, 68, 0.3)',
     borderRadius: '8px',
     marginBottom: '1rem',
     color: '#ef4444',
+    flexShrink: 0,
   },
   errorClose: {
     marginLeft: 'auto',
@@ -854,17 +861,20 @@ const styles = {
   tabs: {
     display: 'flex',
     gap: '0.5rem',
-    marginBottom: '1.5rem',
+    marginBottom: '1rem',
     borderBottom: '1px solid rgba(255,255,255,0.1)',
     paddingBottom: '1rem',
+    flexShrink: 0,
   },
   tab: {
     display: 'flex',
     alignItems: 'center',
     gap: '0.5rem',
     padding: '0.75rem 1.25rem',
-    backgroundColor: 'transparent',
-    border: '1px solid rgba(255,255,255,0.1)',
+    background: 'transparent',
+    borderWidth: '1px',
+    borderStyle: 'solid',
+    borderColor: 'rgba(255,255,255,0.1)',
     borderRadius: '8px',
     color: 'rgba(255,255,255,0.6)',
     fontSize: '0.9rem',
@@ -873,13 +883,13 @@ const styles = {
     transition: 'all 0.2s ease',
   },
   tabActive: {
-    backgroundColor: 'rgba(59, 130, 246, 0.2)',
-    borderColor: '#3b82f6',
-    color: '#3b82f6',
+    background: 'linear-gradient(135deg, rgba(255,255,255,0.12) 0%, rgba(255,255,255,0.05) 100%)',
+    borderColor: 'rgba(255,255,255,0.3)',
+    color: '#ffffff',
   },
   tabBadge: {
     padding: '0.125rem 0.5rem',
-    backgroundColor: 'rgba(255,255,255,0.1)',
+    background: 'rgba(255,255,255,0.1)',
     borderRadius: '9999px',
     fontSize: '0.75rem',
     marginLeft: '0.25rem',
@@ -887,7 +897,8 @@ const styles = {
   filters: {
     display: 'flex',
     gap: '1rem',
-    marginBottom: '1.5rem',
+    marginBottom: '1rem',
+    flexShrink: 0,
   },
   searchBox: {
     display: 'flex',
@@ -895,8 +906,8 @@ const styles = {
     gap: '0.75rem',
     flex: 1,
     padding: '0.75rem 1rem',
-    backgroundColor: 'rgba(255,255,255,0.05)',
-    border: '1px solid rgba(255,255,255,0.1)',
+    background: 'rgba(255,255,255,0.05)',
+    borderWidth: '1px', borderStyle: 'solid', borderColor: 'rgba(255,255,255,0.1)',
     borderRadius: '8px',
   },
   searchInput: {
@@ -909,8 +920,8 @@ const styles = {
   },
   filterSelect: {
     padding: '0.75rem 1rem',
-    backgroundColor: 'rgba(255,255,255,0.05)',
-    border: '1px solid rgba(255,255,255,0.1)',
+    background: 'rgba(255,255,255,0.05)',
+    borderWidth: '1px', borderStyle: 'solid', borderColor: 'rgba(255,255,255,0.1)',
     borderRadius: '8px',
     color: '#ffffff',
     fontSize: '0.9rem',
@@ -918,7 +929,11 @@ const styles = {
     minWidth: '150px',
   },
   filesContainer: {
-    minHeight: '400px',
+    flex: 1,
+    display: 'flex',
+    flexDirection: 'column',
+    overflow: 'hidden',
+    minHeight: 0,
   },
   loading: {
     textAlign: 'center',
@@ -937,10 +952,10 @@ const styles = {
   emptyAction: {
     marginTop: '1rem',
     padding: '0.75rem 1.5rem',
-    backgroundColor: 'rgba(59, 130, 246, 0.2)',
-    border: '1px solid #3b82f6',
+    background: 'linear-gradient(135deg, rgba(255,255,255,0.12) 0%, rgba(255,255,255,0.05) 100%)',
+    borderWidth: '1px', borderStyle: 'solid', borderColor: 'rgba(255,255,255,0.3)',
     borderRadius: '8px',
-    color: '#3b82f6',
+    color: '#ffffff',
     fontSize: '0.9rem',
     fontWeight: 500,
     cursor: 'pointer',
@@ -950,11 +965,14 @@ const styles = {
     display: 'flex',
     flexDirection: 'column',
     gap: '0.5rem',
+    overflowY: 'auto',
+    flex: 1,
+    paddingRight: '0.5rem',
   },
   fileListHeader: {
     display: 'flex',
     padding: '0.75rem 1rem',
-    backgroundColor: 'rgba(255,255,255,0.03)',
+    background: 'rgba(255,255,255,0.03)',
     borderRadius: '8px',
     color: 'rgba(255,255,255,0.5)',
     fontSize: '0.8rem',
@@ -966,13 +984,64 @@ const styles = {
     display: 'flex',
     alignItems: 'center',
     padding: '1rem',
-    backgroundColor: 'rgba(255,255,255,0.03)',
+    background: 'rgba(255,255,255,0.03)',
     borderRadius: '8px',
     transition: 'all 0.2s ease',
   },
   fileCell: {
     display: 'flex',
     alignItems: 'center',
+  },
+  // Pre-defined cell styles to avoid inline object creation
+  cellDoc: {
+    display: 'flex',
+    alignItems: 'center',
+    flex: 2,
+  },
+  cellFolder: {
+    display: 'flex',
+    alignItems: 'center',
+    flex: 1,
+  },
+  cellSize: {
+    display: 'flex',
+    alignItems: 'center',
+    flex: 0.5,
+  },
+  cellSizeMuted: {
+    display: 'flex',
+    alignItems: 'center',
+    flex: 0.5,
+    color: 'rgba(255,255,255,0.6)',
+  },
+  cellDownloads: {
+    display: 'flex',
+    alignItems: 'center',
+    flex: 0.5,
+  },
+  cellDownloadsMuted: {
+    display: 'flex',
+    alignItems: 'center',
+    flex: 0.5,
+    color: 'rgba(255,255,255,0.6)',
+  },
+  cellDate: {
+    display: 'flex',
+    alignItems: 'center',
+    flex: 0.5,
+  },
+  cellDateMuted: {
+    display: 'flex',
+    alignItems: 'center',
+    flex: 0.5,
+    color: 'rgba(255,255,255,0.6)',
+  },
+  cellActions: {
+    display: 'flex',
+    alignItems: 'center',
+    justifyContent: 'center',
+    flex: 0.5,
+    textAlign: 'center',
   },
   fileInfo: {
     display: 'flex',
@@ -992,10 +1061,10 @@ const styles = {
   },
   folderTag: {
     padding: '0.25rem 0.75rem',
-    backgroundColor: 'rgba(59, 130, 246, 0.15)',
+    background: 'linear-gradient(135deg, rgba(255,255,255,0.12) 0%, rgba(255,255,255,0.05) 100%)',
     borderRadius: '9999px',
     fontSize: '0.8rem',
-    color: '#3b82f6',
+    color: '#ffffff',
   },
   actions: {
     display: 'flex',
@@ -1008,7 +1077,7 @@ const styles = {
     alignItems: 'center',
     justifyContent: 'center',
     padding: '0.5rem',
-    backgroundColor: 'transparent',
+    background: 'transparent',
     border: 'none',
     borderRadius: '6px',
     color: 'rgba(255,255,255,0.5)',
@@ -1016,11 +1085,13 @@ const styles = {
     transition: 'all 0.2s ease',
   },
   actionBtnDanger: {
-    backgroundColor: 'rgba(239, 68, 68, 0.2)',
+    background: 'rgba(239, 68, 68, 0.2)',
     color: '#ef4444',
   },
   foldersContainer: {
-    minHeight: '400px',
+    flex: 1,
+    overflowY: 'auto',
+    minHeight: 0,
   },
   foldersHeader: {
     display: 'flex',
@@ -1032,8 +1103,8 @@ const styles = {
     alignItems: 'center',
     gap: '0.5rem',
     padding: '0.75rem 1.25rem',
-    backgroundColor: 'rgba(255,255,255,0.1)',
-    border: '1px solid rgba(255,255,255,0.2)',
+    background: 'rgba(255,255,255,0.1)',
+    borderWidth: '1px', borderStyle: 'solid', borderColor: 'rgba(255,255,255,0.2)',
     borderRadius: '8px',
     color: '#ffffff',
     fontSize: '0.9rem',
@@ -1051,8 +1122,8 @@ const styles = {
     alignItems: 'flex-start',
     gap: '1rem',
     padding: '1.25rem',
-    backgroundColor: 'rgba(255,255,255,0.03)',
-    border: '1px solid rgba(255,255,255,0.1)',
+    background: 'rgba(255,255,255,0.03)',
+    borderWidth: '1px', borderStyle: 'solid', borderColor: 'rgba(255,255,255,0.1)',
     borderRadius: '12px',
     transition: 'all 0.2s ease',
   },
@@ -1062,7 +1133,7 @@ const styles = {
     justifyContent: 'center',
     width: '60px',
     height: '60px',
-    backgroundColor: 'rgba(59, 130, 246, 0.1)',
+    background: 'linear-gradient(135deg, rgba(255,255,255,0.1) 0%, rgba(255,255,255,0.03) 100%)',
     borderRadius: '12px',
     flexShrink: 0,
   },
@@ -1098,7 +1169,7 @@ const styles = {
   modalOverlay: {
     position: 'fixed',
     inset: 0,
-    backgroundColor: 'rgba(0,0,0,0.8)',
+    background: 'rgba(0,0,0,0.8)',
     backdropFilter: 'blur(4px)',
     display: 'flex',
     alignItems: 'center',
@@ -1107,8 +1178,8 @@ const styles = {
     padding: '1rem',
   },
   modalContent: {
-    backgroundColor: '#0a0a0a',
-    border: '1px solid rgba(255,255,255,0.1)',
+    background: '#0a0a0a',
+    borderWidth: '1px', borderStyle: 'solid', borderColor: 'rgba(255,255,255,0.1)',
     borderRadius: '16px',
     width: '100%',
     maxWidth: '600px',
@@ -1144,7 +1215,7 @@ const styles = {
     alignItems: 'center',
     justifyContent: 'center',
     padding: '2rem',
-    backgroundColor: 'rgba(255,255,255,0.03)',
+    background: 'rgba(255,255,255,0.03)',
     border: '2px dashed rgba(255,255,255,0.2)',
     borderRadius: '12px',
     cursor: 'pointer',
@@ -1153,11 +1224,11 @@ const styles = {
     textAlign: 'center',
   },
   dropZoneActive: {
-    backgroundColor: 'rgba(59, 130, 246, 0.1)',
-    borderColor: '#3b82f6',
+    background: 'linear-gradient(135deg, rgba(255,255,255,0.1) 0%, rgba(255,255,255,0.03) 100%)',
+    borderColor: 'rgba(255,255,255,0.3)',
   },
   dropZoneHasFiles: {
-    backgroundColor: 'rgba(34, 197, 94, 0.05)',
+    background: 'rgba(34, 197, 94, 0.05)',
     borderColor: 'rgba(34, 197, 94, 0.3)',
   },
   dropText: {
@@ -1173,8 +1244,8 @@ const styles = {
   // File List in Modal
   fileListContainer: {
     marginBottom: '1rem',
-    backgroundColor: 'rgba(255,255,255,0.03)',
-    border: '1px solid rgba(255,255,255,0.1)',
+    background: 'rgba(255,255,255,0.03)',
+    borderWidth: '1px', borderStyle: 'solid', borderColor: 'rgba(255,255,255,0.1)',
     borderRadius: '12px',
     overflow: 'hidden',
   },
@@ -1183,7 +1254,7 @@ const styles = {
     justifyContent: 'space-between',
     alignItems: 'center',
     padding: '0.75rem 1rem',
-    backgroundColor: 'rgba(255,255,255,0.03)',
+    background: 'rgba(255,255,255,0.03)',
     borderBottom: '1px solid rgba(255,255,255,0.1)',
     fontSize: '0.85rem',
     color: 'rgba(255,255,255,0.7)',
@@ -1225,7 +1296,7 @@ const styles = {
     alignItems: 'center',
     justifyContent: 'center',
     padding: '0.35rem',
-    backgroundColor: 'rgba(239, 68, 68, 0.1)',
+    background: 'rgba(239, 68, 68, 0.1)',
     border: 'none',
     borderRadius: '6px',
     color: '#ef4444',
@@ -1236,8 +1307,8 @@ const styles = {
   batchProgressContainer: {
     marginBottom: '1rem',
     padding: '1rem',
-    backgroundColor: 'rgba(59, 130, 246, 0.1)',
-    border: '1px solid rgba(59, 130, 246, 0.3)',
+    background: 'linear-gradient(135deg, rgba(255,255,255,0.1) 0%, rgba(255,255,255,0.03) 100%)',
+    borderWidth: '1px', borderStyle: 'solid', borderColor: 'rgba(255,255,255,0.2)',
     borderRadius: '12px',
   },
   batchProgressHeader: {
@@ -1246,7 +1317,7 @@ const styles = {
     gap: '0.5rem',
     marginBottom: '0.5rem',
     fontSize: '0.9rem',
-    color: '#3b82f6',
+    color: '#ffffff',
   },
   batchProgressFile: {
     margin: '0 0 0.75rem 0',
@@ -1258,13 +1329,13 @@ const styles = {
   },
   batchProgressBar: {
     height: '8px',
-    backgroundColor: 'rgba(255,255,255,0.1)',
+    background: 'rgba(255,255,255,0.1)',
     borderRadius: '4px',
     overflow: 'hidden',
   },
   batchProgressFill: {
     height: '100%',
-    backgroundColor: '#3b82f6',
+    background: 'linear-gradient(135deg, rgba(255,255,255,0.2) 0%, rgba(255,255,255,0.1) 100%)',
     transition: 'width 0.3s ease',
   },
   batchProgressText: {
@@ -1279,8 +1350,8 @@ const styles = {
     gap: '0.5rem',
     padding: '0.75rem 1rem',
     marginBottom: '1rem',
-    backgroundColor: 'rgba(239, 68, 68, 0.1)',
-    border: '1px solid rgba(239, 68, 68, 0.3)',
+    background: 'rgba(239, 68, 68, 0.1)',
+    borderWidth: '1px', borderStyle: 'solid', borderColor: 'rgba(239, 68, 68, 0.3)',
     borderRadius: '8px',
     fontSize: '0.85rem',
     color: '#ef4444',
@@ -1292,8 +1363,8 @@ const styles = {
     gap: '1rem',
     padding: '1rem',
     marginBottom: '1.5rem',
-    backgroundColor: 'rgba(255,255,255,0.03)',
-    border: '1px solid rgba(255,255,255,0.1)',
+    background: 'rgba(255,255,255,0.03)',
+    borderWidth: '1px', borderStyle: 'solid', borderColor: 'rgba(255,255,255,0.1)',
     borderRadius: '12px',
   },
   moveDocTitle: {
@@ -1321,8 +1392,8 @@ const styles = {
   formInput: {
     width: '100%',
     padding: '0.75rem 1rem',
-    backgroundColor: 'rgba(255,255,255,0.05)',
-    border: '1px solid rgba(255,255,255,0.1)',
+    background: 'rgba(255,255,255,0.05)',
+    borderWidth: '1px', borderStyle: 'solid', borderColor: 'rgba(255,255,255,0.1)',
     borderRadius: '8px',
     color: '#ffffff',
     fontSize: '0.9rem',
@@ -1333,8 +1404,8 @@ const styles = {
   formSelect: {
     width: '100%',
     padding: '0.75rem 1rem',
-    backgroundColor: 'rgba(255,255,255,0.05)',
-    border: '1px solid rgba(255,255,255,0.1)',
+    background: 'rgba(255,255,255,0.05)',
+    borderWidth: '1px', borderStyle: 'solid', borderColor: 'rgba(255,255,255,0.1)',
     borderRadius: '8px',
     color: '#ffffff',
     fontSize: '0.9rem',
@@ -1354,7 +1425,7 @@ const styles = {
   },
   btnPrimary: {
     padding: '0.75rem 1.5rem',
-    backgroundColor: '#3b82f6',
+    background: 'linear-gradient(135deg, rgba(255,255,255,0.2) 0%, rgba(255,255,255,0.1) 100%)',
     border: 'none',
     borderRadius: '8px',
     color: '#ffffff',
@@ -1365,8 +1436,10 @@ const styles = {
   },
   btnSecondary: {
     padding: '0.75rem 1.5rem',
-    backgroundColor: 'transparent',
-    border: '1px solid rgba(255,255,255,0.2)',
+    background: 'transparent',
+    borderWidth: '1px',
+    borderStyle: 'solid',
+    borderColor: 'rgba(255,255,255,0.2)',
     borderRadius: '8px',
     color: 'rgba(255,255,255,0.7)',
     fontSize: '0.9rem',

@@ -166,11 +166,11 @@ export const AdminDashboard = () => {
           marginLeft: isMobile ? 0 : '280px',
         }}
       >
-        <header style={styles.header}>
+        {/* <header style={styles.header}>
           <h1 style={styles.pageTitle}>
             {menuItems.find(item => item.id === activeTab)?.label || 'Dashboard'}
           </h1>
-        </header>
+        </header> */}
         {renderContent()}
       </main>
     </div>
