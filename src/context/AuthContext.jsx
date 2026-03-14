@@ -4,12 +4,19 @@ import { authAPI } from '../services/api';
 const AuthContext = createContext(null);
 
 export const AuthProvider = ({ children }) => {
-  // Initialize from localStorage immediately (no loading state!)
+  // Initialize from localStorage with try/catch for corrupted data
   const [user, setUser] = useState(() => {
-    const savedUser = localStorage.getItem('user');
-    return savedUser ? JSON.parse(savedUser) : null;
+    try {
+      const savedUser = localStorage.getItem('user');
+      return savedUser ? JSON.parse(savedUser) : null;
+    } catch (err) {
+      console.error('Failed to parse user from localStorage:', err);
+      localStorage.removeItem('user');
+      return null;
+    }
   });
-  const [loading, setLoading] = useState(false);
+  // Start with loading=true to block PrivateRoute until auth check completes
+  const [loading, setLoading] = useState(true);
   const [authChecked, setAuthChecked] = useState(false);
   const initialUserRef = useRef(null);
 
@@ -24,6 +31,7 @@ export const AuthProvider = ({ children }) => {
   useEffect(() => {
     const token = localStorage.getItem('token');
     if (!token) {
+      setLoading(false);
       setAuthChecked(true);
       return;
     }
@@ -52,37 +60,50 @@ export const AuthProvider = ({ children }) => {
         setUser(null);
       })
       .finally(() => {
+        setLoading(false);
         setAuthChecked(true);
       });
   }, []);
 
   const login = async (email, password) => {
-    const res = await authAPI.login({ email, password });
-    const userData = res.data.user;
-    userData.is_admin = userData.is_admin === 1 || userData.is_admin === true;
-    localStorage.setItem('token', res.data.token);
-    localStorage.setItem('user', JSON.stringify(userData));
-    setUser(userData);
-    return res.data;
+    setLoading(true);
+    try {
+      const res = await authAPI.login({ email, password });
+      const userData = res.data.user;
+      userData.is_admin = userData.is_admin === 1 || userData.is_admin === true;
+      localStorage.setItem('token', res.data.token);
+      localStorage.setItem('user', JSON.stringify(userData));
+      setUser(userData);
+      return res.data;
+    } finally {
+      setLoading(false);
+    }
   };
 
   const register = async (email, password) => {
-    const res = await authAPI.register({ email, password });
-    const userData = res.data.user;
-    userData.is_admin = userData.is_admin === 1 || userData.is_admin === true;
-    localStorage.setItem('token', res.data.token);
-    localStorage.setItem('user', JSON.stringify(userData));
-    setUser(userData);
-    return res.data;
+    setLoading(true);
+    try {
+      const res = await authAPI.register({ email, password });
+      const userData = res.data.user;
+      userData.is_admin = userData.is_admin === 1 || userData.is_admin === true;
+      localStorage.setItem('token', res.data.token);
+      localStorage.setItem('user', JSON.stringify(userData));
+      setUser(userData);
+      return res.data;
+    } finally {
+      setLoading(false);
+    }
   };
 
   const logout = async () => {
+    setLoading(true);
     try {
       await authAPI.logout();
     } finally {
       localStorage.removeItem('token');
       localStorage.removeItem('user');
       setUser(null);
+      setLoading(false);
     }
   };
 

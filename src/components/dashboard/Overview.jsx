@@ -97,7 +97,7 @@ export const Overview = () => {
                         <span style={styles.orderId}>{order.order_number}</span>
                       </td>
                       <td style={styles.td}>{order.customer_email}</td>
-                      <td style={styles.td}>${order.total_amount}</td>
+                      <td style={styles.td}>${parseFloat(order.total_amount).toFixed(2)}</td>
                       <td style={styles.td}>
                         <span style={{...styles.status, ...styles[order.status]}}>
                           {order.status}

@@ -15,6 +15,17 @@ export const ProductDetail = () => {
   const [quantity, setQuantity] = useState(1);
   const [currentImageIndex, setCurrentImageIndex] = useState(0);
 
+  // Inject responsive styles on mount, cleanup on unmount
+  useEffect(() => {
+    const styleTag = document.createElement('style');
+    styleTag.textContent = responsiveStyles;
+    document.head.appendChild(styleTag);
+    
+    return () => {
+      document.head.removeChild(styleTag);
+    };
+  }, []);
+
   useEffect(() => {
     if (id) {
       fetchProductById(id);
@@ -394,7 +405,4 @@ const responsiveStyles = `
   }
 `;
 
-// Inject responsive styles
-const styleTag = document.createElement('style');
-styleTag.textContent = responsiveStyles;
-document.head.appendChild(styleTag);
+// Note: Responsive styles are now injected via useEffect in the component

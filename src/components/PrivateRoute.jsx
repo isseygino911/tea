@@ -1,8 +1,24 @@
+import { useEffect } from 'react';
 import { Navigate } from 'react-router-dom';
 import { useAuth } from '../context/AuthContext';
 
 export const PrivateRoute = ({ children }) => {
   const { user, loading } = useAuth();
+
+  // Inject keyframe animation on mount, cleanup on unmount
+  useEffect(() => {
+    const styleSheet = document.createElement('style');
+    styleSheet.textContent = `
+      @keyframes spin {
+        to { transform: rotate(360deg); }
+      }
+    `;
+    document.head.appendChild(styleSheet);
+    
+    return () => {
+      document.head.removeChild(styleSheet);
+    };
+  }, []);
 
   if (loading) {
     return (
@@ -32,12 +48,3 @@ const styles = {
     animation: 'spin 0.8s linear infinite',
   },
 };
-
-// Add keyframe animation
-const styleSheet = document.createElement('style');
-styleSheet.textContent = `
-  @keyframes spin {
-    to { transform: rotate(360deg); }
-  }
-`;
-document.head.appendChild(styleSheet);

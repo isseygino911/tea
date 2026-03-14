@@ -90,7 +90,8 @@ export const useOrderController = () => {
   const updateOrderStatus = async (orderId, status) => {
     setLoading(true);
     try {
-      const res = await adminAPI.updateOrderStatus(orderId, { status });
+      // adminAPI already wraps the status in { status }
+      const res = await adminAPI.updateOrderStatus(orderId, status);
       return res.data;
     } catch (err) {
       setError(err.message || 'Failed to update order status');

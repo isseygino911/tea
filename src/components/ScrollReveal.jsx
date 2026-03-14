@@ -28,7 +28,9 @@ export const ScrollReveal = ({ children, className = '', delay = 0 }) => {
     return () => observer.disconnect();
   }, []);
 
-  const delayClass = delay > 0 ? `reveal-delay-${Math.min(delay, 4)}` : '';
+  // Convert float delay to integer class (0.1s -> 1, 0.4s -> 4)
+  const delaySteps = Math.round(delay * 10);
+  const delayClass = delaySteps > 0 ? `reveal-delay-${Math.min(delaySteps, 4)}` : '';
   const activeClass = isVisible ? 'active' : '';
 
   return (

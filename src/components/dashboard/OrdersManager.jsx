@@ -142,7 +142,7 @@ export const OrdersManager = () => {
                     </td>
                     <td style={styles.td}>{order.customer_email}</td>
                     <td style={styles.td}>{order.item_count} items</td>
-                    <td style={styles.td}>${order.total_amount}</td>
+                    <td style={styles.td}>${parseFloat(order.total_amount).toFixed(2)}</td>
                     <td style={styles.td}>
                       <span style={{
                         ...styles.status,

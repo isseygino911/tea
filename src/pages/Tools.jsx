@@ -1,6 +1,7 @@
 import { useState, useEffect, useCallback } from 'react';
 import { useDocuments } from '../hooks/useDocuments';
 import { ScrollReveal } from '../components/ScrollReveal';
+import { LoadingBar } from '../components/ui/LoadingBar';
 import { 
   FileText, 
   Folder, 
@@ -247,10 +248,7 @@ const Tools = () => {
       {/* Content Section */}
       <section style={styles.content}>
         {loading && documents.length === 0 ? (
-          <div style={styles.loading}>
-            <div style={styles.spinner} />
-            <p>Loading documents...</p>
-          </div>
+          <LoadingBar fullPage text="Loading Documents..." />
         ) : error ? (
           <div style={styles.error}>
             <p>Failed to load documents. Please try again.</p>

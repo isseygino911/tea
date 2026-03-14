@@ -60,8 +60,6 @@ export const Navbar = () => {
               <Link to="/products" className="nav-link-item" style={navStyles.link}>Products</Link>
               <span style={navStyles.divider}>|</span>
               <Link to="/tools" className="nav-link-item" style={navStyles.link}>Tools</Link>
-              <span style={navStyles.divider}>|</span>
-              <Link to="/locations" className="nav-link-item" style={navStyles.link}>Locations</Link>
             </div>
           )}
 
@@ -139,7 +137,7 @@ export const Navbar = () => {
           <nav style={navStyles.mobileLinks}>
             <Link to="/products" style={navStyles.mobileLink} onClick={closeMobileMenu}>Products</Link>
             <Link to="/tools" style={navStyles.mobileLink} onClick={closeMobileMenu}>Tools</Link>
-            <Link to="/locations" style={navStyles.mobileLink} onClick={closeMobileMenu}>Locations</Link>
+
             {user ? (
               <>
                 <Link to="/dashboard" style={navStyles.mobileLink} onClick={closeMobileMenu}>Account</Link>

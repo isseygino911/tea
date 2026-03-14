@@ -325,7 +325,7 @@ export const UserDashboard = () => {
                           </span>
                         </div>
                         <h4 style={styles.orderProduct}>{order.product_name || `Order #${order.id}`}</h4>
-                        <p style={styles.orderPrice}>${order.total_amount}</p>
+                        <p style={styles.orderPrice}>${parseFloat(order.total_amount).toFixed(2)}</p>
                         <p style={styles.orderDate}>
                           <Clock size={14} /> Ordered on {new Date(order.created_at).toLocaleDateString()}
                         </p>
