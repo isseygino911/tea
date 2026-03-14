@@ -12,10 +12,15 @@ export const Products = () => {
   
   const [search, setSearch] = useState('');
   const [selectedCategory, setSelectedCategory] = useState('All');
+  const [dataLoaded, setDataLoaded] = useState(false);
 
   // Fetch categories on mount
   useEffect(() => {
-    fetchCategories();
+    const init = async () => {
+      await fetchCategories();
+      setDataLoaded(true);
+    };
+    init();
   }, [fetchCategories]);
 
   // Fetch products when filters change
@@ -26,8 +31,12 @@ export const Products = () => {
     fetchProducts(filters);
   }, [search, selectedCategory, fetchProducts]);
 
+  const showLoading = loading || !dataLoaded;
+
   return (
     <main style={styles.main}>
+      {showLoading && <LoadingBar fullPage text="Luminating Products..." />}
+      
       <div className="container">
         <ScrollReveal>
           <div style={styles.header}>
@@ -78,8 +87,10 @@ export const Products = () => {
           </div>
         </ScrollReveal>
 
-        {loading ? (
-          <div style={styles.loading}><LoadingBar text="Loading products..." /></div>
+        {!showLoading && products.length === 0 ? (
+          <div style={styles.empty}>
+            <p>No products found</p>
+          </div>
         ) : (
           <div style={styles.grid} className="products-grid">
             {products.map((product, index) => (
@@ -87,12 +98,6 @@ export const Products = () => {
                 <ProductCard product={product} onAddToCart={addToCart} />
               </ScrollReveal>
             ))}
-          </div>
-        )}
-
-        {!loading && products.length === 0 && (
-          <div style={styles.empty}>
-            <p>No products found</p>
           </div>
         )}
       </div>

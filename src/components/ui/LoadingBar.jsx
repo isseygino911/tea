@@ -3,79 +3,126 @@ import { useState, useEffect } from 'react';
 export const LoadingBar = ({ 
   size = 'medium', 
   color = '#ffffff',
-  text = 'Loading...',
+  text = 'Luminating your space...',
   showText = true,
+  fullPage = false,
   className = '' 
 }) => {
   const [progress, setProgress] = useState(0);
 
   useEffect(() => {
-    // Simulate progress animation
     const interval = setInterval(() => {
       setProgress(prev => {
-        if (prev >= 90) return 10; // Reset to create looping effect
-        return prev + Math.random() * 15;
+        if (prev >= 98) return 5;
+        const jump = Math.random() * 8;
+        return prev + jump;
       });
-    }, 300);
+    }, 400);
 
     return () => clearInterval(interval);
   }, []);
 
   const sizes = {
-    small: { height: '2px', width: '100px' },
-    medium: { height: '3px', width: '150px' },
-    large: { height: '4px', width: '200px' },
+    small: { height: '3px', width: '120px' },
+    medium: { height: '4px', width: '200px' },
+    large: { height: '6px', width: '300px' },
   };
 
   const sizeStyle = sizes[size] || sizes.medium;
 
-  return (
+  const content = (
     <div style={{
       display: 'flex',
       flexDirection: 'column',
       alignItems: 'center',
-      gap: '1rem',
-      ...className,
+      gap: '1.5rem',
+      ...(!fullPage ? className : {}),
     }}>
       <div style={{
         width: sizeStyle.width,
         height: sizeStyle.height,
-        backgroundColor: `${color}20`,
-        borderRadius: sizeStyle.height,
-        overflow: 'hidden',
+        backgroundColor: 'rgba(255, 255, 255, 0.05)',
+        borderRadius: '100px',
         position: 'relative',
+        overflow: 'hidden',
+        border: '1px solid rgba(255, 255, 255, 0.1)',
+        boxShadow: `0 0 20px rgba(255, 255, 255, 0.03)`,
       }}>
-        <div style={{
-          width: `${Math.min(progress, 100)}%`,
-          height: '100%',
-          backgroundColor: color,
-          borderRadius: sizeStyle.height,
-          transition: 'width 0.3s ease-out',
-          boxShadow: `0 0 10px ${color}50`,
-        }} />
-        {/* Shimmer effect */}
+        {/* Main Progress Bar */}
         <div style={{
           position: 'absolute',
           top: 0,
           left: 0,
-          right: 0,
-          bottom: 0,
-          background: `linear-gradient(90deg, transparent, ${color}30, transparent)`,
-          animation: 'shimmer 1.5s infinite',
+          height: '100%',
+          width: `${progress}%`,
+          backgroundColor: color,
+          borderRadius: '100px',
+          transition: 'width 0.4s cubic-bezier(0.4, 0, 0.2, 1)',
+          boxShadow: `0 0 15px ${color}80, 0 0 30px ${color}40`,
         }} />
+
+        {/* The "Power Beam" - a faster light pulse moving across the progress */}
+        <div style={{
+          position: 'absolute',
+          top: 0,
+          left: '-100%',
+          height: '100%',
+          width: '50%',
+          background: `linear-gradient(90deg, transparent, ${color}80, transparent)`,
+          animation: 'beam 2s infinite cubic-bezier(0.4, 0, 0.2, 1)',
+        }} />
+
+        {/* Small "Sparkle" particles that travel across the bar */}
+        {[1, 2, 3].map((i) => (
+          <div key={i} style={{
+            position: 'absolute',
+            top: '50%',
+            left: '0',
+            width: '2px',
+            height: '2px',
+            backgroundColor: '#fff',
+            borderRadius: '50%',
+            boxShadow: `0 0 8px #fff`,
+            transform: 'translateY(-50%)',
+            animation: `particle ${1.5 + i * 0.5}s infinite linear`,
+            animationDelay: `${i * 0.3}s`,
+          }} />
+        ))}
       </div>
       
       {showText && (
         <span style={{
-          fontSize: '0.875rem',
-          color: `${color}80`,
-          fontWeight: 500,
+          fontSize: '0.75rem',
+          color: 'rgba(255, 255, 255, 0.5)',
+          fontWeight: 600,
+          textTransform: 'uppercase',
+          letterSpacing: '0.25em',
+          animation: 'illuminate 2s infinite alternate ease-in-out',
         }}>
           {text}
         </span>
       )}
     </div>
   );
+
+  if (fullPage) {
+    return (
+      <div style={{
+        position: 'fixed',
+        inset: 0,
+        backgroundColor: 'rgba(0, 0, 0, 0.8)',
+        backdropFilter: 'blur(10px)',
+        display: 'flex',
+        alignItems: 'center',
+        justifyContent: 'center',
+        zIndex: 9999,
+      }}>
+        {content}
+      </div>
+    );
+  }
+
+  return content;
 };
 
 // Circular loading spinner variant
