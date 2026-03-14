@@ -1,5 +1,5 @@
 // API Configuration
-// Toggle between environments by changing the activeConfig
+// Uses environment variables for production builds
 
 const ENVIRONMENTS = {
   // Local development
@@ -9,12 +9,12 @@ const ENVIRONMENTS = {
   
   // Production
   production: {
-    baseURL: 'https://your-domain.com/api',
+    baseURL: import.meta.env.VITE_API_BASE_URL || 'https://your-domain.com/api',
   },
 };
 
-// Change this to switch environments: 'development' | 'production'
-const activeConfig = 'development';
+// Determine active config from environment variable or default to development
+const activeConfig = import.meta.env.VITE_API_ENV === 'production' ? 'production' : 'development';
 
 // Export the configuration
 export const API_CONFIG = ENVIRONMENTS[activeConfig];

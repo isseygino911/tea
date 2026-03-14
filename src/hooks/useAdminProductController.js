@@ -95,7 +95,8 @@ export const useAdminProductController = () => {
     try {
       const res = await adminAPI.getCategories();
       setCategories(res.data.categories);
-      setSuggestions(res.data.suggestions);
+      // Note: suggestions not currently returned by backend API
+      // setSuggestions(res.data.suggestions || []);
       return res.data;
     } catch (err) {
       console.error('Failed to fetch categories:', err);

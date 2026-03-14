@@ -295,17 +295,17 @@ export const useDocuments = () => {
   }, []);
 
   // Download document directly
-  const downloadDocument = useCallback(async (document) => {
+  const downloadDocument = useCallback(async (doc) => {
     try {
-      const downloadUrl = await getDocumentDownloadUrl(document.id);
+      const downloadUrl = await getDocumentDownloadUrl(doc.id);
       
       // Create temporary link to download
-      const link = document.createElement('a');
+      const link = window.document.createElement('a');
       link.href = downloadUrl;
-      link.download = document.file_name;
-      document.body.appendChild(link);
+      link.download = doc.file_name;
+      window.document.body.appendChild(link);
       link.click();
-      document.body.removeChild(link);
+      window.document.body.removeChild(link);
       
       return true;
     } catch (err) {

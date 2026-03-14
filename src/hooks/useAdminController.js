@@ -33,7 +33,7 @@ export const useAdminController = () => {
       
       // 2. Upload to S3 directly
       await Promise.all(imageFiles.map((file, i) => 
-        fetch(uploadResponses[i].data.url, { 
+        fetch(uploadResponses[i].data.uploadUrl, { 
           method: 'PUT', 
           body: file,
           headers: { 'Content-Type': file.type }

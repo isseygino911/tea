@@ -184,7 +184,7 @@ export const Checkout = () => {
           country: shippingInfo.country,
           phone: shippingInfo.phone,
         },
-        total_amount: cartTotal,
+        total_amount: cartTotal * 1.08,
       };
       
       const res = await api.post('/orders', orderData);

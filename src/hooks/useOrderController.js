@@ -41,7 +41,7 @@ export const useOrderController = () => {
           quantity: item.quantity,
           price: item.price,
         })),
-        total,
+        total_amount: total,
         shipping_address: shippingAddress,
       };
 

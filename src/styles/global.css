@@ -275,12 +275,14 @@ nav button:hover {
   border-color: rgba(255, 255, 255, 0.3) !important;
 }
 
-/* Mobile Menu Glass Effect */
-.mobile-menu-glass {
-  background: rgba(10, 10, 10, 0.85);
-  backdrop-filter: blur(20px);
-  -webkit-backdrop-filter: blur(20px);
-  border-bottom: 1px solid rgba(255, 255, 255, 0.1);
+/* Mosaic Gallery Hover Effect */
+[style*="mosaicItem"]:hover div[style*="mosaicLabel"] {
+  opacity: 1 !important;
+  transform: translateY(0) !important;
+}
+
+[style*="mosaicItem"]:hover img {
+  transform: scale(1.08) !important;
 }
 
 /* Animations */
@@ -362,4 +364,198 @@ nav button:hover {
   20% { opacity: 1; }
   80% { opacity: 1; }
   100% { transform: translateX(500%); opacity: 0; }
+}
+
+/* ─────────────────────────────────────────────────────────────────────────────
+   LumiNation Corp — editorial redesign additions
+   ───────────────────────────────────────────────────────────────────────────── */
+
+/* Horizontal ticker loop */
+@keyframes ticker {
+  from { transform: translateX(0); }
+  to   { transform: translateX(-50%); }
+}
+
+.ticker-track {
+  display: flex;
+  animation: ticker 20s linear infinite;
+  width: max-content;
+}
+
+.ticker-item {
+  white-space: nowrap;
+  padding: 0 2rem;
+  font-size: 0.75rem;
+  text-transform: uppercase;
+  letter-spacing: 0.2em;
+  color: rgba(255, 255, 255, 0.3);
+}
+
+/* Mosaic editorial grid cells */
+.mosaic-cell {
+  position: relative;
+  overflow: hidden;
+  cursor: crosshair;
+}
+
+.mosaic-cell img {
+  width: 100%;
+  height: 100%;
+  object-fit: cover;
+  display: block;
+  transition: transform 1.4s cubic-bezier(0.16, 1, 0.3, 1);
+}
+
+.mosaic-label {
+  position: absolute;
+  bottom: 1.5rem;
+  left: 1.5rem;
+  color: #fff;
+  font-size: 0.65rem;
+  text-transform: uppercase;
+  letter-spacing: 0.2em;
+  opacity: 0;
+  transform: translateY(8px);
+  transition: opacity 0.4s ease, transform 0.4s ease;
+  background: rgba(0, 0, 0, 0.6);
+  padding: 0.4rem 0.8rem;
+  backdrop-filter: blur(4px);
+  -webkit-backdrop-filter: blur(4px);
+  z-index: 2;
+}
+
+.mosaic-cell:hover .mosaic-label {
+  opacity: 1;
+  transform: translateY(0);
+}
+
+.mosaic-cell:hover img {
+  transform: scale(1.06);
+}
+
+/* Mosaic cell index number (top-right, always visible, fades on hover) */
+.mosaic-num {
+  position: absolute;
+  top: 1rem;
+  right: 1.2rem;
+  font-size: 0.6rem;
+  font-weight: 700;
+  letter-spacing: 0.15em;
+  color: rgba(255, 255, 255, 0.25);
+  z-index: 2;
+  transition: opacity 0.3s ease;
+}
+
+.mosaic-cell:hover .mosaic-num {
+  opacity: 0;
+}
+
+/* Mosaic grid — editorial magazine layout */
+.mosaic-grid {
+  display: grid;
+  width: 100%;
+  gap: 3px;
+  background: #000;
+  grid-template-columns: 1.8fr 1fr 1fr;
+  grid-template-rows: 52vh 38vh 32vh;
+  grid-template-areas:
+    "hero  tr    tr"
+    "hero  mid1  mid2"
+    "bot1  bot2  bot3";
+}
+
+/* hero cell spans full left column (2 rows) */
+.mosaic-grid .mosaic-cell:nth-child(1) { grid-area: hero; }
+.mosaic-grid .mosaic-cell:nth-child(2) { grid-area: tr;   }
+.mosaic-grid .mosaic-cell:nth-child(3) { grid-area: mid1; }
+.mosaic-grid .mosaic-cell:nth-child(4) { grid-area: mid2; }
+.mosaic-grid .mosaic-cell:nth-child(5) { grid-area: bot1; }
+.mosaic-grid .mosaic-cell:nth-child(6) { grid-area: bot2; }
+.mosaic-grid .mosaic-cell:nth-child(7) { grid-area: bot3; }
+
+@media (max-width: 768px) {
+  /* ── Mosaic: 2-col on mobile ── */
+  .mosaic-grid {
+    grid-template-columns: 1fr 1fr;
+    grid-template-rows: 56vw 44vw 44vw;
+    grid-template-areas:
+      "hero hero"
+      "tr   mid1"
+      "bot1 bot2";
+    gap: 2px;
+  }
+
+  .mosaic-grid .mosaic-cell:nth-child(4),
+  .mosaic-grid .mosaic-cell:nth-child(6),
+  .mosaic-grid .mosaic-cell:nth-child(7) {
+    display: none;
+  }
+
+  /* ── Philosophy: hide the left number column, show just the text ── */
+  .philosophy-grid {
+    grid-template-columns: 1fr !important;
+  }
+
+  .philosophy-grid > *:first-child {
+    display: none;
+  }
+
+  /* ── Journal: stack to single column ── */
+  .journal-grid {
+    grid-template-columns: 1fr !important;
+    gap: 2rem !important;
+  }
+}
+
+/* Navbar link hover — CSS-driven, no JS state */
+.nav-link-item {
+  transition: color 0.2s ease;
+}
+
+.nav-link-item:hover {
+  color: #ffffff !important;
+}
+
+/* Contact form — bottom-border-only inputs */
+.input-line {
+  background: transparent !important;
+  border: none !important;
+  border-bottom: 1px solid rgba(255, 255, 255, 0.2) !important;
+  border-radius: 0 !important;
+  padding: 1rem 0 !important;
+  color: #fff !important;
+  font-size: 1rem;
+  font-family: inherit;
+  width: 100%;
+  outline: none;
+}
+
+.input-line::placeholder {
+  color: rgba(255, 255, 255, 0.3);
+}
+
+.input-line:focus {
+  border-bottom-color: rgba(255, 255, 255, 0.6) !important;
+}
+
+/* CTA / submit outlined button */
+.cta-btn-outline {
+  background: transparent;
+  border: 1px solid rgba(255, 255, 255, 0.5);
+  color: #fff;
+  padding: 1rem 2.5rem;
+  font-size: 0.8rem;
+  text-transform: uppercase;
+  letter-spacing: 0.15em;
+  cursor: pointer;
+  transition: background 0.3s ease, color 0.3s ease, border-color 0.3s ease;
+  font-family: inherit;
+  text-decoration: none;
+  display: inline-block;
+}
+
+.cta-btn-outline:hover {
+  background: #ffffff;
+  color: #000000;
+  border-color: #ffffff;
 }
