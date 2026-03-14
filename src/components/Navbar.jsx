@@ -2,7 +2,7 @@ import { useState, useEffect } from 'react';
 import { Link, useNavigate } from 'react-router-dom';
 import { useAuth } from '../context/AuthContext';
 import { useCart } from '../context/CartContext';
-import { ShoppingBag, Menu, X } from 'lucide-react';
+import { ShoppingBag, Menu, X, Wrench } from 'lucide-react';
 
 export const Navbar = () => {
   const { user, logout } = useAuth();
@@ -82,6 +82,7 @@ export const Navbar = () => {
             gap: '2rem',
           }}>
             <Link to="/products" style={navLinkStyle}>Products</Link>
+            <Link to="/tools" style={navLinkStyle}>Tools</Link>
             {user ? (
               <>
                 <Link to="/dashboard" style={navLinkStyle}>Dashboard</Link>
@@ -178,6 +179,7 @@ export const Navbar = () => {
           gap: '1.5rem',
         }}>
           <Link to="/products" style={mobileLinkStyle} onClick={closeMobileMenu}>Products</Link>
+          <Link to="/tools" style={mobileLinkStyle} onClick={closeMobileMenu}>Tools</Link>
           {user ? (
             <>
               <Link to="/dashboard" style={mobileLinkStyle} onClick={closeMobileMenu}>Dashboard</Link>

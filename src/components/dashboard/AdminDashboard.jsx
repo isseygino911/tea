@@ -8,16 +8,19 @@ import {
   Settings, 
   LogOut,
   Menu,
-  X
+  X,
+  FileText
 } from 'lucide-react';
 import { Overview } from './Overview';
 import { ProductsManager } from './ProductsManager';
 import { OrdersManager } from './OrdersManager';
+import { DocumentsManager } from './DocumentsManager';
 
 const menuItems = [
   { id: 'overview', label: 'Overview', icon: LayoutDashboard },
   { id: 'products', label: 'Products', icon: Package },
   { id: 'orders', label: 'Orders', icon: ShoppingBag },
+  { id: 'documents', label: 'Documents', icon: FileText },
   { id: 'customers', label: 'Customers', icon: Users },
   { id: 'settings', label: 'Settings', icon: Settings },
 ];
@@ -69,6 +72,8 @@ export const AdminDashboard = () => {
         return <ProductsManager />;
       case 'orders':
         return <OrdersManager />;
+      case 'documents':
+        return <DocumentsManager />;
       case 'customers':
         return (
           <div style={styles.comingSoon}>
