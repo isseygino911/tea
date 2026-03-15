@@ -6,6 +6,7 @@ import { useCart } from '../context/CartContext';
 import { useAuth } from '../context/AuthContext';
 import { useAddressController } from '../hooks/useAddressController';
 import api from '../services/api';
+import { settingsAPI } from '../services/settingsAPI';
 import { LoadingSpinner } from '../components/ui/LoadingBar';
 import { ScrollReveal } from '../components/ScrollReveal';
 
@@ -46,10 +47,28 @@ export const Checkout = () => {
     country: '',
     phone: '',
   });
+  
+  // Tax rate from settings
+  const [taxRate, setTaxRate] = useState(0.08); // Default 8%
+  const [taxRateLoading, setTaxRateLoading] = useState(true);
 
   useEffect(() => {
     fetchAddresses().catch(() => {});
+    fetchTaxRate();
   }, []);
+  
+  const fetchTaxRate = async () => {
+    try {
+      setTaxRateLoading(true);
+      const res = await settingsAPI.getTaxRate();
+      setTaxRate(res.data.taxRate || 0.08);
+    } catch (err) {
+      console.error('Failed to fetch tax rate:', err);
+      // Keep default 8%
+    } finally {
+      setTaxRateLoading(false);
+    }
+  };
 
   // Auto-select default address if available, or show new address form if none exist
   useEffect(() => {
@@ -169,6 +188,10 @@ export const Checkout = () => {
         }
       }
 
+      const subtotal = cartTotal;
+      const taxAmount = subtotal * taxRate;
+      const totalAmount = subtotal + taxAmount;
+      
       const orderData = {
         items: cart.map(item => ({
           product_id: item.id,
@@ -184,7 +207,9 @@ export const Checkout = () => {
           country: shippingInfo.country,
           phone: shippingInfo.phone,
         },
-        total_amount: cartTotal * 1.08,
+        subtotal: subtotal,
+        tax_amount: taxAmount,
+        total_amount: totalAmount,
       };
       
       const res = await api.post('/orders', orderData);
@@ -462,7 +487,7 @@ export const Checkout = () => {
                         Creating Order...
                       </span>
                     ) : (
-                      `Place Order - $${formatPrice(cartTotal * 1.08)}`
+                      `Place Order - $${formatPrice(cartTotal + (cartTotal * taxRate))}`
                     )}
                   </button>
                 </div>
@@ -507,15 +532,15 @@ export const Checkout = () => {
                 <span style={styles.free}>FREE</span>
               </div>
               <div style={styles.summaryRow}>
-                <span>Tax (8%)</span>
-                <span>${formatPrice(cartTotal * 0.08)}</span>
+                <span>Tax ({taxRateLoading ? '...' : (taxRate * 100).toFixed(0)}%)</span>
+                <span>${formatPrice(cartTotal * taxRate)}</span>
               </div>
 
               <div style={styles.divider} />
 
               <div style={styles.totalRow}>
                 <span>Total</span>
-                <span style={styles.totalAmount}>${formatPrice(cartTotal * 1.08)}</span>
+                <span style={styles.totalAmount}>${formatPrice(cartTotal + (cartTotal * taxRate))}</span>
               </div>
             </div>
           </div>

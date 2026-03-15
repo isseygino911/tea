@@ -15,6 +15,7 @@ import { Overview } from './Overview';
 import { ProductsManager } from './ProductsManager';
 import { OrdersManager } from './OrdersManager';
 import { DocumentsManager } from './DocumentsManager';
+import { SettingsManager } from './SettingsManager';
 
 const menuItems = [
   { id: 'overview', label: 'Overview', icon: LayoutDashboard },
@@ -82,12 +83,7 @@ export const AdminDashboard = () => {
           </div>
         );
       case 'settings':
-        return (
-          <div style={styles.comingSoon}>
-            <h3>Settings</h3>
-            <p>Coming soon...</p>
-          </div>
-        );
+        return <SettingsManager />;
       default:
         return <Overview />;
     }

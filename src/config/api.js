@@ -13,7 +13,7 @@ const ENVIRONMENTS = {
 };
 
 // Determine active config from environment variable or default to development
-const activeConfig = 'production'
+const activeConfig = 'development'
 // import.meta.env.VITE_API_ENV === 'production' ? 'production' : 'development';
 
 // Export the configuration

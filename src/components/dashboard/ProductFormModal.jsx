@@ -118,9 +118,9 @@ export const ProductFormModal = ({ product, isOpen, onClose, onSave }) => {
           headers: { 'Content-Type': file.type },
         });
 
-        // Replace local URL with S3 URL
+        // Replace local URL with permanent S3 URL (not presigned viewUrl)
         setImages(prev => prev.map(imgUrl => 
-          imgUrl === localUrl ? (res.data.viewUrl || res.data.publicUrl) : imgUrl
+          imgUrl === localUrl ? (res.data.publicUrl || res.data.viewUrl) : imgUrl
         ));
         
         // Clean up local object URL

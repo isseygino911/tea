@@ -210,13 +210,12 @@ export const useDocuments = () => {
     };
 
     try {
-      for (let i = 0; i < files.length; i++) {
-        const file = files[i];
-        
+      // Upload all files in parallel for better performance
+      const uploadPromises = files.map(async (file, index) => {
         // Report overall progress
         if (onProgress) {
           onProgress({
-            current: i + 1,
+            current: index + 1,
             total: files.length,
             fileName: file.name,
             status: 'uploading'
@@ -228,11 +227,22 @@ export const useDocuments = () => {
             title: file.name.replace(/\.pdf$/i, ''),
             description: '',
           });
-          results.successful.push({ file, document });
+          return { success: true, file, document };
         } catch (err) {
-          results.failed.push({ file, error: err.message });
+          return { success: false, file, error: err.message };
         }
-      }
+      });
+
+      const uploadResults = await Promise.all(uploadPromises);
+      
+      // Sort results into successful and failed
+      uploadResults.forEach(result => {
+        if (result.success) {
+          results.successful.push({ file: result.file, document: result.document });
+        } else {
+          results.failed.push({ file: result.file, error: result.error });
+        }
+      });
 
       // Refresh documents list after all uploads
       await fetchAllDocuments();
