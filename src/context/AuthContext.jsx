@@ -3,29 +3,30 @@ import { authAPI } from '../services/api';
 
 const AuthContext = createContext(null);
 
+const normalizeUser = (userData) => ({
+  ...userData,
+  is_admin: userData.is_admin === 1 || userData.is_admin === true,
+});
+
+const loadUserFromStorage = () => {
+  try {
+    const savedUser = localStorage.getItem('user');
+    return savedUser ? JSON.parse(savedUser) : null;
+  } catch (err) {
+    console.error('Failed to parse user from localStorage:', err);
+    localStorage.removeItem('user');
+    return null;
+  }
+};
+
 export const AuthProvider = ({ children }) => {
-  // Initialize from localStorage with try/catch for corrupted data
-  const [user, setUser] = useState(() => {
-    try {
-      const savedUser = localStorage.getItem('user');
-      return savedUser ? JSON.parse(savedUser) : null;
-    } catch (err) {
-      console.error('Failed to parse user from localStorage:', err);
-      localStorage.removeItem('user');
-      return null;
-    }
-  });
+  const initialUser = loadUserFromStorage();
+  const [user, setUser] = useState(initialUser);
   // Start with loading=true to block PrivateRoute until auth check completes
   const [loading, setLoading] = useState(true);
   const [authChecked, setAuthChecked] = useState(false);
-  const initialUserRef = useRef(null);
-
-  // Store initial user to prevent dashboard switching during validation
-  useEffect(() => {
-    if (!authChecked) {
-      initialUserRef.current = user;
-    }
-  }, [user, authChecked]);
+  // Capture initial user synchronously to prevent dashboard flicker on re-validation
+  const initialUserRef = useRef(initialUser);
 
   // Background token validation - only updates user if different
   useEffect(() => {
@@ -38,16 +39,14 @@ export const AuthProvider = ({ children }) => {
 
     authAPI.getMe()
       .then((res) => {
-        const userData = res.data.user;
-        // Ensure is_admin is boolean
-        userData.is_admin = userData.is_admin === 1 || userData.is_admin === true;
-        
+        const userData = normalizeUser(res.data.user);
+
         // Only update if user has actually changed
         const currentUser = initialUserRef.current;
-        const hasChanged = !currentUser || 
-          currentUser.id !== userData.id || 
+        const hasChanged = !currentUser ||
+          currentUser.id !== userData.id ||
           currentUser.is_admin !== userData.is_admin;
-        
+
         if (hasChanged) {
           setUser(userData);
           localStorage.setItem('user', JSON.stringify(userData));
@@ -69,8 +68,7 @@ export const AuthProvider = ({ children }) => {
     setLoading(true);
     try {
       const res = await authAPI.login({ email, password });
-      const userData = res.data.user;
-      userData.is_admin = userData.is_admin === 1 || userData.is_admin === true;
+      const userData = normalizeUser(res.data.user);
       localStorage.setItem('token', res.data.token);
       localStorage.setItem('user', JSON.stringify(userData));
       setUser(userData);
@@ -84,8 +82,7 @@ export const AuthProvider = ({ children }) => {
     setLoading(true);
     try {
       const res = await authAPI.register({ email, password });
-      const userData = res.data.user;
-      userData.is_admin = userData.is_admin === 1 || userData.is_admin === true;
+      const userData = normalizeUser(res.data.user);
       localStorage.setItem('token', res.data.token);
       localStorage.setItem('user', JSON.stringify(userData));
       setUser(userData);

@@ -1152,16 +1152,3 @@ const styles = {
   },
 };
 
-// Inject spin animation
-const spinStyles = `
-  @keyframes spin {
-    from { transform: rotate(0deg); }
-    to { transform: rotate(360deg); }
-  }
-  .spin {
-    animation: spin 1s linear infinite;
-  }
-`;
-const styleTag = document.createElement('style');
-styleTag.textContent = spinStyles;
-document.head.appendChild(styleTag);

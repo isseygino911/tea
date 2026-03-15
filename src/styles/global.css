@@ -559,3 +559,22 @@ nav button:hover {
   color: #000000;
   border-color: #ffffff;
 }
+
+/* Product Detail responsive layout */
+@media (min-width: 768px) {
+  .product-detail-content {
+    display: grid !important;
+    grid-template-columns: 1fr 1fr !important;
+    gap: 4rem !important;
+  }
+}
+
+@media (min-width: 640px) {
+  .product-detail-actions {
+    flex-direction: row !important;
+  }
+  .product-detail-add-btn {
+    width: auto !important;
+    flex: 1 !important;
+  }
+}

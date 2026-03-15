@@ -1,5 +1,4 @@
 // API Configuration
-// Uses environment variables for production builds
 
 const ENVIRONMENTS = {
   // Local development
@@ -9,12 +8,13 @@ const ENVIRONMENTS = {
   
   // Production
   production: {
-    baseURL: import.meta.env.VITE_API_BASE_URL || 'https://your-domain.com/api',
+    baseURL: 'https://api.ophieliu.com/api',
   },
 };
 
 // Determine active config from environment variable or default to development
-const activeConfig = import.meta.env.VITE_API_ENV === 'production' ? 'production' : 'development';
+const activeConfig = 'production'
+// import.meta.env.VITE_API_ENV === 'production' ? 'production' : 'development';
 
 // Export the configuration
 export const API_CONFIG = ENVIRONMENTS[activeConfig];

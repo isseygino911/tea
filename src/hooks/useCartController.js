@@ -22,7 +22,7 @@ export const useCartController = () => {
           quantity: item.quantity,
           price: item.price,
         })),
-        total,
+        total_amount: total,
         shipping_address: shippingAddress,
       };
 

@@ -18,8 +18,13 @@ export const Products = () => {
   // Fetch categories on mount
   useEffect(() => {
     const init = async () => {
-      await fetchCategories();
-      setDataLoaded(true);
+      try {
+        await fetchCategories();
+      } catch (err) {
+        console.error('Failed to fetch categories:', err);
+      } finally {
+        setDataLoaded(true);
+      }
     };
     init();
   }, [fetchCategories]);
@@ -32,7 +37,12 @@ export const Products = () => {
     fetchProducts(filters);
   }, [search, selectedCategory, fetchProducts]);
 
-  const showLoading = loading || !dataLoaded;
+  const showLoading = loading && products.length === 0;
+
+  // Debug logging
+  useEffect(() => {
+    console.log('Debug - loading:', loading, 'dataLoaded:', dataLoaded, 'products:', products.length, 'categories:', categories.length);
+  }, [loading, dataLoaded, products, categories]);
 
   return (
     <main style={s.main}>

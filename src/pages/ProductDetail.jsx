@@ -15,17 +15,6 @@ export const ProductDetail = () => {
   const [quantity, setQuantity] = useState(1);
   const [currentImageIndex, setCurrentImageIndex] = useState(0);
 
-  // Inject responsive styles on mount, cleanup on unmount
-  useEffect(() => {
-    const styleTag = document.createElement('style');
-    styleTag.textContent = responsiveStyles;
-    document.head.appendChild(styleTag);
-    
-    return () => {
-      document.head.removeChild(styleTag);
-    };
-  }, []);
-
   useEffect(() => {
     if (id) {
       fetchProductById(id);
@@ -96,10 +85,10 @@ export const ProductDetail = () => {
               
               {images.length > 1 && (
                 <>
-                  <button onClick={handlePrevImage} style={styles.navButtonLeft}>
+                  <button onClick={handlePrevImage} style={{ ...styles.navButton, left: '1rem' }}>
                     <ChevronLeft size={24} />
                   </button>
-                  <button onClick={handleNextImage} style={styles.navButtonRight}>
+                  <button onClick={handleNextImage} style={{ ...styles.navButton, right: '1rem' }}>
                     <ChevronRight size={24} />
                   </button>
                 </>
@@ -164,9 +153,7 @@ export const ProductDetail = () => {
                 className="product-detail-add-btn"
                 disabled={isOutOfStock}
               >
-                {isOutOfStock ? 'Out of Stock' : `Add to Cart 
-               `
-                }
+                {isOutOfStock ? 'Out of Stock' : 'Add to Cart'}
               </button>
             </div>
             
@@ -226,25 +213,8 @@ const styles = {
     objectPosition: 'center',
     display: 'block',
   },
-  navButtonLeft: {
+  navButton: {
     position: 'absolute',
-    left: '1rem',
-    top: '50%',
-    transform: 'translateY(-50%)',
-    width: '44px',
-    height: '44px',
-    borderRadius: '50%',
-    background: 'rgba(0, 0, 0, 0.5)',
-    border: '1px solid rgba(255,255,255,0.2)',
-    color: '#ffffff',
-    cursor: 'pointer',
-    display: 'flex',
-    alignItems: 'center',
-    justifyContent: 'center',
-  },
-  navButtonRight: {
-    position: 'absolute',
-    right: '1rem',
     top: '50%',
     transform: 'translateY(-50%)',
     width: '44px',
@@ -385,24 +355,3 @@ const styles = {
   },
 };
 
-// Responsive CSS
-const responsiveStyles = `
-  @media (min-width: 768px) {
-    .product-detail-content {
-      display: grid !important;
-      grid-template-columns: 1fr 1fr !important;
-      gap: 4rem !important;
-    }
-  }
-  @media (min-width: 640px) {
-    .product-detail-actions {
-      flex-direction: row !important;
-    }
-    .product-detail-add-btn {
-      width: auto !important;
-      flex: 1 !important;
-    }
-  }
-`;
-
-// Note: Responsive styles are now injected via useEffect in the component

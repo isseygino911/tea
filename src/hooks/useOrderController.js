@@ -30,11 +30,12 @@ export const useOrderController = () => {
     }
   }, []);
 
-  const createOrder = async (items, shippingAddress) => {
+  const createOrder = useCallback(async (items, shippingAddress) => {
     setLoading(true);
+    setError(null);
     try {
       const total = items.reduce((sum, item) => sum + item.price * item.quantity, 0);
-      
+
       const orderData = {
         items: items.map(item => ({
           product_id: item.id,
@@ -53,7 +54,7 @@ export const useOrderController = () => {
     } finally {
       setLoading(false);
     }
-  };
+  }, []);
 
   // Admin methods
   const fetchAdminOrders = useCallback(async (filters = {}) => {
@@ -71,8 +72,9 @@ export const useOrderController = () => {
     }
   }, []);
 
-  const getOrderDetails = async (orderId) => {
+  const getOrderDetails = useCallback(async (orderId) => {
     setLoading(true);
+    setError(null);
     try {
       const res = await adminAPI.getOrder(orderId);
       return {
@@ -85,10 +87,11 @@ export const useOrderController = () => {
     } finally {
       setLoading(false);
     }
-  };
+  }, []);
 
-  const updateOrderStatus = async (orderId, status) => {
+  const updateOrderStatus = useCallback(async (orderId, status) => {
     setLoading(true);
+    setError(null);
     try {
       // adminAPI already wraps the status in { status }
       const res = await adminAPI.updateOrderStatus(orderId, status);
@@ -99,7 +102,7 @@ export const useOrderController = () => {
     } finally {
       setLoading(false);
     }
-  };
+  }, []);
 
   return {
     orders,

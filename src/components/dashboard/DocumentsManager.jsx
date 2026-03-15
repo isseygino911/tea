@@ -165,11 +165,11 @@ const UploadModal = ({ isOpen, onClose, folders, onUpload, onUploadMultiple, loa
         {/* File List */}
         {selectedFiles.length > 0 && (
           <div style={styles.fileListContainer}>
-            <div style={styles.fileListHeader}>
+            <div style={styles.uploadFileListHeader}>
               <span>{selectedFiles.length} file(s) selected</span>
-              <span style={styles.fileListSize}>Total: {formatFileSize(totalSize)}</span>
+              <span style={styles.uploadFileListSize}>Total: {formatFileSize(totalSize)}</span>
             </div>
-            <div style={styles.fileList}>
+            <div style={styles.uploadFileList}>
               {selectedFiles.map((file, index) => (
                 <div key={index} style={styles.fileListItem}>
                   <FileText size={20} color="#ffffff" />
@@ -1249,7 +1249,7 @@ const styles = {
     borderRadius: '12px',
     overflow: 'hidden',
   },
-  fileListHeader: {
+  uploadFileListHeader: {
     display: 'flex',
     justifyContent: 'space-between',
     alignItems: 'center',
@@ -1259,10 +1259,10 @@ const styles = {
     fontSize: '0.85rem',
     color: 'rgba(255,255,255,0.7)',
   },
-  fileListSize: {
+  uploadFileListSize: {
     color: 'rgba(255,255,255,0.5)',
   },
-  fileList: {
+  uploadFileList: {
     maxHeight: '200px',
     overflowY: 'auto',
   },
