@@ -418,13 +418,6 @@ const styles = {
     padding: '4rem',
     color: 'rgba(255,255,255,0.5)',
   },
-  header: {
-    marginBottom: '1.5rem',
-  },
-  pageTitle: {
-    fontSize: '1.75rem',
-    fontWeight: 700,
-  },
 };
 
 // Inject CSS for scrollbar hiding
