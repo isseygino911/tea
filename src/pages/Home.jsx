@@ -101,42 +101,49 @@ export const Home = () => {
           {/* 1 — hero: large left anchor, spans rows 1+2 */}
           <div className="mosaic-cell">
             <img src="/hero/IMG_0276.jpg" alt="Project Alpha" />
+            <span className="mosaic-num">01</span>
             <span className="mosaic-label">Project Alpha · Farmingdale</span>
           </div>
 
           {/* 2 — top-right wide */}
           <div className="mosaic-cell">
             <img src="/hero/IMG_0275.jpg" alt="Warehouse Flux" />
+            <span className="mosaic-num">02</span>
             <span className="mosaic-label">Warehouse Flux · 30K</span>
           </div>
 
           {/* 3 — mid right top */}
           <div className="mosaic-cell">
             <img src="/hero/TL_RGBIC.jpg" alt="Neon Pulse" />
+            <span className="mosaic-num">03</span>
             <span className="mosaic-label">Neon Pulse · RGBIC</span>
           </div>
 
           {/* 4 — mid right bottom */}
           <div className="mosaic-cell">
             <img src="/hero/IMG_0274.jpg" alt="Interior Glow" />
+            <span className="mosaic-num">04</span>
             <span className="mosaic-label">Interior Glow</span>
           </div>
 
           {/* 5 — bottom left */}
           <div className="mosaic-cell">
             <img src="/hero/FCOB2.jpg" alt="Continuous Linear" />
+            <span className="mosaic-num">05</span>
             <span className="mosaic-label">Continuous Linear</span>
           </div>
 
           {/* 6 — bottom mid */}
           <div className="mosaic-cell">
             <img src="/hero/IMG_0287.jpg" alt="Retail Precision" />
+            <span className="mosaic-num">06</span>
             <span className="mosaic-label">Retail Precision</span>
           </div>
 
           {/* 7 — bottom right */}
           <div className="mosaic-cell">
             <img src="/hero/IMG_0292.jpg" alt="Linear Excellence" />
+            <span className="mosaic-num">07</span>
             <span className="mosaic-label">Linear Excellence</span>
           </div>
 

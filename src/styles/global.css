@@ -396,6 +396,7 @@ nav button:hover {
   position: relative;
   overflow: hidden;
   cursor: crosshair;
+  background: #111;
 }
 
 .mosaic-cell img {
@@ -403,25 +404,39 @@ nav button:hover {
   height: 100%;
   object-fit: cover;
   display: block;
-  transition: transform 1.4s cubic-bezier(0.16, 1, 0.3, 1);
+  transition: transform 1.2s cubic-bezier(0.16, 1, 0.3, 1), filter 0.8s ease;
+  filter: grayscale(0.2) brightness(0.9);
+}
+
+/* Internal frame effect on hover */
+.mosaic-cell::after {
+  content: '';
+  position: absolute;
+  inset: 1rem;
+  border: 1px solid rgba(255, 255, 255, 0);
+  transition: border-color 0.6s ease, inset 0.6s cubic-bezier(0.16, 1, 0.3, 1);
+  pointer-events: none;
+  z-index: 3;
+}
+
+.mosaic-cell:hover::after {
+  border-color: rgba(200, 146, 42, 0.4); /* Subtle amber frame */
+  inset: 1.5rem;
 }
 
 .mosaic-label {
   position: absolute;
-  bottom: 1.5rem;
-  left: 1.5rem;
+  bottom: 2rem;
+  left: 2rem;
   color: #fff;
   font-size: 0.65rem;
   text-transform: uppercase;
-  letter-spacing: 0.2em;
+  letter-spacing: 0.25em;
   opacity: 0;
-  transform: translateY(8px);
-  transition: opacity 0.4s ease, transform 0.4s ease;
-  background: rgba(0, 0, 0, 0.6);
-  padding: 0.4rem 0.8rem;
-  backdrop-filter: blur(4px);
-  -webkit-backdrop-filter: blur(4px);
-  z-index: 2;
+  transform: translateY(12px);
+  transition: opacity 0.5s ease, transform 0.5s cubic-bezier(0.16, 1, 0.3, 1);
+  background: transparent;
+  z-index: 4;
 }
 
 .mosaic-cell:hover .mosaic-label {
@@ -430,34 +445,35 @@ nav button:hover {
 }
 
 .mosaic-cell:hover img {
-  transform: scale(1.06);
+  transform: scale(1.08);
+  filter: grayscale(0) brightness(1.1);
 }
 
-/* Mosaic cell index number (top-right, always visible, fades on hover) */
+/* Mosaic cell index number */
 .mosaic-num {
   position: absolute;
-  top: 1rem;
-  right: 1.2rem;
-  font-size: 0.6rem;
-  font-weight: 700;
+  top: 2rem;
+  right: 2rem;
+  font-size: 0.7rem;
+  font-weight: 300;
   letter-spacing: 0.15em;
-  color: rgba(255, 255, 255, 0.25);
-  z-index: 2;
-  transition: opacity 0.3s ease;
+  color: rgba(255, 255, 255, 0.4);
+  z-index: 4;
+  transition: color 0.4s ease, transform 0.4s ease;
 }
 
 .mosaic-cell:hover .mosaic-num {
-  opacity: 0;
+  color: #C8922A;
+  transform: translateX(-5px);
 }
 
 /* Mosaic grid — editorial magazine layout */
 .mosaic-grid {
   display: grid;
   width: 100%;
-  gap: 3px;
-  background: #000;
+  gap: 1.5rem;
   grid-template-columns: 1.8fr 1fr 1fr;
-  grid-template-rows: 52vh 38vh 32vh;
+  grid-template-rows: 55vh 40vh 35vh;
   grid-template-areas:
     "hero  tr    tr"
     "hero  mid1  mid2"
@@ -477,18 +493,30 @@ nav button:hover {
   /* ── Mosaic: 2-col on mobile ── */
   .mosaic-grid {
     grid-template-columns: 1fr 1fr;
-    grid-template-rows: 56vw 44vw 44vw;
+    grid-template-rows: repeat(4, 50vw);
     grid-template-areas:
       "hero hero"
       "tr   mid1"
-      "bot1 bot2";
-    gap: 2px;
+      "mid2 bot1"
+      "bot2 bot3";
+    gap: 1rem;
   }
 
   .mosaic-grid .mosaic-cell:nth-child(4),
   .mosaic-grid .mosaic-cell:nth-child(6),
   .mosaic-grid .mosaic-cell:nth-child(7) {
-    display: none;
+    display: block; /* Show all on mobile in this new layout */
+  }
+
+  .mosaic-label {
+    bottom: 1rem;
+    left: 1rem;
+    font-size: 0.55rem;
+  }
+
+  .mosaic-num {
+    top: 1rem;
+    right: 1rem;
   }
 
   /* ── Philosophy: hide the left number column, show just the text ── */
