@@ -1,7 +1,7 @@
 import { useState, useEffect, useCallback } from 'react';
 import { ProductCard } from '../components/ProductCard';
 import { ScrollReveal } from '../components/ScrollReveal';
-import { Search, SlidersHorizontal, Grid2X2, LayoutList } from 'lucide-react';
+import { Search, SlidersHorizontal, Grid2X2, LayoutList, X } from 'lucide-react';
 import { useCart } from '../context/CartContext';
 import { useProductController } from '../hooks/useProductController';
 import { LoadingBar } from '../components/ui/LoadingBar';
@@ -13,7 +13,7 @@ export const Products = () => {
   const [search, setSearch] = useState('');
   const [selectedCategory, setSelectedCategory] = useState('All');
   const [dataLoaded, setDataLoaded] = useState(false);
-  const [showFilters, setShowFilters] = useState(false);
+  const [showFilters, setShowFilters] = useState(true);
 
   // Fetch categories on mount
   useEffect(() => {
@@ -37,12 +37,13 @@ export const Products = () => {
     fetchProducts(filters);
   }, [search, selectedCategory, fetchProducts]);
 
-  const showLoading = loading && products.length === 0;
+  const clearFilters = () => {
+    setSearch('');
+    setSelectedCategory('All');
+  };
 
-  // Debug logging
-  useEffect(() => {
-    console.log('Debug - loading:', loading, 'dataLoaded:', dataLoaded, 'products:', products.length, 'categories:', categories.length);
-  }, [loading, dataLoaded, products, categories]);
+  const hasActiveFilters = search !== '' || selectedCategory !== 'All';
+  const showLoading = loading && products.length === 0;
 
   return (
     <main style={s.main}>
@@ -64,9 +65,15 @@ export const Products = () => {
       <div className="container" style={s.catalogContainer}>
         {/* Modern Filter Bar */}
         <div style={s.controls}>
-          <div style={s.filterToggle} onClick={() => setShowFilters(!showFilters)}>
+          <div 
+            style={{
+              ...s.filterToggle,
+              color: showFilters ? '#C8922A' : '#fff'
+            }} 
+            onClick={() => setShowFilters(!showFilters)}
+          >
             <SlidersHorizontal size={18} />
-            <span>Filters</span>
+            <span>{showFilters ? 'Hide Filters' : 'Show Filters'}</span>
           </div>
           
           <div style={s.searchWrapper}>
@@ -78,28 +85,53 @@ export const Products = () => {
               onChange={(e) => setSearch(e.target.value)}
               style={s.searchInput}
             />
+            {search && (
+              <X 
+                size={16} 
+                style={s.clearSearch} 
+                onClick={() => setSearch('')} 
+              />
+            )}
           </div>
 
+          {hasActiveFilters && (
+            <button style={s.clearAllBtn} onClick={clearFilters}>
+              Clear All
+            </button>
+          )}
+
           <div style={s.viewToggles}>
-            <Grid2X2 size={18} />
-            <LayoutList size={18} style={{ opacity: 0.3 }} />
+            <span style={s.productCount}>
+              {products.length} {products.length === 1 ? 'Product' : 'Products'}
+            </span>
+            <div style={s.toggleIcons}>
+              <Grid2X2 size={18} style={{ color: '#C8922A' }} />
+              <LayoutList size={18} style={{ opacity: 0.3 }} />
+            </div>
           </div>
         </div>
 
         <div style={s.layoutBody}>
           {/* Sidebar Filters */}
-          <aside style={{ ...s.sidebar, display: showFilters ? 'block' : 'none' }}>
-            <h3 style={s.sidebarHeading}>Categories</h3>
+          <aside style={{ 
+            ...s.sidebar, 
+            display: showFilters ? 'block' : 'none',
+            opacity: showFilters ? 1 : 0,
+            transform: showFilters ? 'translateX(0)' : 'translateX(-20px)',
+            transition: 'all 0.4s ease'
+          }}>
+            <h3 style={s.sidebarHeading}>Systems</h3>
             <div style={s.sidebarList}>
               <button
                 onClick={() => setSelectedCategory('All')}
                 style={{
                   ...s.sidebarBtn,
                   color: selectedCategory === 'All' ? '#fff' : 'rgba(255,255,255,0.4)',
-                  fontWeight: selectedCategory === 'All' ? '600' : '400',
+                  borderLeft: selectedCategory === 'All' ? '2px solid #C8922A' : '2px solid transparent',
+                  paddingLeft: selectedCategory === 'All' ? '1rem' : '0.5rem',
                 }}
               >
-                All Systems
+                All Architecture
               </button>
               {categories.map(cat => (
                 <button
@@ -108,7 +140,8 @@ export const Products = () => {
                   style={{
                     ...s.sidebarBtn,
                     color: selectedCategory === cat ? '#fff' : 'rgba(255,255,255,0.4)',
-                    fontWeight: selectedCategory === cat ? '600' : '400',
+                    borderLeft: selectedCategory === cat ? '2px solid #C8922A' : '2px solid transparent',
+                    paddingLeft: selectedCategory === cat ? '1rem' : '0.5rem',
                   }}
                 >
                   {cat}
@@ -121,15 +154,16 @@ export const Products = () => {
           <div style={s.catalogGrid}>
             {!showLoading && products.length === 0 ? (
               <div style={s.empty}>
-                <p>No specifications found for this filter</p>
+                <div style={s.emptyIcon}><Search size={48} /></div>
+                <h3>No matches found</h3>
+                <p>Try adjusting your filters or search terms</p>
+                <button style={s.emptyBtn} onClick={clearFilters}>Clear Search</button>
               </div>
             ) : (
               <div style={s.grid}>
                 {products.map((product, index) => (
-                  <ScrollReveal key={product.uuid || product.id} delay={(index % 4) * 0.1}>
-                    <div style={s.productTile}>
-                      <ProductCard product={product} onAddToCart={addToCart} />
-                    </div>
+                  <ScrollReveal key={product.uuid || product.id} delay={(index % 4) * 0.05}>
+                    <ProductCard product={product} onAddToCart={addToCart} />
                   </ScrollReveal>
                 ))}
               </div>
@@ -149,7 +183,7 @@ const s = {
   },
   headerSection: {
     padding: '12rem 0 6rem 0',
-    background: 'radial-gradient(circle at 50% -20%, rgba(255,255,255,0.05) 0%, transparent 70%)',
+    background: 'radial-gradient(circle at 50% -20%, rgba(200,146,42,0.1) 0%, transparent 70%)',
   },
   headerContent: {
     maxWidth: '800px',
@@ -189,7 +223,7 @@ const s = {
     alignItems: 'center',
     gap: '2rem',
     padding: '2rem 0',
-    borderBottom: '1px solid rgba(255,255,255,0.1)',
+    borderBottom: '1px solid rgba(255,255,255,0.05)',
     marginBottom: '4rem',
   },
   filterToggle: {
@@ -197,10 +231,11 @@ const s = {
     alignItems: 'center',
     gap: '0.75rem',
     cursor: 'pointer',
-    fontSize: '0.875rem',
-    fontWeight: 600,
+    fontSize: '0.8rem',
+    fontWeight: 700,
     textTransform: 'uppercase',
-    letterSpacing: '0.1em',
+    letterSpacing: '0.15em',
+    transition: 'all 0.3s ease',
   },
   searchWrapper: {
     flex: 1,
@@ -209,71 +244,115 @@ const s = {
   },
   searchIcon: {
     position: 'absolute',
-    left: '1rem',
+    left: '1.25rem',
     top: '50%',
     transform: 'translateY(-50%)',
     opacity: 0.3,
   },
   searchInput: {
     width: '100%',
-    padding: '0.75rem 1rem 0.75rem 3rem',
-    backgroundColor: 'rgba(255,255,255,0.03)',
-    border: '1px solid rgba(255,255,255,0.08)',
-    borderRadius: '4px',
+    padding: '1rem 3.5rem 1rem 3.5rem',
+    backgroundColor: 'rgba(255,255,255,0.02)',
+    border: '1px solid rgba(255,255,255,0.05)',
     color: '#fff',
-    fontSize: '0.9rem',
+    fontSize: '0.95rem',
     outline: 'none',
-    transition: 'border-color 0.3s ease',
+    transition: 'all 0.3s ease',
+  },
+  clearSearch: {
+    position: 'absolute',
+    right: '1.25rem',
+    top: '50%',
+    transform: 'translateY(-50%)',
+    cursor: 'pointer',
+    opacity: 0.5,
+    transition: 'opacity 0.2s ease',
+  },
+  clearAllBtn: {
+    background: 'none',
+    border: 'none',
+    color: '#C8922A',
+    fontSize: '0.75rem',
+    textTransform: 'uppercase',
+    letterSpacing: '0.1em',
+    fontWeight: 600,
+    cursor: 'pointer',
+    padding: '0.5rem 1rem',
+    borderBottom: '1px solid #C8922A',
   },
   viewToggles: {
     display: 'flex',
+    alignItems: 'center',
+    gap: '2.5rem',
+  },
+  productCount: {
+    fontSize: '0.8rem',
+    color: 'rgba(255,255,255,0.3)',
+    fontWeight: 500,
+  },
+  toggleIcons: {
+    display: 'flex',
     gap: '1.5rem',
-    opacity: 0.5,
   },
   layoutBody: {
     display: 'flex',
-    gap: '4rem',
+    gap: '6rem',
   },
   sidebar: {
-    width: '240px',
+    width: '260px',
     flexShrink: 0,
   },
   sidebarHeading: {
-    fontSize: '0.75rem',
+    fontSize: '0.7rem',
     textTransform: 'uppercase',
-    letterSpacing: '0.15em',
-    color: 'rgba(255,255,255,0.3)',
-    marginBottom: '2rem',
-    fontWeight: 700,
+    letterSpacing: '0.2em',
+    color: 'rgba(255,255,255,0.25)',
+    marginBottom: '2.5rem',
+    fontWeight: 800,
   },
   sidebarList: {
     display: 'flex',
     flexDirection: 'column',
-    gap: '1rem',
+    gap: '0.5rem',
   },
   sidebarBtn: {
     textAlign: 'left',
     background: 'none',
     border: 'none',
-    padding: '0.5rem 0',
-    fontSize: '0.9rem',
+    padding: '1rem 0.5rem',
+    fontSize: '0.85rem',
     cursor: 'pointer',
-    transition: 'all 0.3s ease',
+    transition: 'all 0.4s cubic-bezier(0.16, 1, 0.3, 1)',
+    textTransform: 'uppercase',
+    letterSpacing: '0.1em',
   },
   catalogGrid: {
     flex: 1,
   },
   grid: {
     display: 'grid',
-    gridTemplateColumns: 'repeat(auto-fill, minmax(300px, 1fr))',
-    gap: '3rem',
-  },
-  productTile: {
-    transition: 'transform 0.4s ease',
+    gridTemplateColumns: 'repeat(auto-fill, minmax(320px, 1fr))',
+    gap: '4rem 3rem',
   },
   empty: {
     textAlign: 'center',
     padding: '10rem 0',
-    color: 'rgba(255,255,255,0.3)',
+    color: 'rgba(255,255,255,0.5)',
+  },
+  emptyIcon: {
+    marginBottom: '2rem',
+    opacity: 0.2,
+  },
+  emptyBtn: {
+    marginTop: '2rem',
+    padding: '1rem 2.5rem',
+    background: '#fff',
+    color: '#000',
+    border: 'none',
+    fontSize: '0.75rem',
+    fontWeight: 700,
+    textTransform: 'uppercase',
+    letterSpacing: '0.1em',
+    cursor: 'pointer',
   },
 };

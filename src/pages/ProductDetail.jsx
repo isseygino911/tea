@@ -123,7 +123,37 @@ export const ProductDetail = () => {
             
             <div style={styles.divider} />
             
+            {/* Model Number */}
+            {product.model_number && (
+              <div style={styles.modelNumber}>
+                <span style={styles.modelLabel}>Model:</span>
+                <span style={styles.modelValue}>{product.model_number}</span>
+              </div>
+            )}
+            
             <p style={styles.description}>{product.description}</p>
+            
+            {/* Specifications Table */}
+            {product.specifications && (
+              <div style={styles.specsSection}>
+                <h3 style={styles.specsTitle}>Specifications</h3>
+                <div style={styles.specsTable}>
+                  {(() => {
+                    // Parse specifications if it's a string
+                    const specs = typeof product.specifications === 'string' 
+                      ? JSON.parse(product.specifications) 
+                      : product.specifications;
+                    
+                    return Object.entries(specs).map(([key, value]) => (
+                      <div key={key} style={styles.specRow}>
+                        <span style={styles.specKey}>{key}</span>
+                        <span style={styles.specValue}>{value}</span>
+                      </div>
+                    ));
+                  })()}
+                </div>
+              </div>
+            )}
             
             <div style={styles.actions} className="product-detail-actions">
               <div style={styles.quantity}>
@@ -342,6 +372,60 @@ const styles = {
     marginTop: '1rem',
     fontSize: '0.9rem',
     color: 'rgba(255, 255, 255, 0.5)',
+  },
+  modelNumber: {
+    display: 'flex',
+    alignItems: 'center',
+    gap: '0.5rem',
+    marginBottom: '1rem',
+    fontSize: '0.875rem',
+  },
+  modelLabel: {
+    color: 'rgba(255, 255, 255, 0.5)',
+  },
+  modelValue: {
+    color: 'rgba(255, 255, 255, 0.9)',
+    fontWeight: 500,
+    fontFamily: 'monospace',
+    letterSpacing: '0.05em',
+  },
+  specsSection: {
+    marginTop: '2rem',
+    padding: '1.5rem',
+    backgroundColor: 'rgba(255, 255, 255, 0.02)',
+    border: '1px solid rgba(255, 255, 255, 0.05)',
+    borderRadius: '12px',
+  },
+  specsTitle: {
+    fontSize: '1rem',
+    fontWeight: 600,
+    marginBottom: '1rem',
+    color: 'rgba(255, 255, 255, 0.9)',
+  },
+  specsTable: {
+    display: 'flex',
+    flexDirection: 'column',
+    gap: '0.75rem',
+  },
+  specRow: {
+    display: 'flex',
+    justifyContent: 'space-between',
+    alignItems: 'flex-start',
+    gap: '1rem',
+    padding: '0.5rem 0',
+    borderBottom: '1px solid rgba(255, 255, 255, 0.05)',
+  },
+  specKey: {
+    fontSize: '0.875rem',
+    color: 'rgba(255, 255, 255, 0.5)',
+    flexShrink: 0,
+    minWidth: '120px',
+  },
+  specValue: {
+    fontSize: '0.875rem',
+    color: 'rgba(255, 255, 255, 0.9)',
+    textAlign: 'right',
+    flex: 1,
   },
   loading: {
     textAlign: 'center',

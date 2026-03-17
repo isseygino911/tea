@@ -184,6 +184,7 @@ export const ProductsManager = () => {
 const styles = {
   container: {
     padding: '1.5rem',
+    height: '100%',
   },
   header: {
     display: 'flex',
@@ -249,10 +250,15 @@ const styles = {
   },
   tableContainer: {
     overflowX: 'auto',
+    overflowY: 'auto',
+    maxHeight: 'calc(100vh - 300px)',
+    border: '1px solid rgba(255,255,255,0.1)',
+    borderRadius: '8px',
   },
   table: {
     width: '100%',
     borderCollapse: 'collapse',
+    minWidth: '800px',
   },
   th: {
     textAlign: 'left',
@@ -264,6 +270,10 @@ const styles = {
     fontWeight: 500,
     borderBottom: '1px solid rgba(255,255,255,0.1)',
     whiteSpace: 'nowrap',
+    backgroundColor: '#0a0a0a',
+    position: 'sticky',
+    top: 0,
+    zIndex: 10,
   },
   tr: {},
   td: {

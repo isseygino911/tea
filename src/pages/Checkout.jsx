@@ -532,7 +532,7 @@ export const Checkout = () => {
                 <span style={styles.free}>FREE</span>
               </div>
               <div style={styles.summaryRow}>
-                <span>Tax ({taxRateLoading ? '...' : (taxRate * 100).toFixed(0)}%)</span>
+                <span>Tax ({taxRateLoading ? '...' : (taxRate * 100).toFixed(taxRate * 100 % 1 === 0 ? 0 : 1)}%)</span>
                 <span>${formatPrice(cartTotal * taxRate)}</span>
               </div>
 

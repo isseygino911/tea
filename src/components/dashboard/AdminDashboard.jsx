@@ -402,6 +402,8 @@ const styles = {
     padding: '2rem',
     transition: 'margin-left 0.3s ease',
     willChange: 'margin-left',
+    overflowY: 'auto',
+    height: 'calc(100vh - 80px)',
   },
   header: {
     marginBottom: '1.5rem',

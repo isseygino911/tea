@@ -1,10 +1,11 @@
-import { ArrowRight, ImageOff } from 'lucide-react';
+import { ArrowRight, ImageOff, Plus } from 'lucide-react';
 import { useNavigate } from 'react-router-dom';
 import { useState } from 'react';
 
 export const ProductCard = ({ product, onAddToCart }) => {
   const navigate = useNavigate();
   const [imageError, setImageError] = useState(false);
+  const [isHovered, setIsHovered] = useState(false);
 
   const formatPrice = (price) => {
     const num = parseFloat(price);
@@ -18,44 +19,87 @@ export const ProductCard = ({ product, onAddToCart }) => {
   };
 
   const imageUrl = product.image_url || '';
-  const placeholderUrl = `https://via.placeholder.com/400x500/111/333?text=${encodeURIComponent(product.name || 'Product')}`;
 
   return (
-    <div style={styles.card} data-product-card onClick={handleCardClick}>
+    <div 
+      style={{
+        ...styles.card,
+        transform: isHovered ? 'translateY(-10px)' : 'translateY(0)',
+        boxShadow: isHovered ? '0 30px 60px rgba(0,0,0,0.5)' : 'none',
+      }} 
+      onMouseEnter={() => setIsHovered(true)}
+      onMouseLeave={() => setIsHovered(false)}
+      onClick={handleCardClick}
+    >
       <div style={styles.imageContainer}>
         {imageError || !imageUrl ? (
           <div style={styles.fallbackImage}>
-            <ImageOff size={48} color="rgba(255,255,255,0.3)" />
-            <span style={styles.fallbackText}>No Image</span>
+            <ImageOff size={48} color="rgba(255,255,255,0.1)" />
+            <span style={styles.fallbackText}>Technical Drawing Pending</span>
           </div>
         ) : (
           <img 
             src={imageUrl}
             alt={product.name}
-            style={styles.image}
+            style={{
+              ...styles.image,
+              transform: isHovered ? 'scale(1.1)' : 'scale(1)',
+              filter: isHovered ? 'brightness(0.7)' : 'brightness(0.9)',
+            }}
             onError={(e) => {
               console.error(`Failed to load image: ${imageUrl}`, e);
               setImageError(true);
             }}
           />
         )}
-        <div style={styles.overlay} data-overlay>
-          <button 
-            style={styles.addButton}
-            onClick={(e) => {
-              e.stopPropagation();
-              onAddToCart(product);
-            }}
-            data-quick-add
-          >
-            Add to Cart <ArrowRight size={16} />
-          </button>
+        
+        {/* Quick Add Button — Bottom Right */}
+        <button 
+          style={{
+            ...styles.quickAdd,
+            opacity: isHovered ? 1 : 0,
+            transform: isHovered ? 'scale(1)' : 'scale(0.8)',
+          }}
+          onClick={(e) => {
+            e.stopPropagation();
+            onAddToCart(product);
+          }}
+          data-quick-add
+          title="Add to Cart"
+        >
+          <Plus size={20} />
+        </button>
+
+        {/* Info Overlay — Top Left (Badges) */}
+        <div style={styles.badges}>
+          {product.sku && <span style={styles.skuBadge}>{product.sku}</span>}
+          {product.wattage && <span style={styles.specBadge}>{product.wattage}</span>}
         </div>
       </div>
+
       <div style={styles.info}>
-        <span style={styles.category}>{product.category}</span>
-        <h3 style={styles.name}>{product.name}</h3>
-        <p style={styles.price}>${formatPrice(product.price)}</p>
+        <div style={styles.meta}>
+          <span style={styles.category}>{product.category}</span>
+          <div style={{ ...styles.indicator, backgroundColor: isHovered ? '#C8922A' : 'rgba(255,255,255,0.2)' }}></div>
+        </div>
+        <h3 style={{ 
+          ...styles.name,
+          color: isHovered ? '#fff' : 'rgba(255,255,255,0.9)'
+        }}>
+          {product.name}
+        </h3>
+        <div style={styles.footer}>
+          <p style={styles.price}>${formatPrice(product.price)}</p>
+          <ArrowRight 
+            size={16} 
+            style={{ 
+              opacity: isHovered ? 1 : 0, 
+              transform: isHovered ? 'translateX(0)' : 'translateX(-10px)',
+              transition: 'all 0.4s ease',
+              color: '#C8922A'
+            }} 
+          />
+        </div>
       </div>
     </div>
   );
@@ -65,13 +109,17 @@ const styles = {
   card: {
     display: 'flex',
     flexDirection: 'column',
-    gap: '1.5rem',
     cursor: 'pointer',
+    transition: 'all 0.5s cubic-bezier(0.16, 1, 0.3, 1)',
+    backgroundColor: 'rgba(255,255,255,0.02)',
+    border: '1px solid rgba(255,255,255,0.05)',
+    height: '100%',
+    overflow: 'hidden',
   },
   imageContainer: {
     position: 'relative',
-    aspectRatio: '4/5',
-    backgroundColor: '#111',
+    aspectRatio: '1/1',
+    backgroundColor: '#0a0a0a',
     overflow: 'hidden',
     display: 'flex',
     alignItems: 'center',
@@ -83,7 +131,7 @@ const styles = {
     objectFit: 'cover',
     objectPosition: 'center',
     display: 'block',
-    transition: 'transform 0.6s cubic-bezier(0.16, 1, 0.3, 1)',
+    transition: 'all 0.8s cubic-bezier(0.16, 1, 0.3, 1)',
   },
   fallbackImage: {
     width: '100%',
@@ -92,55 +140,105 @@ const styles = {
     flexDirection: 'column',
     alignItems: 'center',
     justifyContent: 'center',
-    gap: '0.5rem',
-    backgroundColor: '#0a0a0a',
+    gap: '0.75rem',
   },
   fallbackText: {
-    fontSize: '0.75rem',
-    color: 'rgba(255,255,255,0.3)',
+    fontSize: '0.65rem',
+    textTransform: 'uppercase',
+    letterSpacing: '0.1em',
+    color: 'rgba(255,255,255,0.2)',
   },
-  overlay: {
+  quickAdd: {
     position: 'absolute',
-    inset: 0,
-    backgroundColor: 'rgba(0,0,0,0.5)',
+    bottom: '1.5rem',
+    right: '1.5rem',
+    width: '3.5rem',
+    height: '3.5rem',
+    borderRadius: '50%',
+    backgroundColor: '#fff',
+    color: '#000',
     display: 'flex',
     alignItems: 'center',
     justifyContent: 'center',
-    opacity: 0,
-    transition: 'opacity 0.4s ease',
-  },
-  addButton: {
-    display: 'flex',
-    alignItems: 'center',
-    gap: '0.5rem',
-    padding: '1rem 2rem',
-    background: '#ffffff',
-    color: '#000000',
-    fontSize: '0.75rem',
-    fontWeight: 600,
-    textTransform: 'uppercase',
-    letterSpacing: '0.05em',
-    transform: 'translateY(20px)',
+    border: 'none',
+    cursor: 'pointer',
+    zIndex: 5,
     transition: 'all 0.4s cubic-bezier(0.16, 1, 0.3, 1)',
+    boxShadow: '0 10px 20px rgba(0,0,0,0.3)',
   },
-  info: {
+  badges: {
+    position: 'absolute',
+    top: '1.5rem',
+    left: '1.5rem',
     display: 'flex',
     flexDirection: 'column',
     gap: '0.5rem',
+    zIndex: 4,
+  },
+  skuBadge: {
+    fontSize: '0.6rem',
+    fontWeight: 700,
+    backgroundColor: 'rgba(0,0,0,0.6)',
+    backdropFilter: 'blur(8px)',
+    color: 'rgba(255,255,255,0.8)',
+    padding: '0.3rem 0.6rem',
+    borderRadius: '2px',
+    border: '1px solid rgba(255,255,255,0.1)',
+  },
+  specBadge: {
+    fontSize: '0.6rem',
+    fontWeight: 700,
+    backgroundColor: '#C8922A',
+    color: '#000',
+    padding: '0.3rem 0.6rem',
+    borderRadius: '2px',
+  },
+  info: {
+    padding: '2rem',
+    display: 'flex',
+    flexDirection: 'column',
+    gap: '1rem',
+    flex: 1,
+    background: 'linear-gradient(to bottom, transparent, rgba(255,255,255,0.01))',
+  },
+  meta: {
+    display: 'flex',
+    alignItems: 'center',
+    justifyContent: 'space-between',
   },
   category: {
     fontSize: '0.65rem',
     textTransform: 'uppercase',
-    letterSpacing: '0.15em',
+    letterSpacing: '0.2em',
     color: 'rgba(255, 255, 255, 0.4)',
+    fontWeight: 500,
+  },
+  indicator: {
+    width: '4px',
+    height: '4px',
+    borderRadius: '50%',
+    transition: 'all 0.3s ease',
   },
   name: {
-    fontSize: '1.1rem',
-    fontWeight: 500,
-    color: '#ffffff',
+    fontSize: '1.25rem',
+    fontWeight: 600,
+    lineHeight: 1.3,
+    letterSpacing: '-0.01em',
+    margin: 0,
+    transition: 'color 0.3s ease',
+  },
+  footer: {
+    marginTop: 'auto',
+    paddingTop: '1rem',
+    display: 'flex',
+    alignItems: 'center',
+    justifyContent: 'space-between',
+    borderTop: '1px solid rgba(255,255,255,0.05)',
   },
   price: {
-    fontSize: '0.9rem',
-    color: 'rgba(255, 255, 255, 0.6)',
+    fontSize: '1.1rem',
+    fontWeight: 700,
+    color: '#ffffff',
+    margin: 0,
   },
 };
