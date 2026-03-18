@@ -102,6 +102,7 @@ export const ProductDetail = () => {
 
   return (
     <div style={styles.container}>
+      <style>{responsiveStyles}</style>
       <div className="container">
         <Link to="/products" style={styles.backLink}>
           <ArrowLeft size={18} />
@@ -109,65 +110,143 @@ export const ProductDetail = () => {
         </Link>
 
         <ScrollReveal>
-        <div style={styles.content} className="product-detail-content">
-          <div style={styles.imageSection}>
-            <div style={styles.mainImageContainer}>
-              <img src={currentImage} alt={product.name} style={styles.mainImage} />
+          {/* Top Section: Image + Info */}
+          <div style={styles.topSection} className="product-detail-top">
+            {/* Image Gallery */}
+            <div style={styles.imageSection}>
+              <div style={styles.mainImageContainer}>
+                <img src={currentImage} alt={product.name} style={styles.mainImage} />
+                
+                {images.length > 1 && (
+                  <>
+                    <button onClick={handlePrevImage} style={{ ...styles.navButton, left: '1rem' }}>
+                      <ChevronLeft size={24} />
+                    </button>
+                    <button onClick={handleNextImage} style={{ ...styles.navButton, right: '1rem' }}>
+                      <ChevronRight size={24} />
+                    </button>
+                  </>
+                )}
+              </div>
               
               {images.length > 1 && (
-                <>
-                  <button onClick={handlePrevImage} style={{ ...styles.navButton, left: '1rem' }}>
-                    <ChevronLeft size={24} />
-                  </button>
-                  <button onClick={handleNextImage} style={{ ...styles.navButton, right: '1rem' }}>
-                    <ChevronRight size={24} />
-                  </button>
-                </>
+                <div style={styles.thumbnails}>
+                  {images.map((img, idx) => (
+                    <button
+                      key={idx}
+                      onClick={() => setCurrentImageIndex(idx)}
+                      style={{
+                        ...styles.thumbnail,
+                        borderColor: currentImageIndex === idx ? '#ffffff' : 'transparent',
+                      }}
+                    >
+                      <img src={img} alt={`${product.name} ${idx + 1}`} style={styles.thumbnailImg} />
+                    </button>
+                  ))}
+                </div>
               )}
             </div>
-            
-            {images.length > 1 && (
-              <div style={styles.thumbnails}>
-                {images.map((img, idx) => (
+
+            {/* Product Info + Actions */}
+            <div style={styles.infoSection}>
+              <p style={styles.category}>{product.category}</p>
+              <h1 style={styles.name}>{product.name}</h1>
+              {product.uuid && (
+                <p style={styles.sku}>SKU: {product.uuid.slice(0, 8).toUpperCase()}</p>
+              )}
+              
+              {/* Model Number */}
+              {product.model_number && (
+                <div style={styles.modelNumber}>
+                  <span style={styles.modelLabel}>Model:</span>
+                  <span style={styles.modelValue}>{product.model_number}</span>
+                </div>
+              )}
+
+              {/* Price + Actions Row */}
+              <div style={styles.priceActionsRow}>
+                <p style={styles.price}>${price.toFixed(2)}</p>
+                
+                <div style={styles.actions}>
+                  <div style={styles.quantity}>
+                    <button
+                      onClick={() => setQuantity(q => Math.max(1, q - 1))}
+                      style={styles.qtyBtn}
+                      disabled={isOutOfStock}
+                    >
+                      -
+                    </button>
+                    <span style={styles.qtyValue}>{quantity}</span>
+                    <button
+                      onClick={() => setQuantity(q => q + 1)}
+                      style={styles.qtyBtn}
+                      disabled={isOutOfStock}
+                    >
+                      +
+                    </button>
+                  </div>
+
                   <button
-                    key={idx}
-                    onClick={() => setCurrentImageIndex(idx)}
+                    onClick={handleAddToCart}
                     style={{
-                      ...styles.thumbnail,
-                      borderColor: currentImageIndex === idx ? '#ffffff' : 'transparent',
+                      ...styles.addButton,
+                      ...(isOutOfStock ? styles.addButtonDisabled : {}),
                     }}
+                    disabled={isOutOfStock}
                   >
-                    <img src={img} alt={`${product.name} ${idx + 1}`} style={styles.thumbnailImg} />
+                    {isOutOfStock ? 'Out of Stock' : 'Add to Cart'}
                   </button>
-                ))}
+
+                  {user && (
+                    <button
+                      onClick={handleWishlistToggle}
+                      disabled={wishlistLoading}
+                      style={{
+                        ...styles.wishlistBtn,
+                        backgroundColor: inWishlist ? 'rgba(239,68,68,0.15)' : 'rgba(255,255,255,0.05)',
+                        borderColor: inWishlist ? 'rgba(239,68,68,0.4)' : 'rgba(255,255,255,0.15)',
+                      }}
+                      title={inWishlist ? 'Remove from wishlist' : 'Add to wishlist'}
+                    >
+                      <Heart
+                        size={20}
+                        fill={inWishlist ? '#ef4444' : 'none'}
+                        color={inWishlist ? '#ef4444' : 'rgba(255,255,255,0.7)'}
+                      />
+                    </button>
+                  )}
+                </div>
               </div>
-            )}
+              
+              {/* Stock Status */}
+              {!isOutOfStock ? (
+                <>
+                  <p style={styles.stock}>In Stock ({product.stock_quantity} available)</p>
+                  {product.stock_quantity <= 10 && (
+                    <p style={{ ...styles.stock, color: '#ff6b6b', fontWeight: 600 }}>
+                      Only {product.stock_quantity} left - order soon!
+                    </p>
+                  )}
+                </>
+              ) : (
+                <p style={{ ...styles.stock, color: '#ff6b6b' }}>Out of Stock</p>
+              )}
+            </div>
           </div>
 
-          <div style={styles.infoSection}>
-            <p style={styles.category}>{product.category}</p>
-            <h1 style={styles.name}>{product.name}</h1>
-            {product.uuid && (
-              <p style={styles.sku}>SKU: {product.uuid.slice(0, 8).toUpperCase()}</p>
-            )}
-            <p style={styles.price}>${price.toFixed(2)}</p>
-            
-            <div style={styles.divider} />
-            
-            {/* Model Number */}
-            {product.model_number && (
-              <div style={styles.modelNumber}>
-                <span style={styles.modelLabel}>Model:</span>
-                <span style={styles.modelValue}>{product.model_number}</span>
+          {/* Bottom Section: Full Width Description */}
+          <div style={styles.bottomSection}>
+            {product.description && (
+              <div style={styles.descriptionSection}>
+                <h2 style={styles.sectionTitle}>Description</h2>
+                <p style={styles.description}>{product.description}</p>
               </div>
             )}
             
-            <p style={styles.description}>{product.description}</p>
-            
-            {/* Specifications Table */}
+            {/* Specifications */}
             {product.specifications && (
               <div style={styles.specsSection}>
-                <h3 style={styles.specsTitle}>Specifications</h3>
+                <h2 style={styles.sectionTitle}>Specifications</h2>
                 <div style={styles.specsTable}>
                   {(() => {
                     // Parse specifications if it's a string
@@ -185,74 +264,7 @@ export const ProductDetail = () => {
                 </div>
               </div>
             )}
-            
-            <div style={styles.actions} className="product-detail-actions">
-              <div style={styles.quantity}>
-                <button
-                  onClick={() => setQuantity(q => Math.max(1, q - 1))}
-                  style={styles.qtyBtn}
-                  disabled={isOutOfStock}
-                >
-                  -
-                </button>
-                <span style={styles.qtyValue}>{quantity}</span>
-                <button
-                  onClick={() => setQuantity(q => q + 1)}
-                  style={styles.qtyBtn}
-                  disabled={isOutOfStock}
-                >
-                  +
-                </button>
-              </div>
-
-              <div style={styles.addRow}>
-                <button
-                  onClick={handleAddToCart}
-                  style={{
-                    ...styles.addButton,
-                    ...(isOutOfStock ? styles.addButtonDisabled : {}),
-                  }}
-                  className="product-detail-add-btn"
-                  disabled={isOutOfStock}
-                >
-                  {isOutOfStock ? 'Out of Stock' : 'Add to Cart'}
-                </button>
-
-                {user && (
-                  <button
-                    onClick={handleWishlistToggle}
-                    disabled={wishlistLoading}
-                    style={{
-                      ...styles.wishlistBtn,
-                      backgroundColor: inWishlist ? 'rgba(239,68,68,0.15)' : 'rgba(255,255,255,0.05)',
-                      borderColor: inWishlist ? 'rgba(239,68,68,0.4)' : 'rgba(255,255,255,0.15)',
-                    }}
-                    title={inWishlist ? 'Remove from wishlist' : 'Add to wishlist'}
-                  >
-                    <Heart
-                      size={20}
-                      fill={inWishlist ? '#ef4444' : 'none'}
-                      color={inWishlist ? '#ef4444' : 'rgba(255,255,255,0.7)'}
-                    />
-                  </button>
-                )}
-              </div>
-            </div>
-            
-            {!isOutOfStock ? (
-              <>
-                <p style={styles.stock}>In Stock ({product.stock_quantity} available)</p>
-                {product.stock_quantity <= 10 && (
-                  <p style={{ ...styles.stock, color: '#ff6b6b', fontWeight: 600 }}>
-                    Only {product.stock_quantity} left - order soon!
-                  </p>
-                )}
-              </>
-            ) : (
-              <p style={{ ...styles.stock, color: '#ff6b6b' }}>Out of Stock</p>
-            )}
           </div>
-        </div>
         </ScrollReveal>
       </div>
     </div>
@@ -274,18 +286,17 @@ const styles = {
     fontSize: '0.9rem',
     marginBottom: '2rem',
   },
-  content: {
-    display: 'flex',
-    flexDirection: 'column',
-    gap: '2rem',
+  topSection: {
+    display: 'grid',
+    gridTemplateColumns: '1fr 1fr',
+    gap: '3rem',
+    marginBottom: '3rem',
   },
   imageSection: {
     display: 'flex',
     flexDirection: 'column',
     gap: '1rem',
     width: '100%',
-    maxWidth: '600px',
-    margin: '0 auto',
   },
   mainImageContainer: {
     position: 'relative',
@@ -350,65 +361,66 @@ const styles = {
     textTransform: 'uppercase',
     letterSpacing: '0.15em',
     color: 'rgba(255, 255, 255, 0.5)',
-    marginBottom: '1rem',
+    marginBottom: '0.75rem',
   },
   name: {
     fontSize: 'clamp(1.75rem, 4vw, 2.5rem)',
     fontWeight: 700,
     letterSpacing: '-0.02em',
-    marginBottom: '1rem',
-  },
-  price: {
-    fontSize: '1.75rem',
-    fontWeight: 600,
-    marginBottom: '1.5rem',
+    marginBottom: '0.75rem',
   },
   sku: {
     fontSize: '0.75rem',
     color: 'rgba(255, 255, 255, 0.4)',
     fontFamily: 'monospace',
     letterSpacing: '0.1em',
-    marginBottom: '0.5rem',
+    marginBottom: '0.75rem',
   },
-  divider: {
-    height: '1px',
-    backgroundColor: 'rgba(255, 255, 255, 0.1)',
-    margin: '1.5rem 0',
+  modelNumber: {
+    display: 'flex',
+    alignItems: 'center',
+    gap: '0.5rem',
+    marginBottom: '1.5rem',
+    fontSize: '0.875rem',
   },
-  description: {
-    fontSize: '1rem',
-    lineHeight: 1.8,
-    color: 'rgba(255, 255, 255, 0.7)',
+  modelLabel: {
+    color: 'rgba(255, 255, 255, 0.5)',
   },
-  actions: {
+  modelValue: {
+    color: 'rgba(255, 255, 255, 0.9)',
+    fontWeight: 500,
+    fontFamily: 'monospace',
+    letterSpacing: '0.05em',
+  },
+  priceActionsRow: {
     display: 'flex',
     flexDirection: 'column',
     gap: '1rem',
-    marginTop: '2rem',
+    padding: '1.5rem',
+    backgroundColor: 'rgba(255, 255, 255, 0.02)',
+    border: '1px solid rgba(255, 255, 255, 0.05)',
+    borderRadius: '12px',
+    marginBottom: '1rem',
   },
-  addRow: {
-    display: 'flex',
-    gap: '0.75rem',
-    alignItems: 'stretch',
+  price: {
+    fontSize: '2rem',
+    fontWeight: 700,
+    margin: 0,
   },
-  wishlistBtn: {
-    flexShrink: 0,
-    width: '52px',
-    border: '1px solid',
-    borderRadius: '8px',
+  actions: {
     display: 'flex',
     alignItems: 'center',
-    justifyContent: 'center',
-    cursor: 'pointer',
-    transition: 'all 0.2s ease',
+    gap: '0.75rem',
+    flexWrap: 'wrap',
   },
   quantity: {
     display: 'flex',
     alignItems: 'center',
     gap: '1rem',
-    padding: '0.75rem 1rem',
+    padding: '0.5rem 1rem',
     border: '1px solid rgba(255,255,255,0.2)',
     borderRadius: '8px',
+    backgroundColor: 'rgba(0,0,0,0.3)',
   },
   qtyBtn: {
     width: '32px',
@@ -419,6 +431,9 @@ const styles = {
     color: '#ffffff',
     fontSize: '1.25rem',
     cursor: 'pointer',
+    display: 'flex',
+    alignItems: 'center',
+    justifyContent: 'center',
   },
   qtyValue: {
     fontSize: '1rem',
@@ -428,7 +443,8 @@ const styles = {
   },
   addButton: {
     flex: 1,
-    padding: '1rem 2rem',
+    minWidth: '140px',
+    padding: '0.875rem 1.5rem',
     backgroundColor: '#ffffff',
     color: '#000000',
     border: 'none',
@@ -443,43 +459,51 @@ const styles = {
     color: 'rgba(255,255,255,0.4)',
     cursor: 'not-allowed',
   },
-  stock: {
-    marginTop: '1rem',
-    fontSize: '0.9rem',
-    color: 'rgba(255, 255, 255, 0.5)',
-  },
-  modelNumber: {
+  wishlistBtn: {
+    width: '48px',
+    height: '48px',
+    border: '1px solid',
+    borderRadius: '8px',
     display: 'flex',
     alignItems: 'center',
-    gap: '0.5rem',
-    marginBottom: '1rem',
-    fontSize: '0.875rem',
+    justifyContent: 'center',
+    cursor: 'pointer',
+    transition: 'all 0.2s ease',
+    backgroundColor: 'transparent',
   },
-  modelLabel: {
+  stock: {
+    fontSize: '0.9rem',
     color: 'rgba(255, 255, 255, 0.5)',
+    margin: '0.25rem 0',
   },
-  modelValue: {
-    color: 'rgba(255, 255, 255, 0.9)',
-    fontWeight: 500,
-    fontFamily: 'monospace',
-    letterSpacing: '0.05em',
+  bottomSection: {
+    display: 'flex',
+    flexDirection: 'column',
+    gap: '2rem',
   },
-  specsSection: {
-    marginTop: '2rem',
-    padding: '1.5rem',
-    backgroundColor: 'rgba(255, 255, 255, 0.02)',
-    border: '1px solid rgba(255, 255, 255, 0.05)',
-    borderRadius: '12px',
+  descriptionSection: {
+    width: '100%',
   },
-  specsTitle: {
-    fontSize: '1rem',
+  sectionTitle: {
+    fontSize: '1.25rem',
     fontWeight: 600,
     marginBottom: '1rem',
     color: 'rgba(255, 255, 255, 0.9)',
+    paddingBottom: '0.75rem',
+    borderBottom: '1px solid rgba(255, 255, 255, 0.1)',
+  },
+  description: {
+    fontSize: '1rem',
+    lineHeight: 1.8,
+    color: 'rgba(255, 255, 255, 0.7)',
+    whiteSpace: 'pre-wrap',
+  },
+  specsSection: {
+    width: '100%',
   },
   specsTable: {
-    display: 'flex',
-    flexDirection: 'column',
+    display: 'grid',
+    gridTemplateColumns: 'repeat(auto-fit, minmax(300px, 1fr))',
     gap: '0.75rem',
   },
   specRow: {
@@ -487,8 +511,10 @@ const styles = {
     justifyContent: 'space-between',
     alignItems: 'flex-start',
     gap: '1rem',
-    padding: '0.5rem 0',
-    borderBottom: '1px solid rgba(255, 255, 255, 0.05)',
+    padding: '1rem',
+    backgroundColor: 'rgba(255, 255, 255, 0.02)',
+    border: '1px solid rgba(255, 255, 255, 0.05)',
+    borderRadius: '8px',
   },
   specKey: {
     fontSize: '0.875rem',
@@ -514,3 +540,11 @@ const styles = {
   },
 };
 
+// Responsive styles
+const responsiveStyles = `
+  @media (max-width: 768px) {
+    .product-detail-top {
+      grid-template-columns: 1fr !important;
+    }
+  }
+`;
