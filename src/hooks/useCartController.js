@@ -1,5 +1,6 @@
 import { useState, useCallback } from 'react';
 import api from '../services/api';
+import { settingsAPI } from '../services/settingsAPI';
 
 export const useCartController = () => {
   const [orderStatus, setOrderStatus] = useState('idle'); // idle | submitting | success | error
@@ -14,15 +15,27 @@ export const useCartController = () => {
     setOrderError(null);
 
     try {
-      const total = cartItems.reduce((sum, item) => sum + item.price * item.quantity, 0);
-      
+      let taxRate = 0.08;
+      try {
+        const taxRes = await settingsAPI.getTaxRate();
+        taxRate = parseFloat(taxRes.data.taxRate) || 0.08;
+      } catch {
+        // use default 0.08
+      }
+
+      const subtotal = cartItems.reduce((sum, item) => sum + item.price * item.quantity, 0);
+      const tax_amount = parseFloat((subtotal * taxRate).toFixed(2));
+      const total_amount = parseFloat((subtotal + tax_amount).toFixed(2));
+
       const orderData = {
         items: cartItems.map(item => ({
           product_id: item.id,
           quantity: item.quantity,
           price: item.price,
         })),
-        total_amount: total,
+        subtotal,
+        tax_amount,
+        total_amount,
         shipping_address: shippingAddress,
       };
 

@@ -1,9 +1,10 @@
-import { useState, useEffect, useCallback } from 'react';
+import { useState, useEffect, useCallback, useMemo } from 'react';
 import { Search, Plus, Edit2, Trash2 } from 'lucide-react';
 import { useAdminController } from '../../hooks/useAdminController';
 import { adminAPI } from '../../services/adminAPI';
 import { ProductFormModal } from './ProductFormModal';
 import { LoadingBar } from '../ui/LoadingBar';
+import { SortableHeader } from './SortableHeader';
 
 const categories = ['All', 'Accessories', 'Bags', 'Electronics', 'Home', 'Lighting', 'Stationery', 'Kitchen'];
 
@@ -14,6 +15,10 @@ export const ProductsManager = () => {
   const [selectedCategory, setSelectedCategory] = useState('All');
   const [modalOpen, setModalOpen] = useState(false);
   const [editingProduct, setEditingProduct] = useState(null);
+  
+  // Sort state — client-side only, no refetch on sort change
+  const [sortField, setSortField] = useState('name');
+  const [sortOrder, setSortOrder] = useState('ASC');
 
   const loadProducts = useCallback(async () => {
     setLocalLoading(true);
@@ -66,6 +71,21 @@ export const ProductsManager = () => {
     setModalOpen(false);
   };
 
+  const handleSort = (field, order) => {
+    setSortField(field);
+    setSortOrder(order);
+  };
+
+  const sortedProducts = useMemo(() => {
+    return [...products].sort((a, b) => {
+      const aVal = a[sortField] ?? '';
+      const bVal = b[sortField] ?? '';
+      if (aVal < bVal) return sortOrder === 'ASC' ? -1 : 1;
+      if (aVal > bVal) return sortOrder === 'ASC' ? 1 : -1;
+      return 0;
+    });
+  }, [products, sortField, sortOrder]);
+
   const isLoading = loading || localLoading;
 
   return (
@@ -116,16 +136,47 @@ export const ProductsManager = () => {
           <table style={styles.table}>
             <thead>
               <tr>
-                <th style={styles.th}>Product</th>
-                <th style={styles.th}>Category</th>
-                <th style={styles.th}>Price</th>
-                <th style={styles.th}>Stock</th>
-                <th style={styles.th}>Status</th>
+                <SortableHeader
+                  label="Product"
+                  sortKey="name"
+                  currentSort={sortField}
+                  currentOrder={sortOrder}
+                  onSort={handleSort}
+                  style={{ width: '35%' }}
+                />
+                <SortableHeader
+                  label="Category"
+                  sortKey="category"
+                  currentSort={sortField}
+                  currentOrder={sortOrder}
+                  onSort={handleSort}
+                />
+                <SortableHeader
+                  label="Price"
+                  sortKey="price"
+                  currentSort={sortField}
+                  currentOrder={sortOrder}
+                  onSort={handleSort}
+                />
+                <SortableHeader
+                  label="Stock"
+                  sortKey="stock_quantity"
+                  currentSort={sortField}
+                  currentOrder={sortOrder}
+                  onSort={handleSort}
+                />
+                <SortableHeader
+                  label="Status"
+                  sortKey="status"
+                  currentSort={sortField}
+                  currentOrder={sortOrder}
+                  onSort={handleSort}
+                />
                 <th style={styles.th}>Actions</th>
               </tr>
             </thead>
             <tbody>
-              {products.map((product) => (
+              {sortedProducts.map((product) => (
                 <tr key={product.id} style={styles.tr}>
                   <td style={styles.td}>
                     <div style={styles.productCell}>
@@ -165,7 +216,7 @@ export const ProductsManager = () => {
             </tbody>
           </table>
           
-          {products.length === 0 && (
+          {sortedProducts.length === 0 && (
             <div style={styles.empty}>No products found</div>
           )}
         </div>

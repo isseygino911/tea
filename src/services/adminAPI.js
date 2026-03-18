@@ -15,6 +15,7 @@ export const adminAPI = {
   
   // Public products (for storefront)
   getStoreProducts: (params) => api.get('/products', { params }),
+  getStoreFeaturedProducts: () => api.get('/products/featured'),
   getStoreProduct: (id) => api.get(`/products/${id}`),
   getStoreCategories: () => api.get('/products/categories'),
   
@@ -24,6 +25,6 @@ export const adminAPI = {
   updateOrderStatus: (id, status) => api.put(`/admin/orders/${id}/status`, { status }),
   
   // Customers
-  getCustomers: () => api.get('/admin/customers'),
+  getCustomers: (params) => api.get('/admin/customers', { params }),
   getCustomer: (id) => api.get(`/admin/customers/${id}`),
 };

@@ -1,8 +1,9 @@
-import { useState, useEffect, useCallback } from 'react';
+import { useState, useEffect, useCallback, useMemo } from 'react';
 import { Search, Eye, Package, Truck, CheckCircle, XCircle, Clock } from 'lucide-react';
 import { useOrderController } from '../../hooks/useOrderController';
 import { OrderDetailsModal } from './OrderDetailsModal';
 import { LoadingBar } from '../ui/LoadingBar';
+import { SortableHeader } from './SortableHeader';
 
 const statuses = ['All', 'pending', 'processing', 'shipped', 'delivered', 'cancelled'];
 
@@ -30,15 +31,19 @@ export const OrdersManager = () => {
   const [modalOpen, setModalOpen] = useState(false);
   const [selectedOrder, setSelectedOrder] = useState(null);
   const [orderItems, setOrderItems] = useState([]);
+  
+  // Sort state
+  const [sortField, setSortField] = useState('created_at');
+  const [sortOrder, setSortOrder] = useState('DESC');
 
   const loadOrders = useCallback(async () => {
     setLocalLoading(true);
-    const filters = {};
+    const filters = { sort: sortField, order: sortOrder };
     if (search) filters.search = search;
     if (selectedStatus !== 'All') filters.status = selectedStatus;
     await fetchAdminOrders(filters);
     setLocalLoading(false);
-  }, [search, selectedStatus, fetchAdminOrders]);
+  }, [search, selectedStatus, sortField, sortOrder, fetchAdminOrders]);
 
   useEffect(() => {
     loadOrders();
@@ -59,6 +64,21 @@ export const OrdersManager = () => {
     loadOrders();
     setModalOpen(false);
   };
+
+  const handleSort = (field, order) => {
+    setSortField(field);
+    setSortOrder(order);
+  };
+
+  const sortedOrders = useMemo(() => {
+    return [...orders].sort((a, b) => {
+      const aVal = a[sortField] ?? '';
+      const bVal = b[sortField] ?? '';
+      if (aVal < bVal) return sortOrder === 'ASC' ? -1 : 1;
+      if (aVal > bVal) return sortOrder === 'ASC' ? 1 : -1;
+      return 0;
+    });
+  }, [orders, sortField, sortOrder]);
 
   const isLoading = loading || localLoading;
 
@@ -121,17 +141,47 @@ export const OrdersManager = () => {
           <table style={styles.table}>
             <thead>
               <tr>
-                <th style={styles.th}>Order</th>
-                <th style={styles.th}>Customer</th>
+                <SortableHeader
+                  label="Order"
+                  sortKey="order_number"
+                  currentSort={sortField}
+                  currentOrder={sortOrder}
+                  onSort={handleSort}
+                />
+                <SortableHeader
+                  label="Customer"
+                  sortKey="customer_email"
+                  currentSort={sortField}
+                  currentOrder={sortOrder}
+                  onSort={handleSort}
+                />
                 <th style={styles.th}>Items</th>
-                <th style={styles.th}>Total</th>
-                <th style={styles.th}>Status</th>
-                <th style={styles.th}>Date</th>
+                <SortableHeader
+                  label="Total"
+                  sortKey="total_amount"
+                  currentSort={sortField}
+                  currentOrder={sortOrder}
+                  onSort={handleSort}
+                />
+                <SortableHeader
+                  label="Status"
+                  sortKey="status"
+                  currentSort={sortField}
+                  currentOrder={sortOrder}
+                  onSort={handleSort}
+                />
+                <SortableHeader
+                  label="Date"
+                  sortKey="created_at"
+                  currentSort={sortField}
+                  currentOrder={sortOrder}
+                  onSort={handleSort}
+                />
                 <th style={styles.th}>Actions</th>
               </tr>
             </thead>
             <tbody>
-              {orders.map((order) => {
+              {sortedOrders.map((order) => {
                 const StatusIcon = statusIcons[order.status] || Clock;
                 const statusColor = statusColors[order.status] || '#ffffff';
                 
@@ -170,7 +220,7 @@ export const OrdersManager = () => {
             </tbody>
           </table>
           
-          {orders.length === 0 && (
+          {sortedOrders.length === 0 && (
             <div style={styles.empty}>No orders found</div>
           )}
         </div>

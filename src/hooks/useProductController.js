@@ -28,7 +28,7 @@ export const useProductController = () => {
     setLoading(true);
     setError(null);
     try {
-      const res = await adminAPI.getStoreProducts({ featured: true });
+      const res = await adminAPI.getStoreFeaturedProducts();
       setProducts(res.data.products || []);
       return res.data;
     } catch (err) {

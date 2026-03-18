@@ -1,7 +1,14 @@
-import { useState, useEffect, useCallback } from 'react';
+import { useState, useEffect, useCallback, useMemo } from 'react';
 import { adminAPI } from '../../services/adminAPI';
 import { LoadingBar } from '../ui/LoadingBar';
-import { Users, ArrowLeft, ShoppingBag, DollarSign, Package, Calendar, TrendingUp } from 'lucide-react';
+import { Users, ArrowLeft, ShoppingBag, DollarSign, Package, Calendar, TrendingUp, ArrowUpDown, ArrowUp, ArrowDown } from 'lucide-react';
+
+const sortOptions = [
+  { key: 'created_at', label: 'Join Date', order: 'DESC' },
+  { key: 'email', label: 'Email', order: 'ASC' },
+  { key: 'order_count', label: 'Order Count', order: 'DESC' },
+  { key: 'total_spent', label: 'Total Spent', order: 'DESC' },
+];
 
 export const CustomersManager = () => {
   const [customers, setCustomers] = useState([]);
@@ -9,6 +16,11 @@ export const CustomersManager = () => {
   const [selectedCustomer, setSelectedCustomer] = useState(null);
   const [animationState, setAnimationState] = useState('list'); // 'list' | 'transitioning' | 'detail'
   const [isMobile, setIsMobile] = useState(false);
+  
+  // Sort state
+  const [sortField, setSortField] = useState('created_at');
+  const [sortOrder, setSortOrder] = useState('DESC');
+  const [showSortMenu, setShowSortMenu] = useState(false);
 
   // Check for mobile viewport
   useEffect(() => {
@@ -52,6 +64,26 @@ export const CustomersManager = () => {
     }, 300);
   };
 
+  const handleSort = (key, defaultOrder) => {
+    if (sortField === key) {
+      setSortOrder(sortOrder === 'ASC' ? 'DESC' : 'ASC');
+    } else {
+      setSortField(key);
+      setSortOrder(defaultOrder);
+    }
+    setShowSortMenu(false);
+  };
+
+  const sortedCustomers = useMemo(() => {
+    return [...customers].sort((a, b) => {
+      const aVal = a[sortField] ?? '';
+      const bVal = b[sortField] ?? '';
+      if (aVal < bVal) return sortOrder === 'ASC' ? -1 : 1;
+      if (aVal > bVal) return sortOrder === 'ASC' ? 1 : -1;
+      return 0;
+    });
+  }, [customers, sortField, sortOrder]);
+
   const formatDate = (dateString) => {
     return new Date(dateString).toLocaleDateString('en-US', {
       year: 'numeric',
@@ -65,6 +97,11 @@ export const CustomersManager = () => {
       minimumFractionDigits: 2,
       maximumFractionDigits: 2
     })}`;
+  };
+
+  const getCurrentSortLabel = () => {
+    const option = sortOptions.find(opt => opt.key === sortField);
+    return option ? option.label : 'Sort By';
   };
 
   if (loading) {
@@ -93,6 +130,12 @@ export const CustomersManager = () => {
             formatDate={formatDate}
             formatCurrency={formatCurrency}
             animationState="list"
+            sortField={sortField}
+            sortOrder={sortOrder}
+            showSortMenu={showSortMenu}
+            setShowSortMenu={setShowSortMenu}
+            onSort={handleSort}
+            getCurrentSortLabel={getCurrentSortLabel}
           />
         )}
       </div>
@@ -112,11 +155,46 @@ export const CustomersManager = () => {
       >
         <div style={styles.header}>
           <h2 style={styles.title}>Customers</h2>
-          <span style={styles.count}>{customers.length} total</span>
+          <div style={styles.headerActions}>
+            {/* Sort Dropdown */}
+            <div style={styles.sortWrapper}>
+              <button 
+                onClick={() => setShowSortMenu(!showSortMenu)}
+                style={styles.sortBtn}
+              >
+                <ArrowUpDown size={14} />
+                <span>{getCurrentSortLabel()}</span>
+                {sortOrder === 'ASC' ? <ArrowUp size={14} /> : <ArrowDown size={14} />}
+              </button>
+              
+              {showSortMenu && (
+                <div style={styles.sortMenu}>
+                  {sortOptions.map(option => (
+                    <button
+                      key={option.key}
+                      onClick={() => handleSort(option.key, option.order)}
+                      style={{
+                        ...styles.sortOption,
+                        backgroundColor: sortField === option.key ? 'rgba(200,146,42,0.2)' : 'transparent',
+                        color: sortField === option.key ? '#C8922A' : 'rgba(255,255,255,0.8)',
+                      }}
+                    >
+                      <span>{option.label}</span>
+                      {sortField === option.key && (
+                        sortOrder === 'ASC' ? <ArrowUp size={14} /> : <ArrowDown size={14} />
+                      )}
+                    </button>
+                  ))}
+                </div>
+              )}
+            </div>
+            
+            <span style={styles.count}>{customers.length} total</span>
+          </div>
         </div>
 
         <div style={styles.list}>
-          {customers.map((customer, index) => (
+          {sortedCustomers.map((customer, index) => (
             <div
               key={customer.id}
               onClick={() => handleCustomerClick(customer)}
@@ -252,15 +330,62 @@ const StatCard = ({ icon: Icon, label, value, subvalue, color, delay, animationS
 );
 
 // Customer List Component
-const CustomerList = ({ customers, onCustomerClick, formatDate, formatCurrency, animationState }) => (
+const CustomerList = ({ 
+  customers, 
+  onCustomerClick, 
+  formatDate, 
+  formatCurrency, 
+  animationState,
+  sortField,
+  sortOrder,
+  showSortMenu,
+  setShowSortMenu,
+  onSort,
+  getCurrentSortLabel
+}) => (
   <div style={styles.listContainerMobile}>
     <div style={styles.header}>
       <h2 style={styles.title}>Customers</h2>
-      <span style={styles.count}>{customers.length} total</span>
+      <div style={styles.headerActions}>
+        {/* Sort Dropdown */}
+        <div style={styles.sortWrapper}>
+          <button 
+            onClick={() => setShowSortMenu(!showSortMenu)}
+            style={styles.sortBtn}
+          >
+            <ArrowUpDown size={14} />
+            <span>{getCurrentSortLabel()}</span>
+            {sortOrder === 'ASC' ? <ArrowUp size={14} /> : <ArrowDown size={14} />}
+          </button>
+          
+          {showSortMenu && (
+            <div style={styles.sortMenu}>
+              {sortOptions.map(option => (
+                <button
+                  key={option.key}
+                  onClick={() => onSort(option.key, option.order)}
+                  style={{
+                    ...styles.sortOption,
+                    backgroundColor: sortField === option.key ? 'rgba(200,146,42,0.2)' : 'transparent',
+                    color: sortField === option.key ? '#C8922A' : 'rgba(255,255,255,0.8)',
+                  }}
+                >
+                  <span>{option.label}</span>
+                  {sortField === option.key && (
+                    sortOrder === 'ASC' ? <ArrowUp size={14} /> : <ArrowDown size={14} />
+                  )}
+                </button>
+              ))}
+            </div>
+          )}
+        </div>
+        
+        <span style={styles.count}>{customers.length} total</span>
+      </div>
     </div>
 
     <div style={styles.list}>
-      {customers.map((customer, index) => (
+      {sortedCustomers.map((customer, index) => (
         <div
           key={customer.id}
           onClick={() => onCustomerClick(customer)}
@@ -376,6 +501,11 @@ const styles = {
     alignItems: 'center',
     marginBottom: '1.5rem',
   },
+  headerActions: {
+    display: 'flex',
+    alignItems: 'center',
+    gap: '1rem',
+  },
   title: {
     fontSize: '1.25rem',
     fontWeight: 600,
@@ -383,6 +513,48 @@ const styles = {
   count: {
     fontSize: '0.875rem',
     color: 'rgba(255,255,255,0.5)',
+  },
+  // Sort Dropdown Styles
+  sortWrapper: {
+    position: 'relative',
+  },
+  sortBtn: {
+    display: 'flex',
+    alignItems: 'center',
+    gap: '0.5rem',
+    padding: '0.5rem 0.75rem',
+    backgroundColor: '#0a0a0a',
+    border: '1px solid rgba(255,255,255,0.1)',
+    borderRadius: '8px',
+    color: 'rgba(255,255,255,0.8)',
+    fontSize: '0.875rem',
+    cursor: 'pointer',
+    transition: 'all 0.2s ease',
+  },
+  sortMenu: {
+    position: 'absolute',
+    top: 'calc(100% + 0.5rem)',
+    right: 0,
+    minWidth: '180px',
+    backgroundColor: '#0a0a0a',
+    border: '1px solid rgba(255,255,255,0.1)',
+    borderRadius: '8px',
+    padding: '0.5rem',
+    zIndex: 100,
+    boxShadow: '0 10px 25px rgba(0,0,0,0.5)',
+  },
+  sortOption: {
+    display: 'flex',
+    alignItems: 'center',
+    justifyContent: 'space-between',
+    width: '100%',
+    padding: '0.75rem 1rem',
+    border: 'none',
+    borderRadius: '6px',
+    fontSize: '0.875rem',
+    cursor: 'pointer',
+    transition: 'all 0.2s ease',
+    backgroundColor: 'transparent',
   },
   list: {
     display: 'flex',
