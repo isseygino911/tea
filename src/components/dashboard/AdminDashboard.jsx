@@ -1,15 +1,16 @@
 import { useState, useEffect, useCallback, useRef } from 'react';
 import { useAuth } from '../../context/AuthContext';
-import { 
-  LayoutDashboard, 
-  ShoppingBag, 
+import {
+  LayoutDashboard,
+  ShoppingBag,
   Package,
-  Users, 
-  Settings, 
+  Users,
+  Settings,
   LogOut,
   ChevronDown,
   FileText,
-  MoreVertical
+  MoreVertical,
+  Heart
 } from 'lucide-react';
 import { Overview } from './Overview';
 import { ProductsManager } from './ProductsManager';
@@ -17,6 +18,7 @@ import { OrdersManager } from './OrdersManager';
 import { DocumentsManager } from './DocumentsManager';
 import { SettingsManager } from './SettingsManager';
 import { CustomersManager } from './CustomersManager';
+import { WishlistManager } from './WishlistManager';
 
 const menuItems = [
   { id: 'overview', label: 'Overview', icon: LayoutDashboard },
@@ -24,6 +26,7 @@ const menuItems = [
   { id: 'orders', label: 'Orders', icon: ShoppingBag },
   { id: 'documents', label: 'Documents', icon: FileText },
   { id: 'customers', label: 'Customers', icon: Users },
+  { id: 'wishlist', label: 'Wishlist', icon: Heart },
   { id: 'settings', label: 'Settings', icon: Settings },
 ];
 
@@ -90,6 +93,8 @@ export const AdminDashboard = () => {
         return <DocumentsManager />;
       case 'customers':
         return <CustomersManager />;
+      case 'wishlist':
+        return <WishlistManager />;
       case 'settings':
         return <SettingsManager />;
       default:

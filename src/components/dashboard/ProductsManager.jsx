@@ -6,13 +6,12 @@ import { ProductFormModal } from './ProductFormModal';
 import { LoadingBar } from '../ui/LoadingBar';
 import { SortableHeader } from './SortableHeader';
 
-const categories = ['All', 'Accessories', 'Bags', 'Electronics', 'Home', 'Lighting', 'Stationery', 'Kitchen'];
-
 export const ProductsManager = () => {
   const { products, loading, fetchAdminProducts, deleteProduct } = useAdminController();
   const [localLoading, setLocalLoading] = useState(true);
   const [search, setSearch] = useState('');
   const [selectedCategory, setSelectedCategory] = useState('All');
+  const [categories, setCategories] = useState(['All']);
   const [modalOpen, setModalOpen] = useState(false);
   const [editingProduct, setEditingProduct] = useState(null);
   
@@ -32,6 +31,12 @@ export const ProductsManager = () => {
   useEffect(() => {
     loadProducts();
   }, [loadProducts]);
+
+  useEffect(() => {
+    adminAPI.getCategories().then(res => {
+      setCategories(['All', ...(res.data.categories || [])]);
+    }).catch(() => {});
+  }, []);
 
   const handleDelete = async (id) => {
     if (!confirm('Are you sure you want to delete this product?')) return;

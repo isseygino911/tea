@@ -1,19 +1,24 @@
 import { useState, useEffect } from 'react';
 import { useParams } from 'react-router-dom';
-import { ArrowLeft, ChevronLeft, ChevronRight } from 'lucide-react';
+import { ArrowLeft, ChevronLeft, ChevronRight, Heart } from 'lucide-react';
 import { Link } from 'react-router-dom';
 import { useCart } from '../context/CartContext';
 import { useProductController } from '../hooks/useProductController';
 import { LoadingBar } from '../components/ui/LoadingBar';
 import { ScrollReveal } from '../components/ScrollReveal';
+import { wishlistAPI } from '../services/wishlistAPI';
+import { useAuth } from '../context/AuthContext';
 
 export const ProductDetail = () => {
   const { id } = useParams();
   const { addToCart } = useCart();
+  const { user } = useAuth();
   const { product, productImages, loading, error, fetchProductById } = useProductController();
-  
+
   const [quantity, setQuantity] = useState(1);
   const [currentImageIndex, setCurrentImageIndex] = useState(0);
+  const [inWishlist, setInWishlist] = useState(false);
+  const [wishlistLoading, setWishlistLoading] = useState(false);
 
   useEffect(() => {
     if (id) {
@@ -25,6 +30,32 @@ export const ProductDetail = () => {
   useEffect(() => {
     setCurrentImageIndex(0);
   }, [product?.id]);
+
+  // Check wishlist status when product loads
+  useEffect(() => {
+    if (!user || !product?.id) return;
+    wishlistAPI.checkWishlist(product.id).then(res => {
+      setInWishlist(res.data.inWishlist);
+    }).catch(() => {});
+  }, [user, product?.id]);
+
+  const handleWishlistToggle = async () => {
+    if (!user || !product?.id) return;
+    setWishlistLoading(true);
+    try {
+      if (inWishlist) {
+        await wishlistAPI.removeFromWishlist(product.id);
+        setInWishlist(false);
+      } else {
+        await wishlistAPI.addToWishlist(product.id);
+        setInWishlist(true);
+      }
+    } catch (err) {
+      // silent
+    } finally {
+      setWishlistLoading(false);
+    }
+  };
 
   if (loading) {
     return (
@@ -173,18 +204,39 @@ export const ProductDetail = () => {
                   +
                 </button>
               </div>
-              
-              <button 
-                onClick={handleAddToCart}
-                style={{
-                  ...styles.addButton,
-                  ...(isOutOfStock ? styles.addButtonDisabled : {}),
-                }}
-                className="product-detail-add-btn"
-                disabled={isOutOfStock}
-              >
-                {isOutOfStock ? 'Out of Stock' : 'Add to Cart'}
-              </button>
+
+              <div style={styles.addRow}>
+                <button
+                  onClick={handleAddToCart}
+                  style={{
+                    ...styles.addButton,
+                    ...(isOutOfStock ? styles.addButtonDisabled : {}),
+                  }}
+                  className="product-detail-add-btn"
+                  disabled={isOutOfStock}
+                >
+                  {isOutOfStock ? 'Out of Stock' : 'Add to Cart'}
+                </button>
+
+                {user && (
+                  <button
+                    onClick={handleWishlistToggle}
+                    disabled={wishlistLoading}
+                    style={{
+                      ...styles.wishlistBtn,
+                      backgroundColor: inWishlist ? 'rgba(239,68,68,0.15)' : 'rgba(255,255,255,0.05)',
+                      borderColor: inWishlist ? 'rgba(239,68,68,0.4)' : 'rgba(255,255,255,0.15)',
+                    }}
+                    title={inWishlist ? 'Remove from wishlist' : 'Add to wishlist'}
+                  >
+                    <Heart
+                      size={20}
+                      fill={inWishlist ? '#ef4444' : 'none'}
+                      color={inWishlist ? '#ef4444' : 'rgba(255,255,255,0.7)'}
+                    />
+                  </button>
+                )}
+              </div>
             </div>
             
             {!isOutOfStock ? (
@@ -327,6 +379,22 @@ const styles = {
     gap: '1rem',
     marginTop: '2rem',
   },
+  addRow: {
+    display: 'flex',
+    gap: '0.75rem',
+    alignItems: 'stretch',
+  },
+  wishlistBtn: {
+    flexShrink: 0,
+    width: '52px',
+    border: '1px solid',
+    borderRadius: '8px',
+    display: 'flex',
+    alignItems: 'center',
+    justifyContent: 'center',
+    cursor: 'pointer',
+    transition: 'all 0.2s ease',
+  },
   quantity: {
     display: 'flex',
     alignItems: 'center',
@@ -352,7 +420,7 @@ const styles = {
     textAlign: 'center',
   },
   addButton: {
-    width: '100%',
+    flex: 1,
     padding: '1rem 2rem',
     backgroundColor: '#ffffff',
     color: '#000000',

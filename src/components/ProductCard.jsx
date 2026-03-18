@@ -1,11 +1,31 @@
-import { ArrowRight, ImageOff, Plus } from 'lucide-react';
+import { ArrowRight, ImageOff, Plus, Heart } from 'lucide-react';
 import { useNavigate } from 'react-router-dom';
 import { useState } from 'react';
+import { wishlistAPI } from '../services/wishlistAPI';
+import { useAuth } from '../context/AuthContext';
 
 export const ProductCard = ({ product, onAddToCart }) => {
   const navigate = useNavigate();
+  const { user } = useAuth();
   const [imageError, setImageError] = useState(false);
   const [isHovered, setIsHovered] = useState(false);
+  const [inWishlist, setInWishlist] = useState(false);
+
+  const handleWishlistToggle = async (e) => {
+    e.stopPropagation();
+    if (!user) return;
+    try {
+      if (inWishlist) {
+        await wishlistAPI.removeFromWishlist(product.id);
+        setInWishlist(false);
+      } else {
+        await wishlistAPI.addToWishlist(product.id);
+        setInWishlist(true);
+      }
+    } catch (err) {
+      // silent
+    }
+  };
 
   const formatPrice = (price) => {
     const num = parseFloat(price);
@@ -75,6 +95,24 @@ export const ProductCard = ({ product, onAddToCart }) => {
           {product.sku && <span style={styles.skuBadge}>{product.sku}</span>}
           {product.wattage && <span style={styles.specBadge}>{product.wattage}</span>}
         </div>
+
+        {/* Wishlist Heart Button — Top Right */}
+        {user && (
+          <button
+            style={{
+              ...styles.wishlistBtn,
+              opacity: isHovered ? 1 : 0.7,
+            }}
+            onClick={handleWishlistToggle}
+            title={inWishlist ? 'Remove from wishlist' : 'Add to wishlist'}
+          >
+            <Heart
+              size={18}
+              fill={inWishlist ? '#ef4444' : 'none'}
+              color={inWishlist ? '#ef4444' : 'rgba(255,255,255,0.8)'}
+            />
+          </button>
+        )}
       </div>
 
       <div style={styles.info}>
@@ -174,6 +212,23 @@ const styles = {
     flexDirection: 'column',
     gap: '0.5rem',
     zIndex: 4,
+  },
+  wishlistBtn: {
+    position: 'absolute',
+    top: '1rem',
+    right: '1rem',
+    width: '2.25rem',
+    height: '2.25rem',
+    borderRadius: '50%',
+    backgroundColor: 'rgba(0,0,0,0.5)',
+    backdropFilter: 'blur(8px)',
+    border: '1px solid rgba(255,255,255,0.1)',
+    display: 'flex',
+    alignItems: 'center',
+    justifyContent: 'center',
+    cursor: 'pointer',
+    zIndex: 5,
+    transition: 'all 0.3s ease',
   },
   skuBadge: {
     fontSize: '0.6rem',

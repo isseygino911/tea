@@ -25,6 +25,7 @@ import { Link } from 'react-router-dom';
 import { useOrderController } from '../../hooks/useOrderController';
 import api from '../../services/api';
 import { useAddressController } from '../../hooks/useAddressController';
+import { useWishlistController } from '../../hooks/useWishlistController';
 import { LoadingBar } from '../ui/LoadingBar';
 
 const menuItems = [
@@ -194,6 +195,7 @@ export const UserDashboard = () => {
     deleteAddress,
     setDefaultAddress 
   } = useAddressController();
+  const { wishlist, loading: wishlistLoading, fetchWishlist, removeFromWishlist } = useWishlistController();
   const [activeTab, setActiveTab] = useState('orders');
   const [showAddressForm, setShowAddressForm] = useState(false);
   const [editingAddress, setEditingAddress] = useState(null);
@@ -205,6 +207,7 @@ export const UserDashboard = () => {
   useEffect(() => {
     fetchUserOrders().catch(() => {});
     fetchAddresses().catch(() => {});
+    fetchWishlist().catch(() => {});
     // eslint-disable-next-line react-hooks/exhaustive-deps
   }, []);
 
@@ -389,6 +392,22 @@ export const UserDashboard = () => {
                           </div>
                         )}
                         
+                        {/* Order Price Breakdown */}
+                        <div style={styles.priceBreakdown}>
+                          <div style={styles.priceRow}>
+                            <span style={styles.priceLabel}>Subtotal</span>
+                            <span style={styles.priceValue}>${parseFloat(order.subtotal || 0).toFixed(2)}</span>
+                          </div>
+                          <div style={styles.priceRow}>
+                            <span style={styles.priceLabel}>Tax</span>
+                            <span style={styles.priceValue}>${parseFloat(order.tax_amount || 0).toFixed(2)}</span>
+                          </div>
+                          <div style={{...styles.priceRow, ...styles.priceTotalRow}}>
+                            <span style={styles.priceTotalLabel}>Total</span>
+                            <span style={styles.priceTotalValue}>${parseFloat(order.total_amount || 0).toFixed(2)}</span>
+                          </div>
+                        </div>
+
                         {/* Shipping Address */}
                         {order.shipping_address && (
                           <div style={styles.shippingSection}>
@@ -419,11 +438,43 @@ export const UserDashboard = () => {
         return (
           <div style={styles.section}>
             <h3 style={styles.sectionTitle}>My Wishlist</h3>
-            <div style={styles.emptyState}>
-              <Heart size={48} strokeWidth={1} style={{ opacity: 0.3 }} />
-              <p style={styles.emptyText}>No items in wishlist</p>
-              <Link to="/products" style={styles.actionBtn}>Browse Products</Link>
-            </div>
+            {wishlistLoading ? (
+              <div style={styles.loadingState}>
+                <LoadingBar size="medium" text="Loading wishlist..." />
+              </div>
+            ) : wishlist.length === 0 ? (
+              <div style={styles.emptyState}>
+                <Heart size={48} strokeWidth={1} style={{ opacity: 0.3 }} />
+                <p style={styles.emptyText}>No items in wishlist</p>
+                <Link to="/products" style={styles.actionBtn}>Browse Products</Link>
+              </div>
+            ) : (
+              <div style={styles.wishlistGrid}>
+                {wishlist.map((item) => (
+                  <div key={item.id} style={styles.wishlistCard}>
+                    <div style={styles.wishlistImage}>
+                      {item.image_url ? (
+                        <img src={item.image_url} alt={item.name} style={styles.wishlistImg} onError={(e) => { e.target.style.display = 'none'; }} />
+                      ) : (
+                        <Package size={24} opacity={0.3} />
+                      )}
+                    </div>
+                    <div style={styles.wishlistInfo}>
+                      <p style={styles.wishlistName}>{item.name}</p>
+                      <p style={styles.wishlistCategory}>{item.category}</p>
+                      <p style={styles.wishlistPrice}>${parseFloat(item.price).toFixed(2)}</p>
+                    </div>
+                    <button
+                      onClick={() => removeFromWishlist(item.product_id)}
+                      style={styles.wishlistRemoveBtn}
+                      title="Remove from wishlist"
+                    >
+                      <Trash2 size={16} />
+                    </button>
+                  </div>
+                ))}
+              </div>
+            )}
           </div>
         );
       
@@ -584,7 +635,7 @@ export const UserDashboard = () => {
             <span style={styles.statLabel}>Orders</span>
           </div>
           <div style={styles.stat}>
-            <span style={styles.statValue}>0</span>
+            <span style={styles.statValue}>{wishlist.length}</span>
             <span style={styles.statLabel}>Wishlist</span>
           </div>
           <div style={styles.stat}>
@@ -945,6 +996,37 @@ const styles = {
     color: 'rgba(255,255,255,0.5)',
     fontSize: '0.875rem',
   },
+  priceBreakdown: {
+    padding: '1rem 0',
+    borderTop: '1px solid rgba(255,255,255,0.1)',
+    marginBottom: '1rem',
+    display: 'flex',
+    flexDirection: 'column',
+    gap: '0.5rem',
+  },
+  priceRow: {
+    display: 'flex',
+    justifyContent: 'space-between',
+    fontSize: '0.8rem',
+    color: 'rgba(255,255,255,0.5)',
+  },
+  priceValue: {},
+  priceLabel: {},
+  priceTotalRow: {
+    paddingTop: '0.5rem',
+    borderTop: '1px solid rgba(255,255,255,0.1)',
+    marginTop: '0.25rem',
+  },
+  priceTotalLabel: {
+    fontSize: '0.875rem',
+    fontWeight: 600,
+    color: '#ffffff',
+  },
+  priceTotalValue: {
+    fontSize: '0.875rem',
+    fontWeight: 600,
+    color: '#ffffff',
+  },
   shippingSection: {
     paddingTop: '1rem',
     borderTop: '1px solid rgba(255,255,255,0.1)',
@@ -1149,6 +1231,69 @@ const styles = {
     color: '#ffffff',
     fontSize: '0.75rem',
     cursor: 'pointer',
+  },
+  wishlistGrid: {
+    display: 'flex',
+    flexDirection: 'column',
+    gap: '0.75rem',
+  },
+  wishlistCard: {
+    display: 'flex',
+    alignItems: 'center',
+    gap: '1rem',
+    padding: '1rem 1.25rem',
+    backgroundColor: '#0a0a0a',
+    border: '1px solid rgba(255,255,255,0.1)',
+    borderRadius: '12px',
+  },
+  wishlistImage: {
+    width: '64px',
+    height: '64px',
+    borderRadius: '8px',
+    overflow: 'hidden',
+    backgroundColor: '#111',
+    flexShrink: 0,
+    display: 'flex',
+    alignItems: 'center',
+    justifyContent: 'center',
+  },
+  wishlistImg: {
+    width: '100%',
+    height: '100%',
+    objectFit: 'cover',
+  },
+  wishlistInfo: {
+    flex: 1,
+    minWidth: 0,
+  },
+  wishlistName: {
+    fontSize: '0.9rem',
+    fontWeight: 500,
+    marginBottom: '0.2rem',
+    whiteSpace: 'nowrap',
+    overflow: 'hidden',
+    textOverflow: 'ellipsis',
+  },
+  wishlistCategory: {
+    fontSize: '0.75rem',
+    color: 'rgba(255,255,255,0.4)',
+    textTransform: 'uppercase',
+    letterSpacing: '0.05em',
+    marginBottom: '0.25rem',
+  },
+  wishlistPrice: {
+    fontSize: '0.875rem',
+    fontWeight: 600,
+    color: 'rgba(255,255,255,0.8)',
+  },
+  wishlistRemoveBtn: {
+    padding: '0.5rem',
+    backgroundColor: 'rgba(239,68,68,0.1)',
+    border: 'none',
+    borderRadius: '6px',
+    color: '#ef4444',
+    cursor: 'pointer',
+    flexShrink: 0,
   },
 };
 

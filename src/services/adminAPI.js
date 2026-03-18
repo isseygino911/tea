@@ -27,4 +27,7 @@ export const adminAPI = {
   // Customers
   getCustomers: (params) => api.get('/admin/customers', { params }),
   getCustomer: (id) => api.get(`/admin/customers/${id}`),
+
+  // Wishlist
+  getWishlistStats: () => api.get('/admin/wishlist-stats'),
 };
