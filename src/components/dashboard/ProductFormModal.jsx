@@ -16,6 +16,9 @@ export const ProductFormModal = ({ product, isOpen, onClose, onSave }) => {
     price: '',
     category: '',
     stock_quantity: 0,
+    low_threshold: 10,
+    critical_threshold: 5,
+    email_alerts: true,
     status: 'active',
   });
   const [images, setImages] = useState([]); // Array of image URLs
@@ -37,12 +40,18 @@ export const ProductFormModal = ({ product, isOpen, onClose, onSave }) => {
 
   useEffect(() => {
     if (product) {
+      // Check if inventory_alert_settings exists on product
+      const alertSettings = product.inventory_alert_settings || {};
+      
       setFormData({
         name: product.name || '',
         description: product.description || '',
         price: product.price || '',
         category: product.category || '',
         stock_quantity: product.stock_quantity || 0,
+        low_threshold: alertSettings.low_threshold !== undefined ? alertSettings.low_threshold : 10,
+        critical_threshold: alertSettings.critical_threshold !== undefined ? alertSettings.critical_threshold : 5,
+        email_alerts: alertSettings.email_alerts !== undefined ? alertSettings.email_alerts : true,
         status: product.status || 'active',
       });
       // If editing, set images from product
@@ -60,6 +69,9 @@ export const ProductFormModal = ({ product, isOpen, onClose, onSave }) => {
         price: '',
         category: '',
         stock_quantity: 0,
+        low_threshold: 10,
+        critical_threshold: 5,
+        email_alerts: true,
         status: 'active',
       });
       setImages([]);
@@ -188,6 +200,9 @@ export const ProductFormModal = ({ product, isOpen, onClose, onSave }) => {
         ...formData,
         price: parseFloat(formData.price),
         stock_quantity: parseInt(formData.stock_quantity),
+        low_threshold: parseInt(formData.low_threshold),
+        critical_threshold: parseInt(formData.critical_threshold),
+        email_alerts: Boolean(formData.email_alerts),
         image_url: images[0], // First image is primary
         images: images, // All images
       };
@@ -409,6 +424,45 @@ export const ProductFormModal = ({ product, isOpen, onClose, onSave }) => {
             </div>
           </div>
 
+          {/* Inventory Alert Settings */}
+          <div style={styles.grid}>
+            <div style={styles.formGroup}>
+              <label style={styles.label}>Low Stock Alert Threshold</label>
+              <input
+                type="number"
+                min="0"
+                value={formData.low_threshold}
+                onChange={(e) => setFormData({ ...formData, low_threshold: e.target.value })}
+                style={styles.input}
+              />
+              <span style={styles.helpText}>Alert when stock falls below this number</span>
+            </div>
+
+            <div style={styles.formGroup}>
+              <label style={styles.label}>Critical Stock Threshold</label>
+              <input
+                type="number"
+                min="0"
+                value={formData.critical_threshold}
+                onChange={(e) => setFormData({ ...formData, critical_threshold: e.target.value })}
+                style={styles.input}
+              />
+              <span style={styles.helpText}>Critical alert when stock falls below this number</span>
+            </div>
+          </div>
+
+          <div style={styles.formGroup}>
+            <label style={styles.checkboxLabel}>
+              <input
+                type="checkbox"
+                checked={formData.email_alerts}
+                onChange={(e) => setFormData({ ...formData, email_alerts: e.target.checked })}
+                style={styles.checkbox}
+              />
+              <span>Enable Email Alerts</span>
+            </label>
+          </div>
+
           <div style={styles.formGroup}>
             <label style={styles.label}>Description</label>
             <textarea
@@ -515,6 +569,26 @@ const styles = {
     letterSpacing: '0.1em',
     color: 'rgba(255,255,255,0.5)',
     marginBottom: '0.5rem',
+  },
+  helpText: {
+    display: 'block',
+    fontSize: '0.75rem',
+    color: 'rgba(255,255,255,0.4)',
+    marginTop: '0.25rem',
+  },
+  checkboxLabel: {
+    display: 'flex',
+    alignItems: 'center',
+    gap: '0.5rem',
+    fontSize: '0.875rem',
+    color: 'rgba(255,255,255,0.8)',
+    cursor: 'pointer',
+  },
+  checkbox: {
+    width: '18px',
+    height: '18px',
+    cursor: 'pointer',
+    accentColor: '#ffffff',
   },
   imageCount: {
     color: 'rgba(255,255,255,0.3)',

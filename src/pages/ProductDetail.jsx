@@ -240,7 +240,14 @@ export const ProductDetail = () => {
             </div>
             
             {!isOutOfStock ? (
-              <p style={styles.stock}>In Stock ({product.stock_quantity} available)</p>
+              <>
+                <p style={styles.stock}>In Stock ({product.stock_quantity} available)</p>
+                {product.stock_quantity <= 10 && (
+                  <p style={{ ...styles.stock, color: '#ff6b6b', fontWeight: 600 }}>
+                    Only {product.stock_quantity} left - order soon!
+                  </p>
+                )}
+              </>
             ) : (
               <p style={{ ...styles.stock, color: '#ff6b6b' }}>Out of Stock</p>
             )}

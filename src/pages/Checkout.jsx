@@ -7,6 +7,7 @@ import { useAuth } from '../context/AuthContext';
 import { useAddressController } from '../hooks/useAddressController';
 import api from '../services/api';
 import { settingsAPI } from '../services/settingsAPI';
+import { productAPI } from '../services/productAPI';
 import { LoadingSpinner } from '../components/ui/LoadingBar';
 import { ScrollReveal } from '../components/ScrollReveal';
 
@@ -185,6 +186,22 @@ export const Checkout = () => {
         } catch (addrErr) {
           // Continue with order even if saving address fails
           console.log('Could not save address:', addrErr);
+        }
+      }
+
+      // Verify stock availability before placing order
+      for (const item of cart) {
+        try {
+          const res = await productAPI.getProduct(item.id);
+          const currentStock = res.data.product.stock_quantity;
+          if (currentStock < item.quantity) {
+            setError(`"${item.name}" is out of stock. Only ${currentStock} available.`);
+            setLoading(false);
+            return;
+          }
+        } catch (err) {
+          console.error('Failed to verify stock:', err);
+          // Continue with order - backend will do final check
         }
       }
 
