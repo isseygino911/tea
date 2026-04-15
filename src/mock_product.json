@@ -1,0 +1,24 @@
+{
+  "id": "enshi-yulu",
+  "name": "Enshi Yulu",
+  "name_cn": "恩施玉露",
+  "category": "Tea",
+  "origin_location": "Hubei Province",
+  "altitude": "1,200m",
+  "description": "Hand-harvested from the cloud-shrouded peaks of the Wuling Mountains, this rare steamed green tea carries the heritage of the Tang Dynasty. Unlike modern pan-fired greens, its needles are softened by vapor, preserving a vivid chlorophyll vibrancy and a profound silence in the cup.",
+  "tasting_notes": "Steam-pressed, Young clover, Oceanic finish",
+  "brewing_guide": "Steep 3g in 150ml of 80°C spring water for 45 seconds to reveal its dew-like clarity.",
+  "price": 14.00,
+  "weight": "50g",
+  "stock_quantity": 24,
+  "image_url": "/stitch/product_enshi_detail.webp",
+  "producer_name": "The Qin Family Cooperative",
+  "producer_story": "“The mountain provides the mist; we only provide the patience.” Nestled in the Wuling Mountains, the Qin family has refined the Enshi Yulu technique for four generations, ensuring each leaf reflects the high-altitude terroir of their ancestral gardens.",
+  "producer_image": "/stitch/producer_qin.webp",
+  "specifications": {
+    "Process": "Traditional Steam Panning",
+    "Harvest": "Spring 2024",
+    "Terroir": "Red Sandstone / High Selenium",
+    "Varietal": "Enshi Qunti"
+  }
+}

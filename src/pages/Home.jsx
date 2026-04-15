@@ -1,762 +1,220 @@
-import { Hero } from '../components/Hero'
-import { ScrollReveal } from '../components/ScrollReveal';
 import { Link } from 'react-router-dom';
-
-// ─── ticker content (duplicated for seamless loop) ────────────────────────────
-const TICKER_TEXT =
-  'Farmingdale · Williston Park · New York · Commercial · Industrial · Residential · '
+import { useEffect, useRef } from 'react';
+import { ScrollReveal } from '../components/ScrollReveal';
 
 export const Home = () => {
+  const videoRef = useRef(null);
+
+  useEffect(() => {
+    if (videoRef.current) {
+      videoRef.current.playbackRate = 0.5;
+    }
+  }, []);
+
   return (
-    <main style={s.main}>
-      <Hero />
-        {/* ══════════════════════════════════════════════
-          SHOWROOM — overlapping images + sharp badge + ticker
-          ══════════════════════════════════════════════ */}
-      <section style={{ ...s.section, backgroundColor: 'rgba(255,255,255,0.02)', position: 'relative', overflow: 'hidden' }}>
-        <div style={s.prism}></div>
+    <main className="bg-surface text-on-surface font-body selection:bg-secondary/20 pt-16 md:pt-24">
+      {/* Hero: The Silent Narrative */}
+      <section className="relative h-[70vh] md:h-[90vh] w-full overflow-hidden flex items-center justify-center">
+        <div className="absolute inset-0 z-0 overflow-hidden">
+          <video
+            ref={videoRef}
+            autoPlay
+            muted
+            loop
+            playsInline
+            className="w-full h-full object-cover grayscale-[20%] brightness-[85%] animate-video-fade"
+          >
+            <source src="/hero_vid.mp4" type="video/mp4" />
+          </video>
+          <div className="absolute inset-0 bg-gradient-to-b from-transparent to-primary/30"></div>
+        </div>
+        <div className="relative z-10 text-center text-white px-4">
+          <ScrollReveal>
+            <h1 className="text-5xl md:text-8xl font-headline italic mb-4 tracking-tighter">Yún & Leaf 云叶</h1>
+            <p className="text-sm md:text-xl font-body tracking-[0.2em] uppercase opacity-90">Premium origin. Honest price.</p>
+          </ScrollReveal>
+        </div>
+      </section>
 
-        <div className="container">
-          <div style={s.showroomGrid}>
-            <ScrollReveal>
-              <div style={s.showroomText}>
-                <p style={s.label}>Showroom Experience</p>
-                <h2 style={s.sectionTitle}>
-                  Where <span style={{ color: '#fff' }}>Innovation</span>
-                  <br />
-                  Meets Application
-                </h2>
-                <p style={s.sectionBody}>
-                  Step into our 30,000-square-foot New York warehouse. More than
-                  just a store, it&apos;s a living catalog where designers and
-                  contractors witness the true power of professional-grade LED
-                  technology.
+      <style dangerouslySetInnerHTML={{ __html: `
+        @keyframes video-fade {
+          0%, 100% { opacity: 0.7; }
+          50% { opacity: 1; }
+        }
+        .animate-video-fade {
+          animation: video-fade 8s ease-in-out infinite;
+        }
+      `}} />
+
+      {/* Thesis Section */}
+      <section className="bg-surface-container py-20 md:py-32 px-6">
+        <div className="max-w-3xl mx-auto text-center">
+          <ScrollReveal>
+            <span className="text-secondary font-label text-xs uppercase tracking-[0.3em] mb-8 block">The Philosophy / 哲学</span>
+            <p className="font-headline text-xl md:text-3xl leading-relaxed italic text-primary">
+              For too long, the Western specialty market has treated the treasures of the East as either inaccessible luxuries or industrial commodities. At Yún & Leaf, we bridge this gap. By sourcing directly from the high-altitude cloud forests of Yunnan and the misty slopes of Hubei, we champion the 'affordable connoisseur'—bringing the silent narrative of premium single-origin coffee and heritage tea to your daily ritual without the artificial premium.
+            </p>
+          </ScrollReveal>
+        </div>
+      </section>
+
+      {/* Featured Product: The Cloud Forest Flight */}
+      <section className="py-20 md:py-32 bg-surface">
+        <div className="max-w-screen-2xl mx-auto px-6 md:px-12">
+          <div className="grid grid-cols-1 md:grid-cols-12 gap-10 md:gap-16 items-center">
+            <div className="md:col-span-7 overflow-hidden">
+              <ScrollReveal>
+                <img 
+                  className="w-full h-auto object-cover grayscale-[10%]" 
+                  alt="premium ceramic tea tasting set" 
+                  src="/stitch/spotlight.webp" 
+                />
+              </ScrollReveal>
+            </div>
+            <div className="md:col-span-5 flex flex-col items-start">
+              <ScrollReveal delay={0.2}>
+                <span className="text-secondary font-label text-xs uppercase tracking-widest mb-4">Seasonal Spotlight / 季节限定</span>
+                <h2 className="text-3xl md:text-5xl font-headline italic text-primary mb-6">The Cloud Forest Flight</h2>
+                <p className="text-on-surface-variant leading-relaxed mb-10 text-base md:text-lg">
+                  An curated introduction to our ecosystem. Features two single-origin Yunnan coffee roasts and two high-mountain Hubei teas, accompanied by a sensory guide to the high-altitude terroir.
                 </p>
+                <Link className="bg-secondary text-on-secondary px-8 md:px-10 py-3 md:py-4 font-headline text-base md:text-lg hover:opacity-90 transition-all inline-block" to="/products">Start here</Link>
+              </ScrollReveal>
+            </div>
+          </div>
+        </div>
+      </section>
 
-                <div style={s.locationCards}>
-                  <div style={s.locationCard}>
-                    <h4 style={s.locationCity}>Farmingdale</h4>
-                    <p style={s.locationAddr}>906 Conklin Street, NY</p>
-                    <div style={s.locationStatus}>Flagship Store</div>
-                  </div>
-                  <div style={s.locationCard}>
-                    <h4 style={s.locationCity}>Williston Park</h4>
-                    <p style={s.locationAddr}>390 Hillside Ave, NY</p>
-                    <div style={s.locationStatus}>Boutique Gallery</div>
-                  </div>
-                </div>
-              </div>
-            </ScrollReveal>
-
-            <ScrollReveal delay={1}>
-              <div style={s.visualStack}>
-                <div style={s.mainImageWrapper}>
-                  <img src="/hero/IMG_0276.jpg" alt="Showroom Main" style={s.mainImage} />
-                  <div style={s.imageOverlay}></div>
-                </div>
-                <div style={s.secondaryImageWrapper}>
-                  <img src="/hero/IMG_0274.jpg" alt="Showroom Detail" style={s.secondaryImage} />
-                </div>
-                {/* Sharp-corner badge (no border-radius) */}
-                <div style={s.floatingBadge}>
-                  <span style={s.badgeNumber}>30K</span>
-                  <span style={s.badgeText}>SQ FT Warehouse</span>
-                </div>
+      {/* Our Regions */}
+      <section className="grid grid-cols-1 md:grid-cols-2">
+        {/* Yunnan Coffee */}
+        <div className="relative min-h-[400px] md:min-h-[600px] flex flex-col justify-end p-8 md:p-12 bg-primary-container group overflow-hidden">
+          <div className="absolute inset-0 opacity-40 mix-blend-overlay grayscale group-hover:scale-105 transition-transform duration-1000">
+            <img 
+              className="w-full h-full object-cover" 
+              alt="sun-drenched coffee cherries" 
+              src="/stitch/yunnan_coffee.webp" 
+            />
+          </div>
+          <div className="relative z-10">
+            <ScrollReveal>
+              <h3 className="text-2xl md:text-3xl font-headline italic text-primary-fixed mb-4">Yunnan / 云南</h3>
+              <p className="text-on-primary-container max-w-sm mb-8 text-sm md:text-base">Home to China’s burgeoning specialty coffee movement. Volcanic soil, high altitude, and the misty climate of Baoshan create a profile of dark fruit and clean spice.</p>
+              <div className="flex items-center gap-4 group/link cursor-pointer">
+                <span className="text-secondary-fixed text-xs md:text-sm uppercase tracking-widest">Explore the Origin</span>
+                <span className="w-8 md:w-12 h-[1px] bg-secondary-fixed"></span>
               </div>
             </ScrollReveal>
           </div>
+          <div className="absolute top-8 md:top-12 right-8 md:right-12 w-24 h-24 md:w-32 md:h-32 opacity-20 hidden sm:block">
+            <img className="w-full h-full object-contain invert" alt="map of Yunnan" src="/stitch/yunnan_map.webp" />
+          </div>
         </div>
+        {/* Hubei Tea */}
+        <div className="relative min-h-[400px] md:min-h-[600px] flex flex-col justify-end p-8 md:p-12 bg-surface-container-high group overflow-hidden">
+          <div className="absolute inset-0 opacity-40 mix-blend-multiply grayscale group-hover:scale-105 transition-transform duration-1000">
+            <img 
+              className="w-full h-full object-cover" 
+              alt="misty morning in tea plantation" 
+              src="/stitch/hubei_tea.webp" 
+            />
+          </div>
+          <div className="relative z-10">
+            <ScrollReveal>
+              <h3 className="text-2xl md:text-3xl font-headline italic text-primary mb-4">Hubei / 湖北</h3>
+              <p className="text-on-surface-variant max-w-sm mb-8 text-sm md:text-base">The ancestral cradle of tea culture. Our Enshi Yulu, a rare steam-processed green tea, offers a marine-fresh sweetness and unparalleled clarity.</p>
+              <div className="flex items-center gap-4 group/link cursor-pointer">
+                <span className="text-secondary text-xs md:text-sm uppercase tracking-widest">Discover the Leaf</span>
+                <span className="w-8 md:w-12 h-[1px] bg-secondary"></span>
+              </div>
+            </ScrollReveal>
+          </div>
+          <div className="absolute top-8 md:top-12 right-8 md:right-12 w-24 h-24 md:w-32 md:h-32 opacity-20 hidden sm:block">
+            <img className="w-full h-full object-contain" alt="map of Hubei" src="/stitch/hubei_map.webp" />
+          </div>
+        </div>
+      </section>
 
-        {/* Horizontal scrolling ticker */}
-        <div style={s.tickerWrapper}>
-          <div className="ticker-track">
-            {[...Array(4)].map((_, i) => (
-              <span className="ticker-item" key={i}>{TICKER_TEXT}</span>
+      {/* Core Line Preview */}
+      <section className="py-20 md:py-32 bg-surface">
+        <div className="max-w-screen-2xl mx-auto px-6 md:px-12">
+          <div className="flex justify-between items-end mb-12 md:mb-16">
+            <ScrollReveal>
+              <h2 className="text-3xl md:text-4xl font-headline italic text-primary">The Core Collection</h2>
+            </ScrollReveal>
+            <Link className="text-xs font-label uppercase tracking-widest border-b border-outline-variant pb-1 hover:border-secondary transition-colors" to="/products">Shop All</Link>
+          </div>
+          <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-x-8 gap-y-12 md:gap-y-16">
+            {/* Products map */}
+            {[
+              { name: 'Baoshan Washed', origin: 'Coffee / Yunnan', price: '$18.00', img: '/stitch/product_baoshan.webp' },
+              { name: 'Enshi Yulu', origin: 'Tea / Hubei', price: '$22.00', img: '/stitch/product_enshi.webp' },
+              { name: 'Shadow Ferment', origin: "Coffee / Pu'er", price: '$24.00', img: '/stitch/product_shadow.webp' },
+              { name: 'Moonlight White', origin: 'Tea / Yunnan', price: '$20.00', img: '/stitch/product_moonlight.webp' },
+            ].map((product, i) => (
+              <ScrollReveal key={product.name} delay={i * 0.1}>
+                <div className="group cursor-pointer">
+                  <div className="aspect-[4/5] bg-surface-container-low mb-6 overflow-hidden">
+                    <img className="w-full h-full object-cover group-hover:scale-105 transition-transform duration-700" alt={product.name} src={product.img} />
+                  </div>
+                  <p className="text-[10px] md:text-xs text-secondary font-label uppercase tracking-widest mb-1">{product.origin}</p>
+                  <h4 className="text-base md:text-lg font-headline italic text-primary mb-2">{product.name}</h4>
+                  <p className="text-on-surface-variant font-body text-xs md:text-sm">{product.price}</p>
+                </div>
+              </ScrollReveal>
             ))}
           </div>
         </div>
       </section>
 
-      {/* ══════════════════════════════════════════════
-          THE LIGHTING MOSAIC
-          ══════════════════════════════════════════════ */}
-      <section style={s.mosaicSection}>
-
-        {/* Heading */}
-        <div className="container">
-          <ScrollReveal>
-            <div style={s.mosaicHeader}>
-              <p style={s.label}>Visual Architecture</p>
-              <h2 style={s.mosaicTitle}>
-                The Lighting <em style={s.mosaicTitleEm}>Mosaic</em>
-              </h2>
-            </div>
-          </ScrollReveal>
-        </div>
-
-        {/* Grid — contained with side padding */}
-        <div className="container">
-        <div className="mosaic-grid">
-
-          {/* 1 — hero: large left anchor, spans rows 1+2 */}
-          <div className="mosaic-cell">
-            <img src="/hero/IMG_0276.jpg" alt="Project Alpha" />
-            <span className="mosaic-num">01</span>
-            <span className="mosaic-label">Project Alpha · Farmingdale</span>
-          </div>
-
-          {/* 2 — top-right wide */}
-          <div className="mosaic-cell">
-            <img src="/hero/IMG_0275.jpg" alt="Warehouse Flux" />
-            <span className="mosaic-num">02</span>
-            <span className="mosaic-label">Warehouse Flux · 30K</span>
-          </div>
-
-          {/* 3 — mid right top */}
-          <div className="mosaic-cell">
-            <img src="/hero/TL_RGBIC.jpg" alt="Neon Pulse" />
-            <span className="mosaic-num">03</span>
-            <span className="mosaic-label">Neon Pulse · RGBIC</span>
-          </div>
-
-          {/* 4 — mid right bottom */}
-          <div className="mosaic-cell">
-            <img src="/hero/IMG_0274.jpg" alt="Interior Glow" />
-            <span className="mosaic-num">04</span>
-            <span className="mosaic-label">Interior Glow</span>
-          </div>
-
-          {/* 5 — bottom left */}
-          <div className="mosaic-cell">
-            <img src="/hero/FCOB2.jpg" alt="Continuous Linear" />
-            <span className="mosaic-num">05</span>
-            <span className="mosaic-label">Continuous Linear</span>
-          </div>
-
-          {/* 6 — bottom mid */}
-          <div className="mosaic-cell">
-            <img src="/hero/IMG_0287.jpg" alt="Retail Precision" />
-            <span className="mosaic-num">06</span>
-            <span className="mosaic-label">Retail Precision</span>
-          </div>
-
-          {/* 7 — bottom right */}
-          <div className="mosaic-cell">
-            <img src="/hero/IMG_0292.jpg" alt="Linear Excellence" />
-            <span className="mosaic-num">07</span>
-            <span className="mosaic-label">Linear Excellence</span>
-          </div>
-
-        </div>
-        </div>
-
-      </section>
-
-      {/* ══════════════════════════════════════════════
-          PHILOSOPHY — two-column, number watermark
-          ══════════════════════════════════════════════ */}
-      <section style={{ ...s.section, position: 'relative', overflow: 'hidden' }}>
-        <span style={s.sectionWatermark}>01</span>
-        <div className="container" style={{ position: 'relative', zIndex: 2 }}>
-          <div style={s.philosophyGrid} className="philosophy-grid">
-            {/* Left: amber line */}
+      {/* Journal Snippet */}
+      <section className="py-20 md:py-32 bg-surface-container-low">
+        <div className="max-w-screen-2xl mx-auto px-6 md:px-12">
+          <div className="mb-12 md:mb-20 text-center">
             <ScrollReveal>
-              <div style={s.philosophyLeft}>
-                <div style={s.amberLine}></div>
-              </div>
-            </ScrollReveal>
-
-            {/* Right: copy */}
-            <ScrollReveal delay={1}>
-              <div style={s.philosophyRight}>
-                <p style={s.label}>Our Vision</p>
-                <h2 style={s.philosophyHeading}>
-                  Revolutionizing the way we experience{' '}
-                  <em style={s.philosophyLight}>Light</em>
-                </h2>
-                <p style={s.sectionBody}>
-                  At LumiNation, we believe high-quality LED lighting is more than
-                  just a fixture; it&apos;s the core of productivity, safety, and
-                  atmosphere. Our solutions bridge the gap between industrial
-                  performance and aesthetic design.
-                </p>
-              </div>
+              <span className="text-secondary font-label text-xs uppercase tracking-[0.4em] mb-4 block">The Journal / 刊物</span>
+              <h2 className="text-3xl md:text-4xl font-headline italic text-primary">Notes on the Silent Narrative</h2>
             </ScrollReveal>
           </div>
-        </div>
-      </section>
-
-
-      {/* ══════════════════════════════════════════════
-          JOURNAL — section number watermark + taller video
-          ══════════════════════════════════════════════ */}
-      <section style={{ ...s.section, backgroundColor: '#000', position: 'relative', overflow: 'hidden' }}>
-        {/* Section number watermark */}
-        <span style={s.sectionWatermark}>02</span>
-
-        <div className="container" style={{ position: 'relative', zIndex: 2 }}>
-          <ScrollReveal>
-            <div style={s.journalHeader}>
-              <p style={s.label}>The Journal</p>
-              <h2 style={s.sectionTitle}>Luminous Impact</h2>
-            </div>
-          </ScrollReveal>
-
-          <div style={s.journalGrid} className="journal-grid">
-            <ScrollReveal delay={1}>
-              {/* Amber bottom border on the main story card */}
-              <div style={s.mainStory}>
-                <div style={s.videoWrapper}>
-                  <iframe
-                    width="100%"
-                    height="100%"
-                    src="https://www.youtube.com/embed/GFDUJ924nAc"
-                    title="A Trip To A Client Jobsite"
-                    frameBorder="0"
-                    allow="accelerometer; autoplay; clipboard-write; encrypted-media; gyroscope; picture-in-picture"
-                    allowFullScreen
-                    style={s.videoIframe}
-                  ></iframe>
-                </div>
-                <div style={s.storyContent}>
-                  <span style={s.storyTag}>Project Spotlight</span>
-                  <h3 style={s.storyTitle}>A Trip To A Client Jobsite</h3>
-                  <p style={s.storyExcerpt}>
-                    Witness how we transform commercial spaces. From initial
-                    consultation to final delivery, see our team in action as we
-                    bring professional lighting solutions to life.
-                  </p>
-                </div>
-              </div>
-            </ScrollReveal>
-
-            <div style={s.sidebarStories}>
-              <ScrollReveal delay={2}>
-                <div style={s.videoSidebarItem}>
-                  <iframe
-                    width="100%"
-                    height="180px"
-                    src="https://www.youtube.com/embed/_h1lN8ijR_c"
-                    title="Real Customer Real Experience"
-                    frameBorder="0"
-                    allow="accelerometer; autoplay; clipboard-write; encrypted-media; gyroscope; picture-in-picture"
-                    allowFullScreen
-                    style={{ border: 'none' }}
-                  ></iframe>
-                  <div style={{ marginTop: '1rem' }}>
-                    <h4 style={s.sidebarTitle}>Real Customer Experience</h4>
-                    <p style={s.sidebarText}>
-                      Hear from the builders and contractors who rely on LumiNation
-                      Corp for their high-stakes projects.
-                    </p>
+          <div className="grid grid-cols-1 md:grid-cols-3 gap-10 md:gap-12">
+            {[
+              { date: 'Craft • Nov 2024', title: 'The Art of the Slow Pour: Finding Presence in the Morning', excerpt: 'In a world obsessed with efficiency, the deliberate ritual of brewing becomes a silent form of resistance.', img: '/stitch/journal_1.webp' },
+              { date: 'Origin • Oct 2024', title: 'Yunnan’s Volcanic Terroir: Why Altitude Matters', excerpt: 'Rising 2,000 meters above sea level, the farms of Baoshan are redefining the profile of Asian coffee.', img: '/stitch/journal_2.webp' },
+              { date: 'Heritage • Sep 2024', title: 'Ancestral Steam: The Legacy of Enshi Yulu Green Tea', excerpt: "Tracing back over a millennium, the steam processing method remains one of tea's most delicate secrets.", img: '/stitch/journal_3.webp' },
+            ].map((article, i) => (
+              <article key={article.title} className="flex flex-col">
+                <ScrollReveal delay={i * 0.1}>
+                  <div className="mb-6 md:mb-8 h-[200px] md:h-[300px] overflow-hidden grayscale hover:grayscale-0 transition-all duration-700">
+                    <img className="w-full h-full object-cover" alt={article.title} src={article.img} />
                   </div>
-                </div>
-              </ScrollReveal>
-              <ScrollReveal delay={3}>
-                <div style={s.sidebarItem}>
-                  <h4 style={s.sidebarTitle}>More Than Just Lighting</h4>
-                  <p style={s.sidebarText}>
-                    At LuminaCity stores, we don&apos;t just sell lights — we help
-                    build successful projects through dedicated onsite consultation
-                    and delivery.
-                  </p>
-                </div>
-              </ScrollReveal>
-            </div>
+                  <span className="text-[10px] uppercase tracking-widest text-on-surface-variant mb-4 inline-block">{article.date}</span>
+                  <h3 className="text-lg md:text-xl font-headline italic mb-4 leading-snug">{article.title}</h3>
+                  <p className="text-on-surface-variant text-sm line-clamp-3 mb-6">{article.excerpt}</p>
+                  <a className="text-secondary font-label text-xs uppercase tracking-widest hover:translate-x-2 transition-transform inline-flex items-center gap-2" href="#">
+                    Read Article <span className="material-symbols-outlined text-[14px]">east</span>
+                  </a>
+                </ScrollReveal>
+              </article>
+            ))}
           </div>
         </div>
       </section>
 
-      {/* ══════════════════════════════════════════════
-          CONTACT — section number "03", bottom-only inputs
-          ══════════════════════════════════════════════ */}
-      <section style={{ ...s.section, backgroundColor: 'rgba(255,255,255,0.01)', position: 'relative', overflow: 'hidden' }}>
-        <span style={s.sectionWatermark}>03</span>
-
-        <div className="container" style={{ position: 'relative', zIndex: 2 }}>
-          <div style={s.contactGrid}>
-            <ScrollReveal>
-              <div>
-                <p style={s.label}>Get In Touch</p>
-                <h2 style={s.sectionTitle}>Contact Us</h2>
-                <div style={s.contactInfo}>
-                  <p style={s.contactText}>
-                    Call/Text:{' '}
-                    <a href="tel:5167747415" style={s.contactLink}>516-774-7415</a>
-                  </p>
-                  <p style={s.contactText}>
-                    Email:{' '}
-                    <a href="mailto:LumiNationCorp@gmail.com" style={s.contactLink}>
-                      LumiNationCorp@gmail.com
-                    </a>
-                  </p>
-                  <div style={s.hours}>
-                    <h4 style={s.infoTitle}>Hours</h4>
-                    <p style={s.infoBody}>Mon - Fri: 9:00 AM - 5:00 PM</p>
-                    <p style={s.infoBody}>Sat - Sun: By Appointment</p>
-                  </div>
-                </div>
-              </div>
-            </ScrollReveal>
-
-            <ScrollReveal delay={1}>
-              <form style={s.form}>
-                {/* className="input-line" provides bottom-only borders via global.css */}
-                <input
-                  type="text"
-                  placeholder="Name"
-                  className="input-line"
-                  style={s.inputBase}
-                />
-                <input
-                  type="email"
-                  placeholder="Email*"
-                  className="input-line"
-                  style={s.inputBase}
-                  required
-                />
-                <input
-                  type="tel"
-                  placeholder="Phone*"
-                  className="input-line"
-                  style={s.inputBase}
-                  required
-                />
-                <textarea
-                  placeholder="Message"
-                  className="input-line"
-                  style={{ ...s.inputBase, minHeight: '120px', resize: 'vertical' }}
-                ></textarea>
-                {/* Outlined submit — hover handled by .cta-btn-outline in global.css */}
-                <button type="submit" className="cta-btn-outline" style={s.submitBase}>
-                  Send Message
-                </button>
-              </form>
-            </ScrollReveal>
+      {/* CTA: Bottom Section */}
+      <section className="bg-primary py-24 text-center text-white px-6">
+        <ScrollReveal>
+          <div className="w-12 h-[1px] bg-white/30 mx-auto mb-10"></div>
+          <h2 className="text-4xl md:text-7xl font-headline mb-4 italic leading-tight">
+            Premium origin.<br />
+            <span className="opacity-50">Honest price.</span>
+          </h2>
+          <p className="text-[#F4EDE0]/40 font-cn text-lg mt-8 tracking-widest">茶，西方久违；咖啡，东方初醒</p>
+          <div className="flex flex-col sm:flex-row gap-4 justify-center mt-12">
+            <Link className="bg-[#F4EDE0] text-primary px-8 py-3 uppercase text-xs tracking-widest font-medium" to="/products">Explore the line</Link>
+            <Link className="border border-[#F4EDE0]/30 text-[#F4EDE0] px-8 py-3 uppercase text-xs tracking-widest font-medium hover:bg-white/5" to="/wholesale">Wholesale enquiry</Link>
           </div>
-        </div>
-      </section>
-
-      {/* ══════════════════════════════════════════════
-          CTA — massive, two-line type treatment
-          ══════════════════════════════════════════════ */}
-      <section style={s.ctaSection}>
-        <div className="container" style={s.ctaContainer}>
-          <ScrollReveal>
-            {/* Amber accent rule */}
-            <div style={s.ctaAmberLine}></div>
-            <h2 style={s.ctaHeading}>
-              <span style={s.ctaLine1}>ILLUMINATE</span>
-              <br />
-              <em style={s.ctaLine2}>Your World</em>
-            </h2>
-          </ScrollReveal>
-          <ScrollReveal delay={1}>
-            <Link to="/products" className="cta-btn-outline" style={s.ctaLinkBtn}>
-              Explore Catalog
-            </Link>
-          </ScrollReveal>
-        </div>
+        </ScrollReveal>
       </section>
     </main>
   );
-};
-
-// ─── styles ──────────────────────────────────────────────────────────────────
-const s = {
-  main: {
-    minHeight: '100vh',
-  },
-
-  // ── shared ──
-  section: {
-    padding: '6rem 0',
-  },
-  label: {
-    fontSize: '0.7rem',
-    textTransform: 'uppercase',
-    letterSpacing: '0.2em',
-    color: 'rgba(255,255,255,0.5)',
-    marginBottom: '1.5rem',
-    display: 'block',
-  },
-  sectionTitle: {
-    fontSize: 'clamp(1.75rem, 5vw, 4rem)',
-    fontWeight: 700,
-    lineHeight: 1.2,
-    letterSpacing: '-0.02em',
-    marginBottom: '2rem',
-  },
-  sectionBody: {
-    fontSize: '1.1rem',
-    lineHeight: 1.8,
-    color: 'rgba(255,255,255,0.55)',
-    maxWidth: '560px',
-  },
-  sectionWatermark: {
-    position: 'absolute',
-    top: '0',
-    left: '-0.02em',
-    fontSize: 'clamp(10rem, 22vw, 22rem)',
-    fontWeight: 900,
-    color: 'rgba(255,255,255,0.04)',
-    lineHeight: 0.85,
-    userSelect: 'none',
-    pointerEvents: 'none',
-    zIndex: 1,
-    letterSpacing: '-0.06em',
-  },
-
-  // ── mosaic ──
-  mosaicSection: {
-    paddingTop: '6rem',
-    paddingBottom: '6rem',
-  },
-  mosaicHeader: {
-    marginBottom: '2.5rem',
-  },
-  mosaicTitle: {
-    fontSize: 'clamp(2.5rem, 6vw, 5rem)',
-    fontWeight: 700,
-    lineHeight: 1.1,
-    letterSpacing: '-0.03em',
-    margin: 0,
-  },
-  mosaicTitleEm: {
-    fontWeight: 300,
-    fontStyle: 'italic',
-    color: 'rgba(255,255,255,0.5)',
-  },
-
-  // ── philosophy ──
-  philosophyGrid: {
-    display: 'grid',
-    gridTemplateColumns: '80px 1fr',
-    gap: '3rem',
-    alignItems: 'flex-start',
-  },
-  philosophyLeft: {
-    position: 'relative',
-    display: 'flex',
-    flexDirection: 'column',
-    alignItems: 'flex-start',
-    paddingTop: '0.25rem',
-  },
-  amberLine: {
-    width: '2px',
-    height: '80px',
-    backgroundColor: '#C8922A',
-    marginBottom: '1.5rem',
-  },
-  philosophyRight: {
-    position: 'relative',
-    zIndex: 2,
-  },
-  philosophyHeading: {
-    fontSize: 'clamp(1.75rem, 4vw, 3.5rem)',
-    fontWeight: 800,
-    lineHeight: 1.2,
-    letterSpacing: '-0.02em',
-    marginBottom: '2rem',
-    color: '#ffffff',
-  },
-  philosophyLight: {
-    fontWeight: 100,
-    fontStyle: 'italic',
-    color: 'rgba(255,255,255,0.7)',
-  },
-
-  // ── showroom ──
-  prism: {
-    position: 'absolute',
-    top: '-10%',
-    right: '-10%',
-    width: '60%',
-    height: '120%',
-    background: 'radial-gradient(circle, rgba(255,255,255,0.04) 0%, transparent 70%)',
-    transform: 'rotate(-15deg)',
-    pointerEvents: 'none',
-  },
-  showroomGrid: {
-    display: 'grid',
-    gridTemplateColumns: 'repeat(auto-fit, minmax(300px, 1fr))',
-    gap: '4rem',
-    alignItems: 'center',
-    position: 'relative',
-    zIndex: 2,
-  },
-  showroomText: {},
-  locationCards: {
-    display: 'flex',
-    gap: '1.5rem',
-    marginTop: '3.5rem',
-    flexWrap: 'wrap',
-  },
-  locationCard: {
-    flex: '1',
-    minWidth: '200px',
-    padding: '2rem',
-    background: 'rgba(255,255,255,0.03)',
-    border: '1px solid rgba(255,255,255,0.08)',
-  },
-  locationCity: {
-    fontSize: '1.1rem',
-    fontWeight: 700,
-    marginBottom: '0.5rem',
-    color: '#fff',
-  },
-  locationAddr: {
-    fontSize: '0.85rem',
-    color: 'rgba(255,255,255,0.4)',
-    marginBottom: '1.5rem',
-  },
-  locationStatus: {
-    display: 'inline-block',
-    fontSize: '0.6rem',
-    textTransform: 'uppercase',
-    letterSpacing: '0.15em',
-    padding: '0.4rem 0.8rem',
-    background: 'rgba(255,255,255,0.05)',
-    border: '1px solid rgba(255,255,255,0.1)',
-    color: 'rgba(255,255,255,0.6)',
-  },
-  visualStack: {
-    position: 'relative',
-    padding: '2rem',
-  },
-  mainImageWrapper: {
-    position: 'relative',
-    overflow: 'hidden',
-    boxShadow: '0 30px 60px rgba(0,0,0,0.5)',
-    zIndex: 2,
-  },
-  mainImage: {
-    width: '100%',
-    height: 'auto',
-    display: 'block',
-    filter: 'brightness(0.8) contrast(1.1)',
-  },
-  imageOverlay: {
-    position: 'absolute',
-    inset: 0,
-    background: 'linear-gradient(to top, rgba(0,0,0,0.4), transparent)',
-  },
-  secondaryImageWrapper: {
-    position: 'absolute',
-    bottom: '-10%',
-    left: '-10%',
-    width: '60%',
-    overflow: 'hidden',
-    border: '4px solid #000',
-    boxShadow: '0 20px 40px rgba(0,0,0,0.4)',
-    zIndex: 3,
-  },
-  secondaryImage: {
-    width: '100%',
-    height: 'auto',
-    display: 'block',
-  },
-  // Sharp-corner badge — no border-radius
-  floatingBadge: {
-    position: 'absolute',
-    top: '10%',
-    right: '-5%',
-    padding: '2rem',
-    backgroundColor: '#fff',
-    color: '#000',
-    display: 'flex',
-    flexDirection: 'column',
-    alignItems: 'center',
-    zIndex: 4,
-    boxShadow: '0 15px 30px rgba(0,0,0,0.2)',
-  },
-  badgeNumber: {
-    fontSize: '2.5rem',
-    fontWeight: 900,
-    lineHeight: 1,
-  },
-  badgeText: {
-    fontSize: '0.6rem',
-    fontWeight: 700,
-    textTransform: 'uppercase',
-    letterSpacing: '0.1em',
-    marginTop: '0.5rem',
-  },
-  tickerWrapper: {
-    overflow: 'hidden',
-    borderTop: '1px solid rgba(255,255,255,0.06)',
-    marginTop: '4rem',
-    padding: '1.2rem 0',
-  },
-
-  // ── journal ──
-  journalHeader: {
-    marginBottom: '2.5rem',
-  },
-  journalGrid: {
-    display: 'grid',
-    gridTemplateColumns: '1.2fr 0.8fr',
-    gap: '4rem',
-  },
-  // Amber bottom border on main story card
-  mainStory: {
-    backgroundColor: 'rgba(255,255,255,0.02)',
-    overflow: 'hidden',
-    border: '1px solid rgba(255,255,255,0.05)',
-    borderBottom: '2px solid #C8922A',
-  },
-  videoWrapper: {
-    position: 'relative',
-    height: '500px',
-    overflow: 'hidden',
-    backgroundColor: '#000',
-  },
-  videoIframe: {
-    border: 'none',
-  },
-  storyContent: {
-    padding: '3rem',
-  },
-  storyTag: {
-    fontSize: '0.6rem',
-    textTransform: 'uppercase',
-    letterSpacing: '0.2em',
-    color: '#fff',
-    backgroundColor: 'rgba(255,255,255,0.08)',
-    padding: '0.4rem 0.8rem',
-    display: 'inline-block',
-    marginBottom: '1.5rem',
-  },
-  storyTitle: {
-    fontSize: '2rem',
-    fontWeight: 700,
-    marginBottom: '1.5rem',
-    letterSpacing: '-0.02em',
-  },
-  storyExcerpt: {
-    fontSize: '1rem',
-    lineHeight: 1.8,
-    color: 'rgba(255,255,255,0.5)',
-  },
-  sidebarStories: {
-    display: 'flex',
-    flexDirection: 'column',
-    gap: '2.5rem',
-  },
-  videoSidebarItem: {
-    padding: '1.5rem',
-    backgroundColor: 'rgba(255,255,255,0.02)',
-    border: '1px solid rgba(255,255,255,0.05)',
-  },
-  sidebarItem: {
-    padding: '2rem 0',
-    borderBottom: '1px solid rgba(255,255,255,0.08)',
-  },
-  sidebarTitle: {
-    fontSize: '1.15rem',
-    fontWeight: 600,
-    marginBottom: '0.75rem',
-    color: '#fff',
-  },
-  sidebarText: {
-    fontSize: '0.95rem',
-    lineHeight: 1.65,
-    color: 'rgba(255,255,255,0.4)',
-  },
-
-  // ── contact ──
-  contactGrid: {
-    display: 'grid',
-    gridTemplateColumns: 'repeat(auto-fit, minmax(300px, 1fr))',
-    gap: '4rem',
-    position: 'relative',
-    zIndex: 2,
-  },
-  contactInfo: {
-    marginTop: '2rem',
-  },
-  contactText: {
-    fontSize: '1.1rem',
-    marginBottom: '1rem',
-    color: 'rgba(255,255,255,0.7)',
-  },
-  contactLink: {
-    color: '#fff',
-    textDecoration: 'none',
-    borderBottom: '1px solid rgba(255,255,255,0.2)',
-  },
-  hours: {
-    marginTop: '3rem',
-  },
-  infoTitle: {
-    fontSize: '0.7rem',
-    textTransform: 'uppercase',
-    letterSpacing: '0.15em',
-    color: 'rgba(255,255,255,0.4)',
-    marginBottom: '0.75rem',
-    fontWeight: 400,
-  },
-  infoBody: {
-    fontSize: '1rem',
-    color: 'rgba(255,255,255,0.6)',
-    marginBottom: '0.4rem',
-  },
-  form: {
-    display: 'flex',
-    flexDirection: 'column',
-    gap: '0.5rem',
-  },
-  // Base style for inputs — .input-line class applies border-bottom-only in global.css
-  inputBase: {
-    color: '#fff',
-    fontSize: '1rem',
-    fontFamily: 'inherit',
-    width: '100%',
-  },
-  submitBase: {
-    marginTop: '1.5rem',
-    alignSelf: 'flex-start',
-    fontFamily: 'inherit',
-  },
-
-  // ── CTA ──
-  ctaSection: {
-    minHeight: '50vh',
-    display: 'flex',
-    alignItems: 'center',
-    padding: '6rem 0',
-  },
-  ctaContainer: {
-    textAlign: 'center',
-  },
-  ctaAmberLine: {
-    width: '80px',
-    height: '2px',
-    backgroundColor: '#C8922A',
-    margin: '0 auto 2.5rem',
-  },
-  ctaHeading: {
-    marginBottom: '3rem',
-    lineHeight: 1.05,
-  },
-  ctaLine1: {
-    display: 'block',
-    fontSize: 'clamp(4rem, 12vw, 10rem)',
-    fontWeight: 900,
-    letterSpacing: '-0.04em',
-    color: '#ffffff',
-  },
-  ctaLine2: {
-    display: 'block',
-    fontSize: 'clamp(3rem, 9vw, 7.5rem)',
-    fontWeight: 100,
-    fontStyle: 'italic',
-    letterSpacing: '-0.02em',
-    color: 'rgba(255,255,255,0.7)',
-  },
-  ctaLinkBtn: {
-    display: 'inline-block',
-    textDecoration: 'none',
-    fontFamily: 'inherit',
-  },
 };

@@ -1,0 +1,28 @@
+[
+  {
+    "id": "enshi-yulu",
+    "name": "Enshi Yulu",
+    "name_cn": "恩施玉露",
+    "category": "Tea",
+    "type": "Green Tea",
+    "origin_location": "Hubei",
+    "price": 14.00,
+    "weight": "50g",
+    "image_url": "/stitch/product_enshi.webp",
+    "tasting_notes": "Steam-pressed, Young clover, Oceanic finish",
+    "description": "A rare steam-processed green tea from the Wuling Mountains, preserving a vivid chlorophyll vibrancy and a profound silence in the cup."
+  },
+  {
+    "id": "moonlight-white",
+    "name": "Moonlight White",
+    "name_cn": "月光白",
+    "category": "Tea",
+    "type": "White Tea",
+    "origin_location": "Yunnan",
+    "price": 20.00,
+    "weight": "100g",
+    "image_url": "/stitch/product_moonlight.webp",
+    "tasting_notes": "Nectarine, Honey, Silken texture",
+    "description": "Delicate white tea needles from Yunnan, withered under the cool night air to preserve their silver down and sweet, floral clarity."
+  }
+]

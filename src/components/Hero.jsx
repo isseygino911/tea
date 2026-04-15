@@ -1,24 +1,31 @@
+import React from 'react';
 
-export const Hero = () => {
-  return (
-    <section style={styles.hero}>
-      <div style={styles.overlay}></div>
-      <div style={styles.content}>
-        <p style={styles.subtitle}>Premium LED Lighting Solutions</p>
-        <h1 style={styles.headline}>
-          <span style={styles.line}>Illuminate Your Space</span>
-          <br />
-          <span style={styles.line}>With <span style={{ color: '#fff' }}>Excellence.</span></span>
-        </h1>
-        <p style={styles.description}>
-          LumiNation Corp is a leading distributor of high-quality commercial and industrial LED lighting fixtures.
-        </p>
-      </div>
-    </section>
-  );
-};
+export const Hero = () => (
+  <section style={s.hero}>
+    {/* Background Image Layer */}
+    <div style={s.bgLayer} />
+    
+    {/* Mist/Cloud Layers */}
+    <div style={{ ...s.mist, ...s.mist1 }} />
+    <div style={{ ...s.mist, ...s.mist2 }} />
 
-const styles = {
+    {/* Overlays */}
+    <div style={s.overlay} />
+    
+    {/* Content */}
+    <div style={s.content}>
+      <h1 style={s.headline}>
+        <span style={s.brandEn}>Yún & Leaf</span>
+        <span style={s.brandCn}>云叶</span>
+      </h1>
+      <p style={s.sub}>
+        PREMIUM ORIGIN. HONEST PRICE.
+      </p>
+    </div>
+  </section>
+);
+
+const s = {
   hero: {
     minHeight: '100vh',
     display: 'flex',
@@ -26,50 +33,78 @@ const styles = {
     justifyContent: 'center',
     alignItems: 'center',
     position: 'relative',
-    textAlign: 'center',
     padding: '2rem',
-    backgroundImage: 'url("https://img1.wsimg.com/isteam/ip/448778c0-66aa-410c-a0d5-c72ae2640cf7/IMG_0276.jpg/:/rs=w:1920,h:1080")',
+    textAlign: 'center',
+    overflow: 'hidden',
+    backgroundColor: '#000',
+  },
+  bgLayer: {
+    position: 'absolute',
+    inset: 0,
+    backgroundImage: `url("/hero/yunan-hero.png")`,
     backgroundSize: 'cover',
     backgroundPosition: 'center',
+    animation: 'kenBurns 45s ease-out forwards',
+    zIndex: 0,
+  },
+  mist: {
+    position: 'absolute',
+    inset: '-20%',
+    background: 'radial-gradient(circle at 50% 50%, rgba(255,255,255,0.18) 0%, transparent 70%)',
+    opacity: 0.35,
+    pointerEvents: 'none',
+    zIndex: 1,
+    filter: 'blur(60px)',
+  },
+  mist1: {
+    animation: 'cloudDrift 60s ease-in-out infinite alternate',
+  },
+  mist2: {
+    animation: 'cloudDrift 90s ease-in-out infinite alternate-reverse',
+    opacity: 0.25,
   },
   overlay: {
-    position: 'absolute',
-    top: 0,
-    left: 0,
-    right: 0,
-    bottom: 0,
-    backgroundColor: 'rgba(0, 0, 0, 0.6)',
-    zIndex: 1,
+    position: 'absolute', 
+    inset: 0,
+    background: 'rgba(0,0,0,0.2)',
+    zIndex: 2,
   },
   content: {
-    maxWidth: '1200px',
-    position: 'relative',
-    zIndex: 2,
-    animation: 'fadeInUp 1.2s cubic-bezier(0.16, 1, 0.3, 1)',
-  },
-  subtitle: {
-    fontSize: '0.8rem',
-    textTransform: 'uppercase',
-    letterSpacing: '0.3em',
-    color: 'rgba(255, 255, 255, 0.7)',
-    marginBottom: '1.5rem',
+    position: 'relative', 
+    zIndex: 3,
+    animation: 'fadeIn 3s cubic-bezier(0.16, 1, 0.3, 1) forwards',
   },
   headline: {
-    fontSize: 'clamp(2.5rem, 8vw, 6rem)',
-    fontWeight: 800,
-    lineHeight: 1.1,
-    letterSpacing: '-0.04em',
-    color: 'rgba(255, 255, 255, 0.9)',
-    marginBottom: '2rem',
+    color: '#F4EDE0',
+    marginBottom: '1.2rem',
+    display: 'flex',
+    alignItems: 'baseline',
+    justifyContent: 'center',
+    gap: '1rem',
+    flexWrap: 'wrap',
   },
-  line: {
-    display: 'inline-block',
+  brandEn: {
+    fontFamily: "var(--font-display)",
+    fontSize: 'clamp(2.5rem, 12vw, 5.5rem)',
+    fontWeight: 300,
+    fontStyle: 'italic',
+    letterSpacing: '-0.01em',
+    lineHeight: 1,
   },
-  description: {
-    fontSize: '1.2rem',
-    color: 'rgba(255, 255, 255, 0.6)',
-    maxWidth: '700px',
-    margin: '0 auto',
-    lineHeight: 1.6,
+  brandCn: {
+    fontFamily: "var(--font-cn)",
+    fontSize: 'clamp(2rem, 10vw, 4.5rem)',
+    fontWeight: 300,
+    lineHeight: 1,
+    marginLeft: '0.5rem',
+  },
+  sub: {
+    fontFamily: "var(--font-body)",
+    fontSize: 'clamp(0.6rem, 2vw, 0.75rem)',
+    color: 'rgba(244,237,224,0.95)',
+    letterSpacing: '0.45em',
+    textTransform: 'uppercase',
+    marginTop: '0.5rem',
+    fontWeight: 400,
   },
 };

@@ -1,0 +1,74 @@
+[
+  {
+    "id": "baoshan-washed",
+    "name": "Baoshan Washed",
+    "name_cn": "保山水洗",
+    "category": "Coffee",
+    "origin_location": "Yunnan",
+    "price": 18.00,
+    "weight": "250g",
+    "image_url": "/stitch/product_baoshan.webp",
+    "tasting_notes": "Stone fruit, Brown sugar, Clean finish",
+    "description": "Rising 1,650 meters above the Tropic of Cancer, the red volcanic soil of Baoshan produces a washed Arabica that competes with the world's finest.",
+    "producer_name": "Chen Wen",
+    "producer_story": "A third-generation grower in the Gaoligong mountains, Mr. Chen has mastered the art of high-altitude Arabica for over forty years.",
+    "producer_image": "/stitch/producer_baoshan.webp",
+    "specifications": {
+      "Process": "Washed",
+      "Altitude": "1,650m",
+      "Varietal": "Catimor",
+      "Harvest": "2024"
+    }
+  },
+  {
+    "id": "enshi-yulu",
+    "name": "Enshi Yulu",
+    "name_cn": "恩施玉露",
+    "category": "Tea",
+    "origin_location": "Hubei Province",
+    "price": 14.00,
+    "weight": "50g",
+    "image_url": "/stitch/product_enshi_detail.webp",
+    "tasting_notes": "Steam-pressed, Young clover, Oceanic finish",
+    "description": "Hand-harvested from the cloud-shrouded peaks of the Wuling Mountains, this rare steamed green tea carries the heritage of the Tang Dynasty. Unlike modern pan-fired greens, its needles are softened by vapor, preserving a vivid chlorophyll vibrancy and a profound silence in the cup.",
+    "producer_name": "The Qin Family Cooperative",
+    "producer_story": "“The mountain provides the mist; we only provide the patience.” Nestled in the Wuling Mountains, the Qin family has refined the Enshi Yulu technique for four generations.",
+    "producer_image": "/stitch/producer_qin.webp",
+    "brewing_guide": "Steep 3g in 150ml of 80°C spring water for 45 seconds to reveal its dew-like clarity.",
+    "specifications": {
+      "Process": "Traditional Steam Panning",
+      "Harvest": "Spring 2024",
+      "Terroir": "Red Sandstone / High Selenium",
+      "Varietal": "Enshi Qunti"
+    }
+  },
+  {
+    "id": "shadow-ferment",
+    "name": "Shadow Ferment",
+    "name_cn": "暗影发酵",
+    "category": "Coffee",
+    "origin_location": "Pu'er",
+    "price": 24.00,
+    "weight": "250g",
+    "image_url": "/stitch/product_shadow.webp",
+    "tasting_notes": "Dark honey, Wild forest, Earthy depth",
+    "description": "A experimental processing method from Pu'er that emphasizes the deep, resinous qualities of high-altitude cherries.",
+    "producer_name": "Lin Hua",
+    "producer_story": "Protecting the ancient wild tea trees of Jingmai, Ms. Lin also explores unique coffee processing methods.",
+    "producer_image": "/stitch/producer_puer.webp"
+  },
+  {
+    "id": "moonlight-white",
+    "name": "Moonlight White",
+    "name_cn": "月光白",
+    "category": "Tea",
+    "origin_location": "Yunnan",
+    "price": 20.00,
+    "weight": "100g",
+    "image_url": "/stitch/product_moonlight.webp",
+    "tasting_notes": "Nectarine, Honey, Silken texture",
+    "description": "Delicate white tea needles from Yunnan, withered under the cool night air to preserve their silver down and sweet, floral clarity.",
+    "producer_name": "Yunnan Highlands Co-op",
+    "producer_story": "Sourced from the high mist forests of Yunnan where tea trees grow wild and ancient."
+  }
+]
